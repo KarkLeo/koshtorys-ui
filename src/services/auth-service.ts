@@ -38,7 +38,8 @@ class AuthService {
 				name,
 				email,
 				password
-			}
+			},
+			fetchPolicy: 'no-cache'
 		});
 		if (data) {
 			return data.signUp;
@@ -56,7 +57,8 @@ class AuthService {
 			variables: {
 				email,
 				password
-			}
+			},
+			fetchPolicy: 'no-cache'
 		});
 		if (data) {
 			TokensService.setTokens(data.signIn.accessToken, data.signIn.refreshToken);
@@ -73,9 +75,11 @@ class AuthService {
 		}
 
 		const { data } = await this.client.mutate<LogoutMutation>({
-			mutation: LOGOUT
+			mutation: LOGOUT,
+			fetchPolicy: 'no-cache'
 		});
 		TokensService.clearTokens();
+		this.client.cache.evict({ fieldName: 'me' });
 
 		if (data) {
 			return data.signOut;
@@ -84,15 +88,12 @@ class AuthService {
 
 	async me() {
 		try {
-			console.log('me');
 			if (!this.client) {
 				throw new Error('Apollo client is not initialized');
 			}
-			console.log('me2');
 			const { data, error, errors, loading } = await this.client.query<MeQuery>({
 				query: ME
 			});
-			console.log('me3');
 			if (error) {
 				console.error(error, errors, loading);
 			}
@@ -102,7 +103,7 @@ class AuthService {
 			}
 			return null;
 		} catch (e) {
-			console.log('me error', e);
+			console.log(e);
 		}
 	}
 
@@ -121,7 +122,8 @@ class AuthService {
 			mutation: REFRESH_TOKENS,
 			variables: {
 				refreshToken
-			}
+			},
+			fetchPolicy: 'no-cache'
 		});
 		if (data) {
 			TokensService.setTokens(data.refreshTokens.accessToken, data.refreshTokens.refreshToken);
