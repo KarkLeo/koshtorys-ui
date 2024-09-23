@@ -1,0 +1,34 @@
+type AuthResponse {
+  accessToken: String!
+  refreshToken: String!
+  user: UserWithoutPasswordModel!
+}
+
+type Mutation {
+  createUser(email: String!, name: String, password: String!): UserWithoutPasswordModel!
+  refreshTokens(refreshToken: String!): AuthResponse!
+  signIn(signInData: SignInInput!): AuthResponse!
+  signOut: Boolean!
+  signUp(signUpData: SignUpInput!): UserWithoutPasswordModel!
+}
+
+type Query {
+  me: UserWithoutPasswordModel!
+}
+
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input SignUpInput {
+  email: String!
+  name: String
+  password: String!
+}
+
+type UserWithoutPasswordModel {
+  email: String!
+  id: ID!
+  name: String!
+}
