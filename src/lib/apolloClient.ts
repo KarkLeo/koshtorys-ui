@@ -23,7 +23,7 @@ function rejectPendingRequests(error: Error) {
 	pendingRequests = [];
 }
 
-const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 	if (graphQLErrors) {
 		for (const err of graphQLErrors) {
 			if (err.extensions?.code === 'UNAUTHENTICATED') {
@@ -75,7 +75,7 @@ const httpLink = createHttpLink({
 	fetch
 });
 
-const authLink = setContext((_, { headers }) => {
+export const authLink = setContext((_, { headers }) => {
 	const token = TokensService.getAccessToken();
 	return {
 		headers: {

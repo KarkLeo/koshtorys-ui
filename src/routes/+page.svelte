@@ -17,7 +17,7 @@
   onMount(async () => {
     user = await auth.me()
     if (user) {
-      goto('/profile')
+      await goto('/profile')
     }
   })
 
@@ -35,8 +35,4 @@
     <h1>Привет, гость</h1>
 {/if}
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-
 <p>Please <a href="/login">login</a> or <a href="/register">register</a>.</p>
-r
