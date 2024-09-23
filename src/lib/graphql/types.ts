@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  DateTime: { input: any; output: any; }
+  JSON: { input: any; output: any; }
 };
 
 export type AuthResponse = {
@@ -19,6 +21,14 @@ export type AuthResponse = {
   accessToken: Scalars['String']['output'];
   refreshToken: Scalars['String']['output'];
   user: UserWithoutPasswordModel;
+};
+
+export type ExchangeRate = {
+  __typename?: 'ExchangeRate';
+  base: Scalars['String']['output'];
+  date: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  rates: Scalars['JSON']['output'];
 };
 
 export type Mutation = {
@@ -54,7 +64,14 @@ export type MutationSignUpArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  exchangeRate: ExchangeRate;
+  exchangeRates: Array<ExchangeRate>;
   me: UserWithoutPasswordModel;
+};
+
+
+export type QueryExchangeRateArgs = {
+  date: Scalars['DateTime']['input'];
 };
 
 export type SignInInput = {
