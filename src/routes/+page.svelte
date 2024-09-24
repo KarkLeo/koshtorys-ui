@@ -11,6 +11,7 @@
 	import { useAsyncData } from '../hook/useAsyncData';
 
 	import Button from '../components/kit/Button.svelte';
+	import Input from '../components/kit/Input.svelte';
 
 	const auth = new AuthService();
 
@@ -25,6 +26,8 @@
 	// todo remove this
 	const t = useQuery<MeQuery>(ME);
 	const a = useAsyncData<typeof auth.me>(auth.me.bind(auth));
+
+	let input = '';
 </script>
 
 <p>{$a?.name}</p>
@@ -54,6 +57,46 @@
 <div class="row">
 	<Button>Primary</Button>
 	<Button variant="secondary-gray">Primary</Button>
+</div>
+<div class="row">{input}</div>
+<div class="row">
+	<Input bind:value={input} label="Email" type="email" placeholder="Enter your email" />
+	<Input
+		bind:value={input}
+		label="Email"
+		type="email"
+		placeholder="Enter your email"
+		message="Your new password must be more than 8 characters."
+	/>
+	<Input bind:value={input} label="Email" type="email" placeholder="Enter your email" disabled />
+	<Input bind:value={input} size="sm" label="Email" type="email" placeholder="Enter your email" />
+</div>
+<div class="row">
+	<Input bind:value={input} type="password" error label="Email" placeholder="Enter your email" />
+	<Input
+		bind:value={input}
+		error
+		label="Email"
+		type="email"
+		placeholder="Enter your email"
+		message="Your new password must be more than 8 characters."
+	/>
+	<Input
+		bind:value={input}
+		error
+		label="Email"
+		type="email"
+		placeholder="Enter your email"
+		disabled
+	/>
+	<Input
+		bind:value={input}
+		error
+		size="sm"
+		label="Email"
+		type="email"
+		placeholder="Enter your email"
+	/>
 </div>
 
 <p>Please <a href="/login">login</a> or <a href="/register">register</a>.</p>
