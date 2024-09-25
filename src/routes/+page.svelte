@@ -12,6 +12,8 @@
 
 	import Button from '../components/kit/Button.svelte';
 	import Input from '../components/kit/Input.svelte';
+	import Dropdown from '../components/kit/Dropdown.svelte';
+	import FieldWrapper from '../components/kit/FieldWrapper.svelte';
 
 	const auth = new AuthService();
 
@@ -39,6 +41,20 @@
 {/if}
 
 <div class="row">
+	<FieldWrapper label="Email" message="Some message">
+		<Dropdown />
+	</FieldWrapper>
+	<FieldWrapper
+		error
+		required
+		label="Email"
+		message="Your new password must be more than 8 characters."
+	>
+		<Input error bind:value={input} type="email" placeholder="Enter your email" />
+	</FieldWrapper>
+</div>
+
+<div class="row">
 	<Button size="sm">Small Button</Button>
 	<Button on:click={() => console.log('test ok')}>Primary</Button>
 	<Button size="lg">LG Large Button</Button>
@@ -60,43 +76,16 @@
 </div>
 <div class="row">{input}</div>
 <div class="row">
-	<Input bind:value={input} label="Email" type="email" placeholder="Enter your email" />
-	<Input
-		bind:value={input}
-		label="Email"
-		type="email"
-		placeholder="Enter your email"
-		message="Your new password must be more than 8 characters."
-	/>
-	<Input bind:value={input} label="Email" type="email" placeholder="Enter your email" disabled />
-	<Input bind:value={input} size="sm" label="Email" type="email" placeholder="Enter your email" />
+	<Input bind:value={input} type="email" placeholder="Enter your email" />
+	<Input bind:value={input} type="email" placeholder="Enter your email" />
+	<Input bind:value={input} type="email" placeholder="Enter your email" disabled />
+	<Input bind:value={input} size="sm" type="email" placeholder="Enter your email" />
 </div>
 <div class="row">
-	<Input bind:value={input} type="password" error label="Email" placeholder="Enter your email" />
-	<Input
-		bind:value={input}
-		error
-		label="Email"
-		type="email"
-		placeholder="Enter your email"
-		message="Your new password must be more than 8 characters."
-	/>
-	<Input
-		bind:value={input}
-		error
-		label="Email"
-		type="email"
-		placeholder="Enter your email"
-		disabled
-	/>
-	<Input
-		bind:value={input}
-		error
-		size="sm"
-		label="Email"
-		type="email"
-		placeholder="Enter your email"
-	/>
+	<Input bind:value={input} type="password" error placeholder="Enter your email" />
+	<Input bind:value={input} error type="email" placeholder="Enter your email" />
+	<Input bind:value={input} error type="email" placeholder="Enter your email" disabled />
+	<Input bind:value={input} error size="sm" type="email" placeholder="Enter your email" />
 </div>
 
 <p>Please <a href="/login">login</a> or <a href="/register">register</a>.</p>

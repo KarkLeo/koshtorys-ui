@@ -21,119 +21,90 @@
 	export let size: 'sm' | 'md' = 'md';
 	export let fullWidth: boolean = false;
 	export let className: string = '';
-	export let label: string = '';
 	export let placeholder: string = '';
-	export let message: string = '';
 	export let error: boolean = false;
 	export let value: string = '';
 </script>
 
-<div class={`wrapper ${error ? 'error' : ''}`}>
-	<label class="inner">
-		<span class="label">{label}</span>
-		<span class="field">
-			{#if type === 'text'}
-				<input
-					bind:value
-					type="text"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{:else if type === 'password'}
-				<input
-					bind:value
-					type="password"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{:else if type === 'email'}
-				<input
-					bind:value
-					type="email"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{:else if type === 'number'}
-				<input
-					bind:value
-					type="number"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{:else if type === 'tel'}
-				<input
-					bind:value
-					type="tel"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{:else if type === 'url'}
-				<input
-					bind:value
-					type="url"
-					{disabled}
-					class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
-					{placeholder}
-					on:input={handleInput}
-					on:change={handleChange}
-					on:blur={handleBlur}
-					on:focus={handleFocus}
-				/>
-			{/if}
-
-			<span class="outline"></span>
-		</span>
-	</label>
-	{#if message}
-		<div class="message">{message}</div>
+<span class={`field ${error ? 'error' : ''}`}>
+	{#if type === 'text'}
+		<input
+			bind:value
+			type="text"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
+	{:else if type === 'password'}
+		<input
+			bind:value
+			type="password"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
+	{:else if type === 'email'}
+		<input
+			bind:value
+			type="email"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
+	{:else if type === 'number'}
+		<input
+			bind:value
+			type="number"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
+	{:else if type === 'tel'}
+		<input
+			bind:value
+			type="tel"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
+	{:else if type === 'url'}
+		<input
+			bind:value
+			type="url"
+			{disabled}
+			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			{placeholder}
+			on:input={handleInput}
+			on:change={handleChange}
+			on:blur={handleBlur}
+			on:focus={handleFocus}
+		/>
 	{/if}
-</div>
+
+	<span class="outline"></span>
+</span>
 
 <style>
-	.wrapper {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-sm);
-	}
-
-	.inner {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-sm);
-	}
-
-	.label {
-		font-size: var(--font-size-text-sm);
-		line-height: var(--line-height-text-sm);
-		font-weight: var(--font-weight-medium);
-		color: var(--text-secondary);
-	}
-
 	.field {
 		position: relative;
 	}
@@ -150,7 +121,6 @@
 		background-color: var(--bg-primary);
 		border: 1px solid transparent;
 		border-radius: var(--radius-md);
-
 		box-shadow: var(--shadow-xs);
 	}
 
@@ -211,16 +181,5 @@
 
 	.input.full-width {
 		width: 100%;
-	}
-
-	.message {
-		font-size: var(--font-size-text-sm);
-		line-height: var(--line-height-text-sm);
-		font-weight: var(--font-weight-regular);
-		color: var(--text-tertiary);
-	}
-
-	.error .message {
-		color: var(--text-error-primary);
 	}
 </style>
