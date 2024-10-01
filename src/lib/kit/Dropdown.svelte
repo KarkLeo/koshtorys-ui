@@ -5,6 +5,7 @@
 
 	export let selected: string | null = null;
 	export let options: string[] = [];
+	export let placeholder: string = 'Select options';
 	let isOpen = false;
 
 	let dropdownRef: HTMLDivElement | null = null;
@@ -90,7 +91,7 @@
 		{#if selected}
 			<span class="selected-option">{getOptionLabel(selected)}</span>
 		{:else}
-			<span class="placeholder">Выберите опцию</span>
+			<span class="placeholder">{placeholder}</span>
 		{/if}
 		<ChevronDown class="chevron" />
 		<span class="outline"></span>

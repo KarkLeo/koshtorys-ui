@@ -4,7 +4,7 @@
 	const dispatch = createEventDispatcher();
 
 	function handleClick() {
-		dispatch('click'); // отправляет событие 'click' в родительский компонент
+		dispatch('click');
 	}
 
 	export let type: 'button' | 'submit' | 'reset' = 'button';
