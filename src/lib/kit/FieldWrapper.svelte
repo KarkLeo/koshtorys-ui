@@ -7,8 +7,8 @@
 
 <div class={`wrapper ${error ? 'error' : ''}`}>
 	<label class="inner">
-		<span class="label"
-			>{label}
+		<span class="label">
+			{label}
 			{#if required}
 				<span class="required">*</span>
 			{/if}
