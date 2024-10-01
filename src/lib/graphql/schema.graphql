@@ -42,12 +42,14 @@ input SignInInput {
 
 input SignUpInput {
   email: String!
-  name: String
+  lang: String!
+  name: String!
   password: String!
 }
 
 type UserWithoutPasswordModel {
   email: String!
   id: ID!
+  lang: String
   name: String!
 }

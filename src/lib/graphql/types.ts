@@ -81,7 +81,8 @@ export type SignInInput = {
 
 export type SignUpInput = {
   email: Scalars['String']['input'];
-  name?: InputMaybe<Scalars['String']['input']>;
+  lang: Scalars['String']['input'];
+  name: Scalars['String']['input'];
   password: Scalars['String']['input'];
 };
 
@@ -89,6 +90,7 @@ export type UserWithoutPasswordModel = {
   __typename?: 'UserWithoutPasswordModel';
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  lang?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
 };
 
@@ -98,7 +100,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', signIn: { __typename?: 'AuthResponse', accessToken: string, refreshToken: string, user: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string } } };
+export type LoginMutation = { __typename?: 'Mutation', signIn: { __typename?: 'AuthResponse', accessToken: string, refreshToken: string, user: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -108,20 +110,21 @@ export type LogoutMutation = { __typename?: 'Mutation', signOut: boolean };
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
 }>;
 
 
-export type RefreshTokensMutation = { __typename?: 'Mutation', refreshTokens: { __typename?: 'AuthResponse', accessToken: string, refreshToken: string, user: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string } } };
+export type RefreshTokensMutation = { __typename?: 'Mutation', refreshTokens: { __typename?: 'AuthResponse', accessToken: string, refreshToken: string, user: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } } };
 
 export type RegistrationMutationVariables = Exact<{
   name: Scalars['String']['input'];
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  lang: Scalars['String']['input'];
 }>;
 
 
-export type RegistrationMutation = { __typename?: 'Mutation', signUp: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string } };
+export type RegistrationMutation = { __typename?: 'Mutation', signUp: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } };

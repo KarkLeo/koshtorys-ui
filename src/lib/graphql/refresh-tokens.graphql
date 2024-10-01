@@ -6,6 +6,7 @@ mutation RefreshTokens ($refreshToken: String!) {
             id
             name
             email
+            lang
         }
     }
 }
