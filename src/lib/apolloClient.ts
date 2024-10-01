@@ -6,8 +6,8 @@ import { setContext } from '@apollo/client/link/context';
 import { ApolloLink } from '@apollo/client/link/core';
 import fetch from 'cross-fetch';
 
-import TokensService from '../services/tokens-service';
-import AuthService from '../services/auth-service';
+import TokensService from '$lib/services/tokens-service';
+import AuthService from '$lib/services/auth-service';
 
 let isRefreshing = false;
 // eslint-disable-next-line

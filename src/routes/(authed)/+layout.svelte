@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AuthService from '../../services/auth-service';
+	import AuthService from '$lib/services/auth-service';
 	import { onMount, setContext } from 'svelte';
 	import { goto } from '$app/navigation';
 
@@ -8,7 +8,7 @@
 	onMount(async () => {
 		try {
 			const user = await auth.me();
-			setContext('me', user)
+			setContext('me', user);
 			if (!user) {
 				await goto('/', { replaceState: true });
 			}

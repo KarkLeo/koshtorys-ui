@@ -1,3 +1,83 @@
 {
-  "hello": "Hello, World!"
+  "hello": "Hello, World!",
+  "common_errors": {
+    "server_error": "Server error. Please try again later.",
+    "network_error": "Network error. Please check your connection."
+  },
+  "register": {
+    "title": "Sign Up",
+    "description": "Please fill in the form below to register.",
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter your name",
+        "errors": {
+          "name_required": "Name is required",
+          "name_min_length": "Name must be at least 3 characters",
+          "name_max_length": "Name must be at most 20 characters"
+        }
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email",
+        "errors": {
+          "email_required": "Email is required",
+          "email_invalid": "Invalid email format",
+          "email_exists": "Email already exists"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password",
+        "errors": {
+          "password_required": "Password is required",
+          "password_min_length": "Password must be at least 6 characters long"
+        }
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm your password",
+        "errors": {
+          "confirmPassword_required": "Confirm Password is required",
+          "confirmPassword_mismatch": "Passwords do not match"
+        }
+      }
+    },
+    "submit": "Sign Up",
+    "success": "Registration successful!",
+    "sub_form": {
+      "title": "Already have an account?",
+      "link": "Sign In"
+    }
+  },
+  "login": {
+    "title": "Sign In",
+    "description": "Please fill in the form below to sign in.",
+    "fields": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email",
+        "errors": {
+          "email_required": "Email is required",
+          "email_invalid": "Invalid email format"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password",
+        "errors": {
+          "password_required": "Password is required"
+        }
+      }
+    },
+    "submit": "Sign In",
+    "success": "Sign In successful!",
+    "sub_form": {
+      "title": "Don't have an account?",
+      "link": "Sign Up"
+    },
+    "errors": {
+      "invalid_credentials": "Invalid email or password"
+    }
+  }
 }
