@@ -48,8 +48,12 @@ input SignUpInput {
 }
 
 type UserWithoutPasswordModel {
+  currency: String!
   email: String!
   id: ID!
   lang: String
+  monthStartDay: Int!
+  monthlyBudget: Float!
   name: String!
+  onboardingAt: DateTime
 }

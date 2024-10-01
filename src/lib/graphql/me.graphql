@@ -4,5 +4,9 @@ query Me {
         name
         email
         lang
+        currency
+        onboardingAt
+        monthlyBudget
+        monthStartDay
     }
 }

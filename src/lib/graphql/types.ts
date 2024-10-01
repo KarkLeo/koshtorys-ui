@@ -88,10 +88,14 @@ export type SignUpInput = {
 
 export type UserWithoutPasswordModel = {
   __typename?: 'UserWithoutPasswordModel';
+  currency: Scalars['String']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lang?: Maybe<Scalars['String']['output']>;
+  monthStartDay: Scalars['Int']['output'];
+  monthlyBudget: Scalars['Float']['output'];
   name: Scalars['String']['output'];
+  onboardingAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type LoginMutationVariables = Exact<{
@@ -110,7 +114,7 @@ export type LogoutMutation = { __typename?: 'Mutation', signOut: boolean };
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
