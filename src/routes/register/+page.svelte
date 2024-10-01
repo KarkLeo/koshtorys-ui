@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { _ } from 'svelte-i18n';
+	import { _, locale } from 'svelte-i18n';
+	import { ValidationError } from 'yup';
 	import { goto } from '$app/navigation';
 	import AuthService from '$lib/services/auth-service';
 	import Input from '$lib/kit/Input.svelte';
 	import FieldWrapper from '$lib/kit/FieldWrapper.svelte';
 	import Button from '$lib/kit/Button.svelte';
 	import { registerSchema } from '$lib/validations/register';
-	import { ValidationError } from 'yup';
+
 	import toast from 'svelte-french-toast';
 
 	const auth = new AuthService();
@@ -66,7 +67,8 @@
 			const isValid = await validateForm();
 			if (!isValid) return;
 
-			const data = await auth.signUp(name, email, password);
+			const lang = $locale;
+			const data = await auth.signUp(name, email, password, lang || 'en');
 
 			if (data) {
 				toast.success($_('register.success'));

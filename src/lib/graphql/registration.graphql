@@ -1,11 +1,13 @@
-mutation Registration ($name: String!, $email: String!, $password: String!) {
+mutation Registration ($name: String!, $email: String!, $password: String!, $lang: String!) {
     signUp(signUpData: {
         name: $name,
         email: $email,
-        password: $password
+        password: $password,
+        lang: $lang
     }) {
         id
         name
         email
+        lang
     }
 }

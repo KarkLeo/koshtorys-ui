@@ -27,7 +27,7 @@ class AuthService {
 		this.client = client || (getContext('apollo') as ApolloClient<unknown>);
 	}
 
-	async signUp(name: string, email: string, password: string) {
+	async signUp(name: string, email: string, password: string, lang: string) {
 		if (!this.client) {
 			throw new Error('Apollo client is not initialized');
 		}
@@ -37,7 +37,8 @@ class AuthService {
 			variables: {
 				name,
 				email,
-				password
+				password,
+				lang
 			},
 			fetchPolicy: 'no-cache'
 		});
