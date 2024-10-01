@@ -1,12 +1,12 @@
 <script lang="ts">
-	import AuthService from '../../../services/auth-service';
+	import AuthService from '$lib/services/auth-service';
 	import type { AwaitedReturn } from '../../../utils/types';
 	import { getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	const auth = new AuthService();
 
-	const user = getContext<AwaitedReturn<typeof auth.me>>('me')
+	const user = getContext<AwaitedReturn<typeof auth.me>>('me');
 
 	async function handleLogout() {
 		try {

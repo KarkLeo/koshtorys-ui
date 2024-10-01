@@ -39,6 +39,8 @@
 		"@rollup/plugin-graphql": "^2.0.4",
 		"cross-fetch": "^4.0.0",
 		"graphql": "^16.9.0",
-		"svelte-i18n": "^4.0.0"
+		"svelte-french-toast": "^1.2.0",
+		"svelte-i18n": "^4.0.0",
+		"yup": "^1.4.0"
 	}
 }

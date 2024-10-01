@@ -17,16 +17,14 @@
 			<slot />
 		</span>
 	</label>
-	{#if message}
-		<div class="message">{message}</div>
-	{/if}
+	<div class="message">{message}</div>
 </div>
 
 <style>
 	.wrapper {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-sm);
+		gap: var(--spacing-xxs);
 	}
 
 	.inner {
@@ -51,6 +49,8 @@
 	}
 
 	.message {
+		min-height: var(--line-height-text-sm);
+
 		font-size: var(--font-size-text-sm);
 		line-height: var(--line-height-text-sm);
 		font-weight: var(--font-weight-regular);

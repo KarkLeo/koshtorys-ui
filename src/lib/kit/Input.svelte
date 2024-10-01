@@ -19,7 +19,6 @@
 	export let type: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' = 'text';
 	export let disabled: boolean = false;
 	export let size: 'sm' | 'md' = 'md';
-	export let fullWidth: boolean = false;
 	export let className: string = '';
 	export let placeholder: string = '';
 	export let error: boolean = false;
@@ -32,7 +31,7 @@
 			bind:value
 			type="text"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size} ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -44,7 +43,7 @@
 			bind:value
 			type="password"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size} ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -56,7 +55,7 @@
 			bind:value
 			type="email"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size} ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -68,7 +67,7 @@
 			bind:value
 			type="number"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size}  ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -80,7 +79,7 @@
 			bind:value
 			type="tel"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size}  ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -92,7 +91,7 @@
 			bind:value
 			type="url"
 			{disabled}
-			class={`input ${size} ${fullWidth ? 'full-width' : ''} ${error ? 'error' : ''} ${className}`}
+			class={`input ${size} ${error ? 'error' : ''} ${className}`}
 			{placeholder}
 			on:input={handleInput}
 			on:change={handleChange}
@@ -110,6 +109,7 @@
 	}
 
 	.input {
+		width: 100%;
 		display: block;
 		box-sizing: border-box;
 
@@ -177,9 +177,5 @@
 
 	.input.md {
 		padding: 10px 14px;
-	}
-
-	.input.full-width {
-		width: 100%;
 	}
 </style>

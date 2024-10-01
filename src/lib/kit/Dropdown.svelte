@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import ChevronDown from '../icons/ChevronDown.svelte';
-	import Check from '../icons/Check.svelte';
+	import ChevronDown from '$lib/icons/ChevronDown.svelte';
+	import Check from '$lib/icons/Check.svelte';
 
 	export let selected: string | null = null;
 	export let options: string[] = [];

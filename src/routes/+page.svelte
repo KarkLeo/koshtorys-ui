@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	import AuthService from '../services/auth-service';
+	import AuthService from '$lib/services/auth-service';
 	import type { AwaitedReturn } from '../utils/types';
 	import { useQuery } from '../hook/useApollo';
 
@@ -10,10 +10,10 @@
 	import type { MeQuery } from '$lib/graphql/types';
 	import { useAsyncData } from '../hook/useAsyncData';
 
-	import Button from '../components/kit/Button.svelte';
-	import Input from '../components/kit/Input.svelte';
-	import Dropdown from '../components/kit/Dropdown.svelte';
-	import FieldWrapper from '../components/kit/FieldWrapper.svelte';
+	import Button from '$lib/kit/Button.svelte';
+	import Input from '$lib/kit/Input.svelte';
+	import Dropdown from '$lib/kit/Dropdown.svelte';
+	import FieldWrapper from '$lib/kit/FieldWrapper.svelte';
 
 	const auth = new AuthService();
 
