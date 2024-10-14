@@ -14,20 +14,21 @@
 	import Input from '$lib/kit/Input.svelte';
 	import Dropdown from '$lib/kit/Dropdown.svelte';
 	import FieldWrapper from '$lib/kit/FieldWrapper.svelte';
+	import { me } from '$lib/store/me';
 
-	const auth = new AuthService();
-
-	let user: AwaitedReturn<typeof auth.me> = null;
+	let user: AwaitedReturn<typeof AuthService.me> = null;
 	onMount(async () => {
-		user = await auth.me();
+		user = await AuthService.me();
+
 		if (user) {
+			me.set(user);
 			await goto('/profile');
 		}
 	});
 
 	// todo remove this
 	const t = useQuery<MeQuery>(ME);
-	const a = useAsyncData<typeof auth.me>(auth.me.bind(auth));
+	const a = useAsyncData<typeof AuthService.me>(AuthService.me.bind(AuthService));
 
 	let input = '';
 </script>

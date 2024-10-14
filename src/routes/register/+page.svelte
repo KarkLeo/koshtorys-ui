@@ -10,8 +10,6 @@
 
 	import toast from 'svelte-french-toast';
 
-	const auth = new AuthService();
-
 	let name = '';
 	let email = '';
 	let password = '';
@@ -68,7 +66,7 @@
 			if (!isValid) return;
 
 			const lang = $locale;
-			const data = await auth.signUp(name, email, password, lang || 'en');
+			const data = await AuthService.signUp(name, email, password, lang || 'en');
 
 			if (data) {
 				toast.success($_('register.success'));
@@ -107,6 +105,7 @@
 				placeholder={$_('register.fields.name.placeholder')}
 				on:blur={validateField('name')}
 				error={Boolean(errors?.name)}
+				autocomplete="username"
 			/>
 		</FieldWrapper>
 		<FieldWrapper
@@ -121,6 +120,7 @@
 				placeholder={$_('register.fields.email.placeholder')}
 				on:blur={validateField('email')}
 				error={Boolean(errors?.email)}
+				autocomplete="email"
 			/>
 		</FieldWrapper>
 		<FieldWrapper
@@ -135,6 +135,7 @@
 				placeholder={$_('register.fields.password.placeholder')}
 				on:blur={validateField('password')}
 				error={Boolean(errors?.password)}
+				autocomplete="new-password"
 			/>
 		</FieldWrapper>
 		<FieldWrapper
@@ -151,6 +152,7 @@
 				placeholder={$_('register.fields.confirmPassword.placeholder')}
 				on:blur={validateField('confirmPassword')}
 				error={Boolean(errors?.confirmPassword)}
+				autocomplete="new-password"
 			/>
 		</FieldWrapper>
 

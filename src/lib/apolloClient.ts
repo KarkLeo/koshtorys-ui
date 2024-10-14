@@ -7,9 +7,12 @@ import { ApolloLink } from '@apollo/client/link/core';
 import fetch from 'cross-fetch';
 
 import TokensService from '$lib/services/tokens-service';
-import AuthService from '$lib/services/auth-service';
+import type { RefreshTokensMutation, RefreshTokensMutationVariables } from '$lib/graphql/types';
+import REFRESH_TOKENS from '$lib/graphql/refresh-tokens.graphql';
 
 let isRefreshing = false;
+let retryCount = 0;
+const maxRetries = 2;
 // eslint-disable-next-line
 let pendingRequests: any[] = [];
 
@@ -27,13 +30,31 @@ export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 	if (graphQLErrors) {
 		for (const err of graphQLErrors) {
 			if (err.extensions?.code === 'UNAUTHENTICATED') {
-				if (!isRefreshing) {
+				if (!isRefreshing && retryCount < maxRetries) {
 					isRefreshing = true;
-					const auth = new AuthService(client);
-					auth
-						.refreshTokens()
-						.then((newTokens) => {
-							if (newTokens) {
+					retryCount++;
+					const refreshToken = TokensService.getRefreshToken();
+					if (!refreshToken) {
+						TokensService.clearTokens();
+						rejectPendingRequests(new Error('Refresh tokens is empty'));
+						isRefreshing = false;
+						return;
+					}
+					client
+						.mutate<RefreshTokensMutation, RefreshTokensMutationVariables>({
+							mutation: REFRESH_TOKENS,
+							variables: {
+								refreshToken
+							},
+							fetchPolicy: 'no-cache'
+						})
+						.then(({ data }) => {
+							if (data) {
+								TokensService.setTokens(
+									data.refreshTokens.accessToken,
+									data.refreshTokens.refreshToken
+								);
+								retryCount = 0;
 								resolvePendingRequests();
 							} else {
 								TokensService.clearTokens();

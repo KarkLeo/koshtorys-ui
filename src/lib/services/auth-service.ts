@@ -1,37 +1,31 @@
-import { getContext } from 'svelte';
-import { ApolloClient } from '@apollo/client/core';
-
 import type {
 	LoginMutation,
 	LoginMutationVariables,
 	LogoutMutation,
 	MeQuery,
+	OnboardingInput,
+	OnboardingMutation,
+	OnboardingMutationVariables,
 	RefreshTokensMutation,
 	RefreshTokensMutationVariables,
 	RegistrationMutation,
 	RegistrationMutationVariables
 } from '$lib/graphql/types';
+import client from '$lib/apolloClient';
 
 import REGISTRATION from '$lib/graphql/registration.graphql';
 import LOGIN from '$lib/graphql/login.graphql';
 import ME from '$lib/graphql/me.graphql';
 import REFRESH_TOKENS from '$lib/graphql/refresh-tokens.graphql';
 import LOGOUT from '$lib/graphql/logout.graphql';
+import ONBOARDING from '$lib/graphql/onboarding.graphql';
 
 import TokensService from './tokens-service';
 
-class AuthService {
-	client: ApolloClient<unknown> | null = null;
-
-	constructor(client?: ApolloClient<unknown>) {
-		this.client = client || (getContext('apollo') as ApolloClient<unknown>);
-	}
+const AuthService = {
+	client: client,
 
 	async signUp(name: string, email: string, password: string, lang: string) {
-		if (!this.client) {
-			throw new Error('Apollo client is not initialized');
-		}
-
 		const { data } = await this.client.mutate<RegistrationMutation, RegistrationMutationVariables>({
 			mutation: REGISTRATION,
 			variables: {
@@ -46,13 +40,9 @@ class AuthService {
 			return data.signUp;
 		}
 		return null;
-	}
+	},
 
 	async signIn(email: string, password: string) {
-		if (!this.client) {
-			throw new Error('Apollo client is not initialized');
-		}
-
 		const { data } = await this.client.mutate<LoginMutation, LoginMutationVariables>({
 			mutation: LOGIN,
 			variables: {
@@ -68,13 +58,9 @@ class AuthService {
 			TokensService.clearTokens();
 		}
 		return null;
-	}
+	},
 
 	async signOut() {
-		if (!this.client) {
-			throw new Error('Apollo client is not initialized');
-		}
-
 		const { data } = await this.client.mutate<LogoutMutation>({
 			mutation: LOGOUT,
 			fetchPolicy: 'no-cache'
@@ -85,7 +71,7 @@ class AuthService {
 		if (data) {
 			return data.signOut;
 		}
-	}
+	},
 
 	async me() {
 		try {
@@ -106,12 +92,9 @@ class AuthService {
 		} catch (e) {
 			console.log(e);
 		}
-	}
+	},
 
 	async refreshTokens() {
-		if (!this.client) {
-			throw new Error('Apollo client is not initialized');
-		}
 		const refreshToken = TokensService.getRefreshToken();
 		if (!refreshToken) {
 			return null;
@@ -131,7 +114,21 @@ class AuthService {
 			return data.refreshTokens;
 		}
 		return null;
+	},
+
+	async onboarding(onboardingData: OnboardingInput) {
+		const { data } = await this.client.mutate<OnboardingMutation, OnboardingMutationVariables>({
+			mutation: ONBOARDING,
+			variables: {
+				...onboardingData
+			},
+			fetchPolicy: 'no-cache'
+		});
+		if (data) {
+			return data.onboarding;
+		}
+		return null;
 	}
-}
+};
 
 export default AuthService;

@@ -1,0 +1,16 @@
+mutation Onboarding ($currency: String!, $monthStartDay: Float!, $monthlyBudget: Float!) {
+    onboarding(onboardingData: {
+        currency: $currency,
+        monthStartDay: $monthStartDay,
+        monthlyBudget: $monthlyBudget,
+    }) {
+        id
+        name
+        email
+        lang
+        currency
+        onboardingAt
+        monthlyBudget
+        monthStartDay
+    }
+}

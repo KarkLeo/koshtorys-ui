@@ -8,8 +8,7 @@
 	import Input from '$lib/kit/Input.svelte';
 	import { ValidationError } from 'yup';
 	import toast from 'svelte-french-toast';
-
-	const auth = new AuthService();
+	import { me } from '$lib/store/me';
 
 	let email = '';
 	let password = '';
@@ -57,9 +56,10 @@
 			const isValid = await validateForm();
 			if (!isValid) return;
 
-			const data = await auth.signIn(email, password);
+			const data = await AuthService.signIn(email, password);
 
 			if (data) {
+				me.set(data.user);
 				toast.success($_('login.success'));
 				goto('/profile');
 			}
@@ -100,6 +100,7 @@
 				placeholder={$_('login.fields.email.placeholder')}
 				on:blur={validateField('email')}
 				error={Boolean(errors?.email)}
+				autocomplete="email"
 			/>
 		</FieldWrapper>
 		<FieldWrapper
@@ -114,6 +115,7 @@
 				placeholder={$_('login.fields.password.placeholder')}
 				on:blur={validateField('password')}
 				error={Boolean(errors?.password)}
+				autocomplete="current-password"
 			/>
 		</FieldWrapper>
 		<div class="buttons">
