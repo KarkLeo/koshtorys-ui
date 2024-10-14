@@ -18,7 +18,7 @@
 	onMount(async function () {
 		// Redirect to Profile page
 		if ($me?.onboardingAt && new Date($me?.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT)) {
-			await goto('/profile', { replaceState: true });
+			await goto('/dashboard', { replaceState: true });
 		}
 	});
 
@@ -83,7 +83,7 @@
 			if (data) {
 				me.set(data);
 				toast.success($_('login.success'));
-				goto('/profile');
+				goto('/dashboard');
 			}
 
 			// eslint-disable-next-line
