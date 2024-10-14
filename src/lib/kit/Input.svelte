@@ -22,7 +22,7 @@
 	export let className: string = '';
 	export let placeholder: string = '';
 	export let error: boolean = false;
-	export let value: string = '';
+	export let value: string | number = '';
 </script>
 
 <span class={`field ${error ? 'error' : ''}`}>
@@ -37,6 +37,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{:else if type === 'password'}
 		<input
@@ -49,6 +50,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{:else if type === 'email'}
 		<input
@@ -61,6 +63,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{:else if type === 'number'}
 		<input
@@ -73,6 +76,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{:else if type === 'tel'}
 		<input
@@ -85,6 +89,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{:else if type === 'url'}
 		<input
@@ -97,6 +102,7 @@
 			on:change={handleChange}
 			on:blur={handleBlur}
 			on:focus={handleFocus}
+			{...$$restProps}
 		/>
 	{/if}
 
@@ -122,6 +128,16 @@
 		border: 1px solid transparent;
 		border-radius: var(--radius-md);
 		box-shadow: var(--shadow-xs);
+	}
+
+	/* Type number - hire arrows */
+	.input[type='number']::-webkit-outer-spin-button,
+	.input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.input[type='number'] {
+		-moz-appearance: textfield;
 	}
 
 	.input::placeholder {

@@ -79,5 +79,40 @@
     "errors": {
       "invalid_credentials": "Invalid email or password"
     }
+  },
+  "onboarding": {
+    "title": "Onboarding",
+    "fields": {
+      "currency": {
+        "label": "Base Currency",
+        "placeholder": "Select currency",
+        "description": "Your expenses and income can be in different currencies, but you need to choose a primary one to which all transactions will be automatically converted for analytics. Open average exchange rates on the transaction date will be used for conversion, so the rate may differ from the actual one. However, this should not significantly affect the analytics and trend detection.",
+        "errors": {
+          "currency_required": "Currency is required",
+          "currency_invalid": "Invalid currency, choose from the list"
+        }
+      },
+      "monthStartDay": {
+        "label": "Month Start",
+        "placeholder": "Select day",
+        "description": "Select the day your financial month starts. This may be related to income or regular payments. By default, the month starts on the 1st.",
+        "errors": {
+          "monthStartDay_required": "Month Start Day is required",
+          "monthStartDay_min": "Month Start Day cannot be less than 1",
+          "monthStartDay_max": "Month Start Day cannot be more than 28"
+        }
+      },
+      "monthlyBudget": {
+        "label": "Monthly Budget",
+        "placeholder": "Enter amount",
+        "description": "You can enter an approximate value of your income or a desired level of monthly expenses. This budget will be used in analytics to help you track current expenses and plan future ones.",
+        "errors": {
+          "monthlyBudget_required": "Monthly Budget is required",
+          "monthlyBudget_min": "Monthly Budget cannot be less than 0",
+          "monthlyBudget_max": "Monthly Budget cannot be more than 1,000,000"
+        }
+      }
+    },
+    "submit": "Continue"
   }
 }

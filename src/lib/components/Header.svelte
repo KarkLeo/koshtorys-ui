@@ -1,12 +1,32 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import IconButton from '$lib/kit/IconButton.svelte';
+	import Logout from '$lib/icons/Logout.svelte';
 	import LangSwitcher from './LangSwitcher.svelte';
+	import AuthService from '$lib/services/auth-service';
+	import { me } from '$lib/store/me';
+
+	async function handleLogout() {
+		try {
+			await AuthService.signOut();
+			me.set(null);
+		} finally {
+			await goto('/', { replaceState: true });
+		}
+	}
 </script>
 
 <header class="header">
 	<div class="inner">
 		<div class="left-side"></div>
 		<div class="right-side">
-			<LangSwitcher />
+			{#if $me}
+				<IconButton on:click={handleLogout}>
+					<Logout />
+				</IconButton>
+			{:else}
+				<LangSwitcher />
+			{/if}
 		</div>
 	</div>
 </header>

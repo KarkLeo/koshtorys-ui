@@ -23,10 +23,17 @@ scalar JSON
 
 type Mutation {
   createUser(email: String!, name: String, password: String!): UserWithoutPasswordModel!
+  onboarding(onboardingData: OnboardingInput!): UserWithoutPasswordModel!
   refreshTokens(refreshToken: String!): AuthResponse!
   signIn(signInData: SignInInput!): AuthResponse!
   signOut: Boolean!
   signUp(signUpData: SignUpInput!): UserWithoutPasswordModel!
+}
+
+input OnboardingInput {
+  currency: String!
+  monthStartDay: Float!
+  monthlyBudget: Float!
 }
 
 type Query {

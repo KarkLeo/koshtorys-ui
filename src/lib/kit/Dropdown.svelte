@@ -131,7 +131,7 @@
 <style>
 	.dropdown {
 		position: relative;
-		display: inline-block;
+		display: block;
 	}
 
 	.dropdown-toggle {
@@ -139,12 +139,14 @@
 		align-items: center;
 		justify-content: flex-start;
 		gap: var(--spacing-md);
+		width: 100%;
 		padding: 10px 14px;
 		box-sizing: border-box;
 
 		font-size: var(--font-size-text-md);
 		line-height: var(--line-height-text-md);
 		font-weight: var(--font-weight-regular);
+		text-align: left;
 
 		background-color: var(--bg-primary);
 		border: 1px solid transparent;
@@ -162,9 +164,13 @@
 	}
 
 	.placeholder {
+		width: 100%;
+
 		color: var(--text-placeholder);
 	}
 	.selected-option {
+		width: 100%;
+
 		color: var(--text-primary);
 	}
 	.dropdown-toggle :global(.chevron) {
@@ -203,6 +209,7 @@
 		top: calc(100% + var(--spacing-xs));
 		left: 0;
 		z-index: 1000;
+		overflow-x: hidden;
 
 		width: 100%;
 		max-height: 320px;
