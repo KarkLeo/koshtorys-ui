@@ -4,12 +4,12 @@ import Settings from '$lib/icons/Settings.svelte';
 export const MENU = [
 	{
 		icon: Home,
-		name: 'Dashboard',
+		name: 'dashboard',
 		path: '/dashboard'
 	},
 	{
 		icon: Settings,
-		name: 'Settings',
+		name: 'settings',
 		path: '/settings'
 	}
 ];

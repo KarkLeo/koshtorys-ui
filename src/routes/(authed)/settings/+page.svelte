@@ -1,9 +1,9 @@
 <script lang="ts">
+	import Tabs from '$lib/kit/Tabs.svelte';
+	import { TABS } from '$lib/constants/settings';
 	import { me } from '$lib/store/me';
 </script>
 
 {#if $me}
-	<h1>Привет, {$me.name}</h1>
-{:else}
-	<h1>Привет, гость</h1>
+	<Tabs tabs={TABS} langPrefix="settings.tabs." />
 {/if}

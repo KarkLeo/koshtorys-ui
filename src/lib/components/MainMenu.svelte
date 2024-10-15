@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from 'svelte-i18n';
 	import { MENU, ONBOARDING_PATHS } from '$lib/constants/menu';
 	import { page } from '$app/stores';
 </script>
@@ -6,7 +7,7 @@
 {#if $page.url.pathname !== ONBOARDING_PATHS}
 	<nav class="main-menu">
 		<ul class="main-menu-list">
-			{#each MENU as item}
+			{#each MENU as item (item.path)}
 				<li class="main-menu-item">
 					<a
 						href={item.path}
@@ -15,7 +16,7 @@
 					>
 						<svelte:component this={item.icon} />
 						<span>
-							{item.name}
+							{$_(`mainMenu.${item.name}`)}
 						</span>
 					</a>
 				</li>
