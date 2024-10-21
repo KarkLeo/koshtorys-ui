@@ -28,13 +28,12 @@
 </script>
 
 <div class="page">
-	<Header />
-
 	{#if $isLoading}
 		<div class="loader-wrapper">
 			<Loading class="loader" />
 		</div>
 	{:else}
+		<Header />
 		<slot />
 	{/if}
 </div>

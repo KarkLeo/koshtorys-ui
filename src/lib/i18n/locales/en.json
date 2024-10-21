@@ -4,6 +4,10 @@
     "server_error": "Server error. Please try again later.",
     "network_error": "Network error. Please check your connection."
   },
+  "mainMenu": {
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
   "register": {
     "title": "Sign Up",
     "description": "Please fill in the form below to register.",
@@ -113,6 +117,89 @@
         }
       }
     },
-    "submit": "Continue"
+    "submit": "Continue",
+    "success": "Onboarding successful!"
+  },
+  "settings": {
+    "tabs": {
+      "general": "General",
+      "statistics": "Statistics"
+    },
+    "fields": {
+      "lang": {
+        "label": "Language",
+        "placeholder": "Select language",
+        "description": "Choose your preferred language for the application interface.",
+        "errors": {
+          "lang_required": "Language is required",
+          "lang_invalid": "Invalid language, choose from the list"
+        }
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter your name",
+        "description": "Your name will be used for personalizing greetings and messages.",
+        "errors": {
+          "name_required": "Name is required",
+          "name_min_length": "Name must be at least 3 characters",
+          "name_max_length": "Name must be at most 20 characters"
+        }
+      },
+      "email": {
+        "label": "Email",
+        "description": "Your email is used for logging in and receiving notifications. Email cannot be changed."
+      },
+      "newPassword": {
+        "label": "New Password",
+        "description": "Enter a new password to change the current one",
+        "placeholder": "Enter new password",
+        "errors": {
+          "newPassword_min_length": "Password must be at least 6 characters long"
+        }
+      },
+      "confirmNewPassword": {
+        "placeholder": "Confirm new password",
+        "errors": {
+          "confirmNewPassword_mismatch": "Passwords do not match"
+        }
+      },
+      "oldPassword": {
+        "placeholder": "Enter your current password",
+        "errors": {
+          "oldPassword_required": "Old password is required"
+        }
+      },
+      "currency": {
+        "label": "Base Currency",
+        "placeholder": "Select currency",
+        "description": "Your expenses and income can be in different currencies, but you need to choose a primary one to which all transactions will be automatically converted for analytics. Open average exchange rates on the transaction date will be used for conversion, so the rate may differ from the actual one. However, this should not significantly affect the analytics and trend detection.",
+        "errors": {
+          "currency_required": "Currency is required",
+          "currency_invalid": "Invalid currency, choose from the list"
+        }
+      },
+      "monthStartDay": {
+        "label": "Month Start",
+        "placeholder": "Select day",
+        "description": "Select the day your financial month starts. This may be related to income or regular payments. By default, the month starts on the 1st.",
+        "errors": {
+          "monthStartDay_required": "Month Start Day is required",
+          "monthStartDay_min": "Month Start Day cannot be less than 1",
+          "monthStartDay_max": "Month Start Day cannot be more than 28"
+        }
+      },
+      "monthlyBudget": {
+        "label": "Monthly Budget",
+        "placeholder": "Enter amount",
+        "description": "You can enter an approximate value of your income or a desired level of monthly expenses. This budget will be used in analytics to help you track current expenses and plan future ones.",
+        "errors": {
+          "monthlyBudget_required": "Monthly Budget is required",
+          "monthlyBudget_min": "Monthly Budget cannot be less than 0",
+          "monthlyBudget_max": "Monthly Budget cannot be more than 1,000,000"
+        }
+      }
+    },
+    "success": "Settings saved!",
+    "submit": "Save"
   }
 }

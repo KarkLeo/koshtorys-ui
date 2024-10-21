@@ -61,7 +61,7 @@
 			if (data) {
 				me.set(data.user);
 				toast.success($_('login.success'));
-				goto('/profile');
+				goto('/dashboard');
 			}
 			// eslint-disable-next-line
 		} catch (e: any) {

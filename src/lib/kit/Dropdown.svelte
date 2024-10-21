@@ -81,6 +81,7 @@
 
 <div class="dropdown" bind:this={dropdownRef}>
 	<button
+		type="button"
 		class="dropdown-toggle"
 		class:open={isOpen}
 		on:click={toggleDropdown}
@@ -107,6 +108,7 @@
 			{#each options as option, index}
 				<li class="dropdown-item">
 					<button
+						type="button"
 						role="option"
 						aria-selected={selectedIndex === index}
 						tabindex="-1"

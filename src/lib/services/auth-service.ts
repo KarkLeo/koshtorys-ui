@@ -9,7 +9,12 @@ import type {
 	RefreshTokensMutation,
 	RefreshTokensMutationVariables,
 	RegistrationMutation,
-	RegistrationMutationVariables
+	RegistrationMutationVariables,
+	SettingsGeneralMutation,
+	SettingsGeneralMutationVariables,
+	SettingsStatisticsMutation,
+	SettingsStatisticsMutationVariables,
+	UpdateProfileInput
 } from '$lib/graphql/types';
 import client from '$lib/apolloClient';
 
@@ -19,6 +24,8 @@ import ME from '$lib/graphql/me.graphql';
 import REFRESH_TOKENS from '$lib/graphql/refresh-tokens.graphql';
 import LOGOUT from '$lib/graphql/logout.graphql';
 import ONBOARDING from '$lib/graphql/onboarding.graphql';
+import SETTINGS_GENERAL from '$lib/graphql/settings-general.graphql';
+import SETTINGS_STATISTICS from '$lib/graphql/settings-statistics.graphql';
 
 import TokensService from './tokens-service';
 
@@ -126,6 +133,40 @@ const AuthService = {
 		});
 		if (data) {
 			return data.onboarding;
+		}
+		return null;
+	},
+
+	async settingsGeneral(updateProfileData: UpdateProfileInput) {
+		const { data } = await this.client.mutate<
+			SettingsGeneralMutation,
+			SettingsGeneralMutationVariables
+		>({
+			mutation: SETTINGS_GENERAL,
+			variables: {
+				...updateProfileData
+			},
+			fetchPolicy: 'no-cache'
+		});
+		if (data) {
+			return data.updateProfile;
+		}
+		return null;
+	},
+
+	async settingsStatistics(updateProfileData: UpdateProfileInput) {
+		const { data } = await this.client.mutate<
+			SettingsStatisticsMutation,
+			SettingsStatisticsMutationVariables
+		>({
+			mutation: SETTINGS_STATISTICS,
+			variables: {
+				...updateProfileData
+			},
+			fetchPolicy: 'no-cache'
+		});
+		if (data) {
+			return data.updateProfile;
 		}
 		return null;
 	}

@@ -22,7 +22,7 @@
 
 		if (user) {
 			me.set(user);
-			await goto('/profile');
+			await goto('/dashboard');
 		}
 	});
 

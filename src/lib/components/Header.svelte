@@ -3,6 +3,7 @@
 	import IconButton from '$lib/kit/IconButton.svelte';
 	import Logout from '$lib/icons/Logout.svelte';
 	import LangSwitcher from './LangSwitcher.svelte';
+	import MainMenu from './MainMenu.svelte';
 	import AuthService from '$lib/services/auth-service';
 	import { me } from '$lib/store/me';
 
@@ -18,7 +19,9 @@
 
 <header class="header">
 	<div class="inner">
-		<div class="left-side"></div>
+		<div class="left-side">
+			<MainMenu />
+		</div>
 		<div class="right-side">
 			{#if $me}
 				<IconButton on:click={handleLogout}>
