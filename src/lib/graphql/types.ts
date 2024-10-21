@@ -39,6 +39,7 @@ export type Mutation = {
   signIn: AuthResponse;
   signOut: Scalars['Boolean']['output'];
   signUp: UserWithoutPasswordModel;
+  updateProfile: UserWithoutPasswordModel;
 };
 
 
@@ -66,6 +67,11 @@ export type MutationSignInArgs = {
 
 export type MutationSignUpArgs = {
   signUpData: SignUpInput;
+};
+
+
+export type MutationUpdateProfileArgs = {
+  updateProfileData: UpdateProfileInput;
 };
 
 export type OnboardingInput = {
@@ -96,6 +102,16 @@ export type SignUpInput = {
   lang: Scalars['String']['input'];
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+export type UpdateProfileInput = {
+  currency?: InputMaybe<Scalars['String']['input']>;
+  lang?: InputMaybe<Scalars['String']['input']>;
+  monthStartDay?: InputMaybe<Scalars['Float']['input']>;
+  monthlyBudget?: InputMaybe<Scalars['Float']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newPassword?: InputMaybe<Scalars['String']['input']>;
+  oldPassword?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserWithoutPasswordModel = {
@@ -153,3 +169,22 @@ export type RegistrationMutationVariables = Exact<{
 
 
 export type RegistrationMutation = { __typename?: 'Mutation', signUp: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } };
+
+export type SettingsGeneralMutationVariables = Exact<{
+  name?: InputMaybe<Scalars['String']['input']>;
+  lang?: InputMaybe<Scalars['String']['input']>;
+  newPassword?: InputMaybe<Scalars['String']['input']>;
+  oldPassword?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SettingsGeneralMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
+
+export type SettingsStatisticsMutationVariables = Exact<{
+  currency?: InputMaybe<Scalars['String']['input']>;
+  monthStartDay?: InputMaybe<Scalars['Float']['input']>;
+  monthlyBudget?: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+export type SettingsStatisticsMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };

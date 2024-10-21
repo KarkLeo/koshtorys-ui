@@ -1,27 +1,30 @@
-import * as Yup from 'yup';
+import * as yup from 'yup';
 
-const settingsGeneral = Yup.object().shape({
-	name: Yup.string().required('Имя обязательно'),
+const settingsGeneralSchema = yup.object().shape({
+	lang: yup.string().oneOf(['en', 'uk-UA'], 'lang_invalid').required('lang_required'),
 
-	newPassword: Yup.string().optional(),
+	name: yup.string().required('name_required').min(3, 'name_min_length').max(20, 'name_max_length'),
 
-	confirmNewPassword: Yup.string().when('newPassword', {
-		// eslint-disable-next-line
-		// @ts-expect-error
-		is: (newPassword) => Boolean(newPassword),
-		then: Yup.string()
-			.oneOf([Yup.ref('newPassword')], 'Пароли должны совпадать')
-			.required('Подтвердите новый пароль'),
-		otherwise: Yup.string().optional()
+	newPassword: yup
+		.string()
+		.nullable()
+		.notRequired()
+		.test('min-length-if-filled', 'newPassword_min_length', function (value) {
+			if (value && value.length > 0) {
+				return value.length >= 6;
+			}
+			return true;
+		}),
+
+	confirmNewPassword: yup.string().when('newPassword', (newPassword, schema) => {
+		return newPassword[0]
+			? schema.oneOf([yup.ref('newPassword')], 'confirmNewPassword_mismatch')
+			: schema.optional();
 	}),
 
-	oldPassword: Yup.string().when('newPassword', {
-		// eslint-disable-next-line
-		// @ts-expect-error
-		is: (newPassword) => Boolean(newPassword),
-		then: Yup.string().required('Старый пароль обязателен при изменении пароля'),
-		otherwise: Yup.string().optional()
+	oldPassword: yup.string().when('newPassword', (newPassword, schema) => {
+		return newPassword[0] ? schema.required('oldPassword_required') : schema.optional();
 	})
 });
 
-export default settingsGeneral;
+export default settingsGeneralSchema;

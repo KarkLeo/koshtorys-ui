@@ -19,27 +19,6 @@
 
 	let errors: Record<string, string> = {};
 
-	const validateField = (fieldName: string) => async () => {
-		try {
-			await onboardingSchema.validateAt(
-				fieldName,
-				{ currency, monthlyBudget, monthStartDay },
-				{ abortEarly: false }
-			);
-			const otherErrors = { ...errors };
-			delete otherErrors[fieldName];
-			errors = otherErrors;
-			return true;
-			// eslint-disable-next-line
-		} catch (validationErrors: any) {
-			errors = {
-				...errors,
-				[fieldName]: validationErrors.errors[0]
-			};
-			return false;
-		}
-	};
-
 	const validateForm = async () => {
 		try {
 			await onboardingSchema.validate(
@@ -62,17 +41,16 @@
 		}
 	};
 
-	const onboarding = async () => {
+	const update = async () => {
 		try {
 			const isValid = await validateForm();
 			if (!isValid) return;
 
-			const data = await AuthService.onboarding({ currency, monthStartDay, monthlyBudget });
+			const data = await AuthService.settingsStatistics({ currency, monthStartDay, monthlyBudget });
 
 			if (data) {
 				me.set(data);
-				toast.success($_('login.success'));
-				goto('/dashboard');
+				toast.success($_('settings.success'));
 			}
 
 			// eslint-disable-next-line
@@ -90,7 +68,7 @@
 	};
 </script>
 
-<form on:submit|preventDefault={onboarding} class="form">
+<form on:submit|preventDefault={update} class="form">
 	<SettingsFieldWrapper
 		label={$_('settings.fields.currency.label')}
 		description={$_('settings.fields.currency.description')}
@@ -115,7 +93,6 @@
 			bind:value={monthStartDay}
 			type="number"
 			placeholder={$_('settings.fields.monthStartDay.placeholder')}
-			on:blur={validateField('monthStartDay')}
 			error={Boolean(errors?.monthStartDay)}
 		/>
 	</SettingsFieldWrapper>
@@ -131,7 +108,6 @@
 			bind:value={monthlyBudget}
 			type="number"
 			placeholder={$_('settings.fields.monthlyBudget.placeholder')}
-			on:blur={validateField('monthlyBudget')}
 			error={Boolean(errors?.monthlyBudget)}
 		/>
 	</SettingsFieldWrapper>
@@ -141,8 +117,9 @@
 </form>
 
 <style>
-	.form :global(.texts) {
-		padding-left: var(--spacing-2xl);
+	.form :global(.texts),
+	.form :global(.control) {
+		padding-inline: var(--spacing-2xl);
 	}
 
 	.buttons {
@@ -155,6 +132,13 @@
 	}
 
 	@media screen and (min-width: 768px) {
+		.form :global(.texts) {
+			padding-inline: var(--spacing-2xl) 0;
+		}
+		.form :global(.control) {
+			padding-inline: 0 var(--spacing-2xl);
+		}
+
 		.buttons {
 			padding: var(--spacing-2xl);
 		}

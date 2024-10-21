@@ -28,6 +28,7 @@ type Mutation {
   signIn(signInData: SignInInput!): AuthResponse!
   signOut: Boolean!
   signUp(signUpData: SignUpInput!): UserWithoutPasswordModel!
+  updateProfile(updateProfileData: UpdateProfileInput!): UserWithoutPasswordModel!
 }
 
 input OnboardingInput {
@@ -52,6 +53,16 @@ input SignUpInput {
   lang: String!
   name: String!
   password: String!
+}
+
+input UpdateProfileInput {
+  currency: String
+  lang: String
+  monthStartDay: Float
+  monthlyBudget: Float
+  name: String
+  newPassword: String
+  oldPassword: String
 }
 
 type UserWithoutPasswordModel {

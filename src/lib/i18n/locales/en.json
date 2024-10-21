@@ -117,7 +117,8 @@
         }
       }
     },
-    "submit": "Continue"
+    "submit": "Continue",
+    "success": "Onboarding successful!"
   },
   "settings": {
     "tabs": {
@@ -125,10 +126,24 @@
       "statistics": "Statistics"
     },
     "fields": {
+      "lang": {
+        "label": "Language",
+        "placeholder": "Select language",
+        "description": "Choose your preferred language for the application interface.",
+        "errors": {
+          "lang_required": "Language is required",
+          "lang_invalid": "Invalid language, choose from the list"
+        }
+      },
       "name": {
         "label": "Name",
         "placeholder": "Enter your name",
-        "description": "Your name will be used for personalizing greetings and messages."
+        "description": "Your name will be used for personalizing greetings and messages.",
+        "errors": {
+          "name_required": "Name is required",
+          "name_min_length": "Name must be at least 3 characters",
+          "name_max_length": "Name must be at most 20 characters"
+        }
       },
       "email": {
         "label": "Email",
@@ -137,13 +152,22 @@
       "newPassword": {
         "label": "New Password",
         "description": "Enter a new password to change the current one",
-        "placeholder": "Enter new password"
+        "placeholder": "Enter new password",
+        "errors": {
+          "newPassword_min_length": "Password must be at least 6 characters long"
+        }
       },
       "confirmNewPassword": {
-        "placeholder": "Confirm new password"
+        "placeholder": "Confirm new password",
+        "errors": {
+          "confirmNewPassword_mismatch": "Passwords do not match"
+        }
       },
       "oldPassword": {
-        "placeholder": "Enter your current password"
+        "placeholder": "Enter your current password",
+        "errors": {
+          "oldPassword_required": "Old password is required"
+        }
       },
       "currency": {
         "label": "Base Currency",
@@ -175,6 +199,7 @@
         }
       }
     },
+    "success": "Settings saved!",
     "submit": "Save"
   }
 }

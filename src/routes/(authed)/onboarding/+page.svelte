@@ -82,7 +82,7 @@
 
 			if (data) {
 				me.set(data);
-				toast.success($_('login.success'));
+				toast.success($_('onboarding.success'));
 				goto('/dashboard');
 			}
 

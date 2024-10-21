@@ -117,7 +117,8 @@
         }
       }
     },
-    "submit": "Продовжити"
+    "submit": "Продовжити",
+    "success": "Вступ успішний!"
   },
   "settings": {
     "tabs": {
@@ -125,6 +126,15 @@
       "statistics": "Статистика"
     },
     "fields": {
+      "lang": {
+        "label": "Мова",
+        "placeholder": "Виберіть мову",
+        "description": "Оберіть мову інтерфейсу, яка вам найбільше підходить.",
+        "errors": {
+          "lang_required": "Мова обов'язкова",
+          "lang_invalid": "Недійсна мова, оберіть зі списку"
+        }
+      },
       "name": {
         "label": "Ім'я",
         "placeholder": "Введіть своє ім'я",
@@ -142,13 +152,22 @@
       "newPassword": {
         "label": "Новий пароль",
         "description": "Введіть новий пароль для зміни поточного",
-        "placeholder": "Введіть новий пароль"
+        "placeholder": "Введіть новий пароль",
+        "errors": {
+          "newPassword_min_length": "Пароль повинен містити принаймні 6 символів"
+        }
       },
       "confirmNewPassword": {
-        "placeholder": "Підтвердіть новий пароль"
+        "placeholder": "Підтвердіть новий пароль",
+        "errors": {
+          "confirmNewPassword_mismatch": "Паролі не співпадають"
+        }
       },
       "oldPassword": {
-        "placeholder": "Введіть поточний пароль"
+        "placeholder": "Введіть поточний пароль",
+        "errors": {
+          "oldPassword_required": "Старий пароль обов'язковий"
+        }
       },
       "currency": {
         "label": "Базова валюта",
@@ -180,6 +199,7 @@
         }
       }
     },
+    "success": "Налаштування збережено!",
     "submit": "Зберегти"
   }
 }
