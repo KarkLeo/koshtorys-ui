@@ -66,6 +66,11 @@
 			}
 		}
 	};
+
+	$: isChanged =
+		currency !== $me?.currency ||
+		monthStartDay !== $me?.monthStartDay ||
+		monthlyBudget !== $me?.monthlyBudget;
 </script>
 
 <form on:submit|preventDefault={update} class="form">
@@ -112,7 +117,7 @@
 		/>
 	</SettingsFieldWrapper>
 	<div class="buttons">
-		<Button type="submit">{$_('settings.submit')}</Button>
+		<Button type="submit" disabled={!isChanged}>{$_('settings.submit')}</Button>
 	</div>
 </form>
 
