@@ -9,10 +9,12 @@ import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vu
 import KitDropdown from '@/components/kit/KitDropdown.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 const { me, refreshMe } = useMe()
 const { settingsGeneral } = usesSettingsGeneral()
-const { locale, availableLocales } = useI18n()
+const { locale, availableLocales, t } = useI18n()
+const toastStore = useToastStore()
 
 const name = ref(me.value?.me.name || '')
 const email = ref(me.value?.me.email || '')
@@ -77,13 +79,10 @@ const update = async () => {
 
     if (data) {
       refreshMe()
-
       if (data.lang === 'en' || data.lang === 'uk-UA') {
         locale.value = data.lang
       }
-
-      console.log('settings.success', data)
-      // toast.success($_('settings.success')) // todo add toast
+      toastStore.success(t('settings.success'))
     }
     // eslint-disable-next-line
   } catch (e: any) {
@@ -94,7 +93,7 @@ const update = async () => {
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      // toast.error($_('common_errors.server_error')) // todo add toast
+      toastStore.error(t('common_errors.server_error'))
     }
   }
 }

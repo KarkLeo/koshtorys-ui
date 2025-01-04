@@ -10,10 +10,12 @@ import { useSignUp } from '@/hooks/auth-hooks.ts'
 import KitFieldWrapper from '@/components/kit/KitFieldWrapper.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
+import { useToastStore } from '@/stores/toastStore.ts'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const { signUp } = useSignUp()
 const router = useRouter()
+const toastStore = useToastStore()
 
 const name = ref('')
 const email = ref('')
@@ -88,7 +90,7 @@ const register = async () => {
     })
 
     if (data) {
-      //   toast.success($_('register.success')) // todo add toast
+      toastStore.success(t('register.success'))
       await router.push('/login')
     }
     // eslint-disable-next-line
@@ -100,7 +102,7 @@ const register = async () => {
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      // toast.error($_('common_errors.server_error')) // todo add toast
+      toastStore.error(t('common_errors.server_error'))
     }
   }
 }

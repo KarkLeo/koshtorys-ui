@@ -1,26 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import type { ValidationError } from 'yup'
 
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { onboardingSchema } from '@/validations/onboarding.ts'
 import { useMe, usesOnboarding } from '@/hooks/auth-hooks.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
 import KitDropdown from '@/components/kit/KitDropdown.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 
+const { onboarding } = usesOnboarding()
+const { refreshMe } = useMe()
+const router = useRouter()
+const toastStore = useToastStore()
+const { t } = useI18n()
+
 const currency = ref<(typeof CURRENCIES)[number]>(CURRENCIES[0])
 const monthStartDay = ref<string>('1')
 const monthlyBudget = ref<string>('0')
 
 const errors = ref<Record<string, string>>({})
-
-const { onboarding } = usesOnboarding()
-const { refreshMe } = useMe()
-const router = useRouter()
 
 const validateField = (fieldName: string) => async () => {
   try {
@@ -86,7 +90,7 @@ const handleOnboarding = async () => {
 
     if (data) {
       refreshMe()
-      // toast.success($_('onboarding.success')) // todo add toast
+      toastStore.success(t('onboarding.success'))
       await router.push('/dashboard')
     }
     // eslint-disable-next-line
@@ -98,7 +102,7 @@ const handleOnboarding = async () => {
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      // toast.error($_('common_errors.server_error')) // todo add toast
+      toastStore.error(t('common_errors.server_error'))
     }
   }
 }

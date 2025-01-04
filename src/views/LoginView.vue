@@ -10,11 +10,13 @@ import { useMe, useSignIn } from '@/hooks/auth-hooks.ts'
 import KitFieldWrapper from '@/components/kit/KitFieldWrapper.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 const { signIn } = useSignIn()
 const { refreshMe } = useMe()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const router = useRouter()
+const toastStore = useToastStore()
 
 const email = ref('')
 const password = ref('')
@@ -69,7 +71,7 @@ const login = async () => {
     if (data) {
       locale.value = data?.user?.lang || 'en'
       refreshMe()
-      // toast.success($_('login.success')) //todo add toast
+      toastStore.success(t('login.success'))
       await router.push('/dashboard')
     }
     // eslint-disable-next-line
@@ -79,12 +81,12 @@ const login = async () => {
       if (errorCodes) {
         errors.value = errorCodes
         if (errorCodes.form) {
-          // toast.error($_(`login.errors.${errorCodes.form}`)) // todo add toast
+          toastStore.error(t(`login.errors.${errorCodes.form}`))
         }
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      // toast.error($_('common_errors.server_error'))
+      toastStore.error(t('common_errors.server_error'))
     }
   }
 }
