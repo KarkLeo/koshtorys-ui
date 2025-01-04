@@ -14,6 +14,7 @@
 	import Input from '$lib/kit/Input.svelte';
 	import Dropdown from '$lib/kit/Dropdown.svelte';
 	import FieldWrapper from '$lib/kit/FieldWrapper.svelte';
+	import DatePicker from '$lib/kit/DatePicker.svelte';
 	import { me } from '$lib/store/me';
 
 	let user: AwaitedReturn<typeof AuthService.me> = null;
@@ -40,6 +41,10 @@
 {:else}
 	<h1>Привет, гость</h1>
 {/if}
+
+<div class="row">
+	<DatePicker />
+</div>
 
 <div class="row">
 	<FieldWrapper label="Email" message="Some message">
