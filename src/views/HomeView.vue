@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import KitButton from '@/components/kit/KitButton.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 const input = ref<string>('')
+const toastStore = useToastStore()
 </script>
 
 <template>
@@ -27,10 +29,10 @@ const input = ref<string>('')
       <KitButton class="custom">Primary</KitButton>
     </div>
     <div class="row">
-      <KitButton size="sm">Small Button</KitButton>
-      <KitButton @click="() => console.log('test ok')">Primary</KitButton>
-      <KitButton size="lg">LG Large Button</KitButton>
-      <KitButton size="xl">XL Large Button</KitButton>
+      <KitButton size="sm" @click="toastStore.success('Small button')">Small Button</KitButton>
+      <KitButton @click="toastStore.warning('Primary button')">Primary</KitButton>
+      <KitButton size="lg" @click="toastStore.error('LG Large button')">LG Large Button</KitButton>
+      <KitButton size="xl" @click="toastStore.info('XL Large button')">XL Large Button</KitButton>
       <KitButton size="xxl">XXL Large Button</KitButton>
       <KitButton disabled>Disabled Button</KitButton>
     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
 import { useMe, usesSettingsStatistics } from '@/hooks/auth-hooks.ts'
@@ -10,9 +11,12 @@ import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vu
 import KitDropdown from '@/components/kit/KitDropdown.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 const { me, refreshMe } = useMe()
 const { settingsStatistics } = usesSettingsStatistics()
+const toastStore = useToastStore()
+const { t } = useI18n()
 
 const currency = ref(me.value?.me.currency || '')
 const monthStartDay = ref(me.value?.me.monthStartDay || '')
@@ -51,7 +55,6 @@ const update = async () => {
   try {
     const isValid = await validateForm()
     if (!isValid) return
-    console.log('update.valid', currency.value, monthStartDay.value, monthlyBudget.value)
 
     const data = await settingsStatistics({
       currency: currency.value,
@@ -61,8 +64,7 @@ const update = async () => {
 
     if (data) {
       refreshMe()
-      console.log('settings.success', data)
-      // toast.success($_('settings.success')) // TODO: add toast
+      toastStore.success(t('settings.success'))
     }
 
     // eslint-disable-next-line
@@ -74,7 +76,7 @@ const update = async () => {
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      // toast.error($_('common_errors.server_error')) // TODO: add toast
+      toastStore.error(t('common_errors.server_error'))
     }
   }
 }
