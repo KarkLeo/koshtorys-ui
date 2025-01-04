@@ -1,0 +1,24 @@
+@import './base.css';
+
+html {
+  margin: 0;
+  padding: 0;
+
+  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-text-md);
+  line-height: var(--line-height-text-md);
+  color: var(--text-primary);
+
+  background-color: var(--bg-primary);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-text-md);
+  line-height: var(--line-height-text-md);
+}

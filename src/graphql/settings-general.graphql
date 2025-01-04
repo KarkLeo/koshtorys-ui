@@ -1,0 +1,17 @@
+mutation SettingsGeneral ($name: String, $lang: String, $newPassword: String, $oldPassword: String) {
+    updateProfile(updateProfileData: {
+        name: $name,
+        lang: $lang,
+        newPassword: $newPassword,
+        oldPassword: $oldPassword
+    }) {
+        id
+        name
+        email
+        lang
+        currency
+        onboardingAt
+        monthlyBudget
+        monthStartDay
+    }
+}
