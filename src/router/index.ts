@@ -88,28 +88,13 @@ router.beforeEach(async (to) => {
           return { name: 'dashboard' }
         }
 
-        if (to.meta.requiresAuth) {
-          return true
-        }
-        if (to.meta.requiresNoAuth) {
-          return { name: 'dashboard' }
-        }
+        return to.meta.requiresAuth ? true : { name: 'dashboard' }
       } else {
-        if (to.meta.requiresAuth) {
-          return { name: 'login' }
-        }
-        if (to.meta.requiresNoAuth) {
-          return true
-        }
+        return to.meta.requiresAuth ? { name: 'login' } : true
       }
     } catch (e) {
-      console.error(e)
-      if (to.meta.requiresAuth) {
-        return { name: 'login' }
-      }
-      if (to.meta.requiresNoAuth) {
-        return true
-      }
+      console.error(`[router.beforeEach]: ${e}`)
+      return to.meta.requiresAuth ? { name: 'login' } : true
     }
   } else {
     return true

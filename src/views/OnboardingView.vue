@@ -214,7 +214,7 @@ const handleOnboarding = async () => {
 }
 
 @media screen and (min-width: 768px) {
-  .wrapper {
+  .form-wrapper {
     padding: var(--spacing-3xl);
   }
 

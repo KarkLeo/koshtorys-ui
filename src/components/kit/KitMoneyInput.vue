@@ -32,6 +32,8 @@ const { size = 'md', error = false } = defineProps<{
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  background-color: var(--bg-primary);
 }
 
 .input {
