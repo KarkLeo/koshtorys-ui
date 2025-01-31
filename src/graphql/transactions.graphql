@@ -1,0 +1,16 @@
+query Transactions($date: DateTime) {
+  transactions (date: $date) {
+    id
+    amount
+    currency
+    date
+    description
+    categoryId
+    exchangeRate {
+      id
+      base
+      date
+      rates
+    }
+  }
+}

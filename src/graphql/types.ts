@@ -25,21 +25,36 @@ export type AuthResponse = {
 
 export type ExchangeRate = {
   __typename?: 'ExchangeRate';
+  _count: ExchangeRateCount;
   base: Scalars['String']['output'];
   date: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   rates: Scalars['JSON']['output'];
+  transaction?: Maybe<Array<Transaction>>;
+};
+
+export type ExchangeRateCount = {
+  __typename?: 'ExchangeRateCount';
+  transaction: Scalars['Int']['output'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createTransaction: Transaction;
   createUser: UserWithoutPasswordModel;
+  deleteTransaction: Transaction;
   onboarding: UserWithoutPasswordModel;
   refreshTokens: AuthResponse;
   signIn: AuthResponse;
   signOut: Scalars['Boolean']['output'];
   signUp: UserWithoutPasswordModel;
   updateProfile: UserWithoutPasswordModel;
+  updateTransaction: Transaction;
+};
+
+
+export type MutationCreateTransactionArgs = {
+  transactionData: TransactionInput;
 };
 
 
@@ -47,6 +62,11 @@ export type MutationCreateUserArgs = {
   email: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTransactionArgs = {
+  id: Scalars['Float']['input'];
 };
 
 
@@ -74,6 +94,12 @@ export type MutationUpdateProfileArgs = {
   updateProfileData: UpdateProfileInput;
 };
 
+
+export type MutationUpdateTransactionArgs = {
+  id: Scalars['Float']['input'];
+  transactionData: TransactionInput;
+};
+
 export type OnboardingInput = {
   currency: Scalars['String']['input'];
   monthStartDay: Scalars['Float']['input'];
@@ -85,11 +111,17 @@ export type Query = {
   exchangeRate: ExchangeRate;
   exchangeRates: Array<ExchangeRate>;
   me: UserWithoutPasswordModel;
+  transactions: Array<Transaction>;
 };
 
 
 export type QueryExchangeRateArgs = {
   date: Scalars['DateTime']['input'];
+};
+
+
+export type QueryTransactionsArgs = {
+  date?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type SignInInput = {
@@ -104,6 +136,30 @@ export type SignUpInput = {
   password: Scalars['String']['input'];
 };
 
+export type Transaction = {
+  __typename?: 'Transaction';
+  amount: Scalars['Float']['output'];
+  categoryId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  date: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  exchangeRate: ExchangeRate;
+  exchangeRateId: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  user: User;
+  userId: Scalars['Int']['output'];
+};
+
+export type TransactionInput = {
+  amount: Scalars['Float']['input'];
+  categoryId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  date: Scalars['DateTime']['input'];
+  description: Scalars['String']['input'];
+};
+
 export type UpdateProfileInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
   lang?: InputMaybe<Scalars['String']['input']>;
@@ -112,6 +168,27 @@ export type UpdateProfileInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newPassword?: InputMaybe<Scalars['String']['input']>;
   oldPassword?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type User = {
+  __typename?: 'User';
+  _count: UserCount;
+  currency: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lang: Scalars['String']['output'];
+  monthStartDay: Scalars['Int']['output'];
+  monthlyBudget: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  onboardingAt?: Maybe<Scalars['DateTime']['output']>;
+  password: Scalars['String']['output'];
+  refreshToken?: Maybe<Scalars['String']['output']>;
+  transaction?: Maybe<Array<Transaction>>;
+};
+
+export type UserCount = {
+  __typename?: 'UserCount';
+  transaction: Scalars['Int']['output'];
 };
 
 export type UserWithoutPasswordModel = {
@@ -125,6 +202,20 @@ export type UserWithoutPasswordModel = {
   name: Scalars['String']['output'];
   onboardingAt?: Maybe<Scalars['DateTime']['output']>;
 };
+
+export type CreateTransactionMutationVariables = Exact<{
+  transactionData: TransactionInput;
+}>;
+
+
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, amount: number, categoryId?: string | null, date: any, description?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };
+
+export type DeleteTransactionMutationVariables = Exact<{
+  transactionId: Scalars['Float']['input'];
+}>;
+
+
+export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string } };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -188,3 +279,18 @@ export type SettingsStatisticsMutationVariables = Exact<{
 
 
 export type SettingsStatisticsMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
+
+export type TransactionsQueryVariables = Exact<{
+  date?: InputMaybe<Scalars['DateTime']['input']>;
+}>;
+
+
+export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } }> };
+
+export type UpdateTransactionMutationVariables = Exact<{
+  transactionId: Scalars['Float']['input'];
+  transactionData: TransactionInput;
+}>;
+
+
+export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, amount: number, categoryId?: string | null, date: any, description?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };

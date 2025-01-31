@@ -1,0 +1,5 @@
+mutation DeleteTransaction ($transactionId: Float!) {
+  deleteTransaction(id: $transactionId) {
+    id
+  }
+}
