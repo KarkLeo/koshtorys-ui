@@ -324,6 +324,24 @@
       "miscellaneous": "Різне",
       "miscellaneous--uncategorized": "Різне:  Некатегоризовано",
       "miscellaneous--other-expenses": "Різне:  Інші витрати"
+    },
+    "form": {
+      "fields": {
+        "amount": {
+          "placeholder": "Введіть транзакцію"
+        },
+        "category": {
+          "placeholder": "Оберіть категорію"
+        },
+        "description": {
+          "placeholder": "Додайте опис"
+        }
+      },
+      "buttons": {
+        "add": "Додати",
+        "update": "Оновити",
+        "cancel": "Скасувати"
+      }
     }
   }
 }

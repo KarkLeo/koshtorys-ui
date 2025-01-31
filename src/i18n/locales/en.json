@@ -324,6 +324,24 @@
       "miscellaneous": "Miscellaneous",
       "miscellaneous--uncategorized": "Miscellaneous:  Uncategorized",
       "miscellaneous--other-expenses": "Miscellaneous:  Other Expenses"
+    },
+    "form": {
+      "fields": {
+        "amount": {
+          "placeholder": "Enter transaction"
+        },
+        "category": {
+          "placeholder": "Select category"
+        },
+        "description": {
+          "placeholder": "Enter description"
+        }
+      },
+      "buttons": {
+        "add": "Add",
+        "update": "Update",
+        "cancel": "Cancel"
+      }
     }
   }
 }

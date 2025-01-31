@@ -102,6 +102,7 @@ const getPercentage = (value: number, fullValue: number) =>
 const { max, current } = defineProps<{
   max: number
   current: number
+  message?: string
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -239,10 +240,15 @@ onBeforeUnmount(() => {
     <div class="wave-chart-border">
       <canvas class="wave-chart" ref="canvasRef" width="600" height="50" />
     </div>
+    <div class="wave-chart-message">
+      {{ message }}
+    </div>
   </div>
 </template>
 <style scoped>
 .wave-chart-wrapper {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -268,5 +274,18 @@ onBeforeUnmount(() => {
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   overflow: hidden;
+}
+
+.wave-chart-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  font-size: var(--font-size-display-xs);
+  line-height: var(--line-height-display-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+
+  transform: translate(-50%, -50%);
 }
 </style>

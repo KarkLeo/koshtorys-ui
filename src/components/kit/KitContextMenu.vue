@@ -36,7 +36,7 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
-.kit-context-men.is-open {
+.kit-context-menu.is-open {
   z-index: 9999;
 }
 

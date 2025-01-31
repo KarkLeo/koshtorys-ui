@@ -86,15 +86,27 @@ const handleCloseForm = () => {
 
 <template>
   <div class="edit-transaction-form" ref="formRef">
-    <kit-money-input v-model="transactionValue" v-model:currency="currency" placeholder="0.00" />
-    <kit-input v-model="transactionTitle" type="text" placeholder="Description" />
-    <div class="form-grid">
+    <kit-money-input
+      v-model="transactionValue"
+      v-model:currency="currency"
+      :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
+    />
+    <kit-input
+      v-model="transactionTitle"
+      type="text"
+      :placeholder="$t('transaction.form.fields.description.placeholder')"
+    />
+    <div class="form-fields-row">
       <kit-date-picker v-model="date" full-width @click.stop />
       <kit-categories v-model="category" @click.stop />
     </div>
-    <div class="form-grid">
-      <kit-button size="lg" @click="handlerUpdateTransaction">Save</kit-button>
-      <kit-button size="lg" variant="secondary-gray" @click="handleCloseForm">Cansel</kit-button>
+    <div class="form-buttons-row">
+      <kit-button size="lg" @click="handlerUpdateTransaction">{{
+        $t('transaction.form.buttons.update')
+      }}</kit-button>
+      <kit-button size="lg" variant="secondary-gray" @click="handleCloseForm">{{
+        $t('transaction.form.buttons.cancel')
+      }}</kit-button>
     </div>
   </div>
 </template>
@@ -113,9 +125,20 @@ const handleCloseForm = () => {
   border-radius: var(--radius-xl);
 }
 
-.form-grid {
+.form-fields-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xl);
+}
+
+.form-buttons-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xl);
+}
+@media screen and (min-width: 768px) {
+  .form-fields-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

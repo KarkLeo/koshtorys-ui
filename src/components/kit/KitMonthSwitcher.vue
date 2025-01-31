@@ -85,8 +85,8 @@ const currentPeriod = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl);
-  gap: var(--spacing-xl);
+  padding: var(--spacing-sm);
+  gap: var(--spacing-sm);
   box-sizing: border-box;
 
   border: 1px solid var(--border-primary);

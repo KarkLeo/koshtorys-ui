@@ -21,7 +21,7 @@ const getCategoryStyle = (category: string) => ({
   <kit-dropdown-with-input
     v-model="category"
     :options="TRANSACTION_CATEGORIES"
-    placeholder="Select category"
+    :placeholder="t('transaction.form.fields.category.placeholder')"
     :getOptionLabel="getCategoriesLabel"
     :getOptionClass="() => 'category-item'"
     :getOptionStyle="getCategoryStyle"

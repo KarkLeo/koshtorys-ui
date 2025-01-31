@@ -83,12 +83,12 @@ const handleDeleteTransaction = (id: string) => {
 <template>
   <div class="transaction-container">
     <kit-month-switcher v-model="statisticDate" />
-    <h2>
-      {{ formatAmount(sum) }} /
-      {{ formatAmount(me?.me.monthlyBudget || 0) }}
-      {{ formatCurrency(me?.me.currency || '') }}
-    </h2>
-    <wave-chart :current="sum" :max="me?.me.monthlyBudget || 0" />
+
+    <wave-chart
+      :current="sum"
+      :max="me?.me.monthlyBudget || 0"
+      :message="`${formatAmount(sum)} / ${formatAmount(me?.me.monthlyBudget || 0)} ${formatCurrency(me?.me.currency || '')}`"
+    />
 
     <ul class="transaction-list">
       <li v-for="transaction in list" :key="transaction.id" class="transaction">
@@ -104,7 +104,16 @@ const handleDeleteTransaction = (id: string) => {
                 {{ formatCurrency(transaction?.originalCurrency || '') }}
               </p>
             </div>
-            <kit-context-menu>
+
+            <p
+              class="transaction-category"
+              :style="{ '--color': getCategoryColor(transaction.categoryId as string) }"
+            >
+              {{ $t(`transaction.categories.${transaction.categoryId}`) }}
+            </p>
+            <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
+
+            <kit-context-menu class="transaction-menu">
               <kit-icon-button @click="editingTransactionId = transaction.id">
                 <icon-edit />
               </kit-icon-button>
@@ -112,15 +121,6 @@ const handleDeleteTransaction = (id: string) => {
                 <icon-trash />
               </kit-icon-button>
             </kit-context-menu>
-          </div>
-          <div class="transaction-middle">
-            <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
-            <p
-              class="transaction-category"
-              :style="{ '--color': getCategoryColor(transaction.categoryId as string) }"
-            >
-              {{ $t(`transaction.categories.${transaction.categoryId}`) }}
-            </p>
           </div>
           <p class="transaction-description">{{ transaction.description }}</p>
         </div>
@@ -138,13 +138,15 @@ const handleDeleteTransaction = (id: string) => {
 .transaction-container {
   max-width: 600px;
   margin: 0 auto 300px;
+  padding: var(--spacing-2xl) var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-lg);
 }
 
 .transaction-list {
   list-style: none;
+  margin: var(--spacing-lg) 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -154,7 +156,7 @@ const handleDeleteTransaction = (id: string) => {
 .transaction-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-lg);
   padding: var(--spacing-xl);
   box-sizing: border-box;
 
@@ -163,23 +165,20 @@ const handleDeleteTransaction = (id: string) => {
 }
 
 .transaction-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: max-content max-content;
+  gap: var(--spacing-md);
+  row-gap: var(--spacing-lg);
 }
 
 .transaction-amount {
+  grid-column: 1 / 4;
+  grid-row: 1 / 2;
   display: flex;
   flex-direction: row;
   align-items: flex-end;
   gap: var(--spacing-sm);
-}
-
-.transaction-middle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-xl);
 }
 
 .transaction-amount-main {
@@ -199,8 +198,15 @@ const handleDeleteTransaction = (id: string) => {
   color: var(--text-tertiary);
 }
 
+.transaction-menu {
+  margin-left: auto;
+}
+
 .transaction-date {
-  margin: 0;
+  grid-column: 3 / 5;
+  grid-row: 2 / 3;
+  align-self: center;
+  margin: 0 0 0 auto;
 
   font-size: var(--font-size-text-md);
   line-height: var(--line-height-text-md);
@@ -218,16 +224,35 @@ const handleDeleteTransaction = (id: string) => {
 }
 
 .transaction-category {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
   margin: 0;
   padding: var(--spacing-xxs) 10px;
   box-sizing: border-box;
+  width: min-content;
+  max-width: 220px;
+  overflow: hidden;
 
   font-size: var(--font-size-text-sm);
   line-height: var(--line-height-text-md);
   font-weight: var(--font-weight-medium);
   color: var(--color);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   border: 1px solid var(--color);
   border-radius: var(--radius-full);
+}
+@media screen and (min-width: 768px) {
+  .transaction-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--spacing-xl);
+  }
+
+  .transaction-menu {
+    margin-left: inherit;
+  }
 }
 </style>

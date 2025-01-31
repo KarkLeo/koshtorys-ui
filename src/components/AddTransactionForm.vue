@@ -51,12 +51,11 @@ const handleClickOutside = (event: MouseEvent) => {
   if (!formRef.value) return
 
   if (!formRef.value.contains(event.target as Node)) {
-    isOpen.value = Boolean(transactionValue.value) || Boolean(transactionTitle.value)
-
-    if (!isOpen.value) {
-      category.value = ''
-      date.value = nowDateUTC()
-    }
+    isOpen.value = false
+    transactionValue.value = ''
+    transactionTitle.value = ''
+    category.value = ''
+    date.value = nowDateUTC()
   }
 }
 
@@ -70,24 +69,29 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :class="['add-transaction-form', { active: isOpen }]" ref="formRef">
+  <div
+    :class="['add-transaction-form', { active: isOpen }]"
+    ref="formRef"
+    @click.stop="isOpen = true"
+  >
     <kit-money-input
       v-model="transactionValue"
-      @focus="isOpen = true"
       v-model:currency="currency"
-      placeholder="0.00"
+      :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
     />
     <kit-input
       v-model="transactionTitle"
       @focus="isOpen = true"
       type="text"
-      placeholder="Description"
+      :placeholder="$t('transaction.form.fields.description.placeholder')"
     />
-    <div class="form-grid">
+    <div class="form-fields-row">
       <kit-date-picker v-model="date" full-width @click.stop />
       <kit-categories v-model="category" @click.stop />
     </div>
-    <kit-button size="xl" @click="handlerCreateTransaction">Save</kit-button>
+    <kit-button size="xl" @click="handlerCreateTransaction">{{
+      $t('transaction.form.buttons.add')
+    }}</kit-button>
   </div>
 </template>
 
@@ -106,7 +110,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: var(--spacing-2xl);
 
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--border-brand);
   background-color: var(--bg-primary);
   border-radius: var(--radius-xl);
   box-shadow:
@@ -117,13 +121,28 @@ onBeforeUnmount(() => {
   transform: translateY(calc(100% - 84px)) translateX(-50%);
   transition: all 0.5s ease-in-out;
 }
+
 .active {
   transform: translateY(calc(-1 * var(--spacing-xl))) translateX(-50%);
+
+  border-color: var(--border-primary);
+  box-shadow:
+    0 0 0 2px var(--bg-primary),
+    0 0 0 4px var(--border-brand),
+    0 2px 2px -1px #0a0d120a,
+    0 4px 6px -2px #0a0d1208,
+    0 12px 16px -4px #0a0d1214;
 }
 
-.form-grid {
+.form-fields-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--spacing-xl);
+}
+
+@media screen and (min-width: 768px) {
+  .form-fields-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

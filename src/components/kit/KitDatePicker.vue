@@ -201,14 +201,11 @@ onBeforeUnmount(() => {
   bottom: calc(100% + var(--spacing-md));
 }
 
-.on-left .date-picker-calendar {
-  left: 0;
-  right: auto;
-}
-
+.on-left .date-picker-calendar,
 .on-right .date-picker-calendar {
-  left: auto;
-  right: 0;
+  left: 50%;
+
+  transform: translateX(-50%);
 }
 
 .date-picker-calendar {
@@ -299,5 +296,21 @@ onBeforeUnmount(() => {
 
 .date-picker-calendar-grid .empty {
   visibility: hidden;
+}
+
+@media screen and (min-width: 768px) {
+  .on-left .date-picker-calendar {
+    left: 0;
+    right: auto;
+
+    transform: none;
+  }
+
+  .on-right .date-picker-calendar {
+    left: auto;
+    right: 0;
+
+    transform: none;
+  }
 }
 </style>
