@@ -9,8 +9,10 @@ import IconChevronRight from '@/components/icons/IconChevronRight.vue'
 
 const model = defineModel<Date | null>()
 
-defineProps<{
+const { minDate, maxDate } = defineProps<{
   fullWidth?: boolean
+  minDate?: Date
+  maxDate?: Date
 }>()
 
 const currentDate = ref<Date>(new Date())
@@ -24,6 +26,17 @@ const isPositionLeftOfPage = ref<boolean>(true)
 const selectDate = (day: number) => {
   isOpen.value = false
   model.value = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+}
+
+const validateDate = (day: number): boolean => {
+  const date = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+  if (minDate && date < minDate) {
+    return false
+  }
+  if (maxDate && date > maxDate) {
+    return false
+  }
+  return true
 }
 
 const checkPositionOnPage = () => {
@@ -146,6 +159,7 @@ onBeforeUnmount(() => {
           :class="['date-picker-calendar-day', { selected: isSelected(day) }]"
           :key="day"
           @click="selectDate(day)"
+          :disabled="!validateDate(day)"
         >
           {{ day }}
         </button>
@@ -292,6 +306,11 @@ onBeforeUnmount(() => {
 
   background-color: var(--bg-brand-solid);
   border-radius: 50%;
+}
+
+.date-picker-calendar-day:disabled {
+  cursor: not-allowed;
+  color: var(--text-disabled);
 }
 
 .date-picker-calendar-grid .empty {

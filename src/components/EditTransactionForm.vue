@@ -90,6 +90,7 @@ const handleCloseForm = () => {
       v-model="transactionValue"
       v-model:currency="currency"
       :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
+      :min="0"
     />
     <kit-input
       v-model="transactionTitle"
@@ -97,7 +98,7 @@ const handleCloseForm = () => {
       :placeholder="$t('transaction.form.fields.description.placeholder')"
     />
     <div class="form-fields-row">
-      <kit-date-picker v-model="date" full-width @click.stop />
+      <kit-date-picker v-model="date" full-width @click.stop :max-date="nowDateUTC()" />
       <kit-categories v-model="category" @click.stop />
     </div>
     <div class="form-buttons-row">

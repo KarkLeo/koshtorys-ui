@@ -6,9 +6,16 @@ defineOptions({ inheritAttrs: false })
 const model = defineModel()
 const currencyModel = defineModel('currency', { type: String })
 
-const { size = 'md', error = false } = defineProps<{
+const {
+  size = 'md',
+  error = false,
+  min,
+  max,
+} = defineProps<{
   size?: 'sm' | 'md'
   error?: boolean
+  min?: number
+  max?: number
 }>()
 </script>
 
@@ -19,6 +26,8 @@ const { size = 'md', error = false } = defineProps<{
       type="number"
       :class="['input', size, { error: error }]"
       v-bind="$attrs"
+      :min="min"
+      :max="max"
     />
     <kit-dropdown :options="CURRENCIES" v-model="currencyModel" placeholder="Select currency" />
     <span class="outline" />
