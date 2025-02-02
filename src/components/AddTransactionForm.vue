@@ -9,53 +9,95 @@ import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
+import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 
 import { useCreateTransaction } from '@/hooks/transaction-hooks.ts'
 import { nowDateUTC } from '@/helpers/time.ts'
+import { transactionSchema } from '@/validations/transaction.ts'
+import { ValidationError } from 'yup'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useI18n } from 'vue-i18n'
 
 const { me } = useMe()
+const toastStore = useToastStore()
+const { createTransaction } = useCreateTransaction()
+const { t } = useI18n()
 
 const formRef = ref<HTMLElement | null>(null)
-const transactionValue = ref('')
-const currency = ref(me.value?.me.currency || CURRENCIES[0])
-const category = ref<string>('')
-const date = ref<Date>(nowDateUTC())
 const isOpen = ref(false)
-const transactionTitle = ref('')
+const errors = ref<Record<string, string>>({})
 
-const { createTransaction } = useCreateTransaction()
+const amount = ref('')
+const currency = ref(me.value?.me.currency || CURRENCIES[0])
+const description = ref('')
+const date = ref<Date>(nowDateUTC())
+const categoryId = ref<string>('')
 
-const handlerCreateTransaction = async () => {
-  if (!transactionValue.value || !transactionTitle.value || !category.value) {
-    return
+const validateForm = async () => {
+  try {
+    await transactionSchema.validate(
+      {
+        amount: parseFloat(amount.value || '0'),
+        currency: currency.value,
+        description: description.value,
+        categoryId: categoryId.value,
+        date: date.value.toISOString(),
+      },
+      { abortEarly: false },
+    )
+    errors.value = {}
+    return true
+    // eslint-disable-next-line
+  } catch (validationErrors: any) {
+    errors.value = (validationErrors as ValidationError).inner.reduce(
+      // eslint-disable-next-line
+      (acc: Record<string, string>, error: any) => {
+        if (!acc[error.path]) acc[error.path] = error.message
+        return acc
+      },
+      {},
+    )
+    return false
   }
+}
 
-  await createTransaction({
-    transactionData: {
-      amount: parseFloat(transactionValue.value),
-      currency: currency.value,
-      description: transactionTitle.value,
-      categoryId: category.value,
-      date: date.value.toISOString(),
-    },
-  })
-
-  transactionValue.value = ''
-  transactionTitle.value = ''
-  category.value = ''
+const clearForm = () => {
+  amount.value = ''
+  description.value = ''
+  categoryId.value = ''
   date.value = nowDateUTC()
   currency.value = me.value?.me.currency || CURRENCIES[0]
+  isOpen.value = false
+  errors.value = {}
+}
+
+const handlerCreateTransaction = async () => {
+  try {
+    const isValid = await validateForm()
+    if (!isValid) return
+
+    await createTransaction({
+      transactionData: {
+        amount: parseFloat(amount.value),
+        currency: currency.value,
+        description: description.value,
+        categoryId: categoryId.value,
+        date: date.value.toISOString(),
+      },
+    })
+
+    clearForm()
+    // eslint-disable-next-line
+  } catch (e: any) {
+    toastStore.error(t('common_errors.server_error'))
+  }
 }
 
 const handleClickOutside = (event: MouseEvent) => {
   if (!formRef.value) return
 
   if (!formRef.value.contains(event.target as Node)) {
-    isOpen.value = false
-    transactionValue.value = ''
-    transactionTitle.value = ''
-    category.value = ''
-    date.value = nowDateUTC()
+    clearForm()
   }
 }
 
@@ -74,25 +116,52 @@ onBeforeUnmount(() => {
     ref="formRef"
     @click.stop="isOpen = true"
   >
-    <kit-money-input
-      v-model="transactionValue"
-      v-model:currency="currency"
-      :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
-      :min="0"
-    />
-    <kit-input
-      v-model="transactionTitle"
-      @focus="isOpen = true"
-      type="text"
-      :placeholder="$t('transaction.form.fields.description.placeholder')"
-    />
+    <kit-simple-field-wrapper
+      :error="Boolean(errors?.amount)"
+      :message="errors?.amount ? $t(`transaction.form.errors.${errors.amount}`) : ''"
+    >
+      <kit-money-input
+        v-model="amount"
+        v-model:currency="currency"
+        :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
+        :min="0"
+        :error="Boolean(errors?.amount)"
+      />
+    </kit-simple-field-wrapper>
+    <kit-simple-field-wrapper
+      :error="Boolean(errors?.description)"
+      :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
+    >
+      <kit-input
+        v-model="description"
+        type="text"
+        :placeholder="$t('transaction.form.fields.description.placeholder')"
+        :error="Boolean(errors?.description)"
+      />
+    </kit-simple-field-wrapper>
     <div class="form-fields-row">
-      <kit-date-picker v-model="date" full-width @click.stop :max-date="nowDateUTC()" />
-      <kit-categories v-model="category" @click.stop />
+      <kit-simple-field-wrapper
+        :error="Boolean(errors?.date)"
+        :message="errors?.date ? $t(`transaction.form.errors.${errors.date}`) : ''"
+      >
+        <kit-date-picker
+          v-model="date"
+          full-width
+          @click.stop
+          :max-date="nowDateUTC()"
+          :error="Boolean(errors?.date)"
+        />
+      </kit-simple-field-wrapper>
+      <kit-simple-field-wrapper
+        :error="Boolean(errors?.categoryId)"
+        :message="errors?.categoryId ? $t(`transaction.form.errors.${errors.categoryId}`) : ''"
+      >
+        <kit-categories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
+      </kit-simple-field-wrapper>
     </div>
-    <kit-button size="xl" @click="handlerCreateTransaction">{{
-      $t('transaction.form.buttons.add')
-    }}</kit-button>
+    <kit-button size="xl" @click="handlerCreateTransaction"
+      >{{ $t('transaction.form.buttons.add') }}
+    </kit-button>
   </div>
 </template>
 

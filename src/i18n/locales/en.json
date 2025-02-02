@@ -341,6 +341,17 @@
         "add": "Add",
         "update": "Update",
         "cancel": "Cancel"
+      },
+      "errors": {
+        "amount_required": "Amount is required",
+        "amount_min": "Amount must be more than 0",
+        "currency_required": "Currency is required",
+        "currency_invalid": "Invalid currency",
+        "description_max": "Description must be less then 255 characters",
+        "date_required": "Date is required",
+        "date_max": "Date cannot be in the future",
+        "category_required": "Category is required",
+        "category_invalid": "Invalid category"
       }
     }
   }

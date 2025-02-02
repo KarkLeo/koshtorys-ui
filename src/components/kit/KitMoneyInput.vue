@@ -85,6 +85,17 @@ const {
   background-color: var(--bg-disabled_subtle);
 }
 
+.message {
+  position: absolute;
+  top: 100%;
+  left: 0;
+
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
 .outline {
   position: absolute;
   top: 0;

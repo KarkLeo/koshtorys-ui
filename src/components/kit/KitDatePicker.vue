@@ -13,6 +13,7 @@ const { minDate, maxDate } = defineProps<{
   fullWidth?: boolean
   minDate?: Date
   maxDate?: Date
+  error?: boolean
 }>()
 
 const currentDate = ref<Date>(new Date())
@@ -118,15 +119,17 @@ onBeforeUnmount(() => {
         'on-left': isPositionLeftOfPage,
         'on-right': !isPositionLeftOfPage,
         'full-width': fullWidth,
+        error: error,
       },
     ]"
     ref="datePickerRef"
   >
     <kit-button
       class="date-picker-button"
-      variant="secondary-gray"
+      variant="transparent"
       @click="handleOpen"
       :fullwidth="fullWidth"
+      :error="error"
     >
       <icon-calendar class="date-picker-button-icon" />
       <span v-if="model" class="date-picker-button-text">

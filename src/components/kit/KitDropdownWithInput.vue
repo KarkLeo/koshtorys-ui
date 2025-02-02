@@ -15,6 +15,7 @@ const {
   getOptionClass?: (option: string) => string
   getOptionStyle?: (option: string) => object
   withDot?: boolean
+  error?: boolean
 }>()
 
 const model = defineModel<string | null>()
@@ -119,7 +120,10 @@ const handleInput = () => {
 
 <template>
   <div
-    :class="['dropdown', { 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage }]"
+    :class="[
+      'dropdown',
+      { 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage, error: error },
+    ]"
     ref="dropdownRef"
     :style="{ '--max-height': `${maxVisibleHeight}px` }"
   >
@@ -180,6 +184,7 @@ const handleInput = () => {
   box-shadow: var(--shadow-xs);
   cursor: pointer;
 }
+
 .dropdown-toggle:focus {
   outline: none;
 }
@@ -237,6 +242,10 @@ const handleInput = () => {
 }
 .dropdown-toggle:disabled .outline {
   border: 1px solid var(--border-disabled);
+}
+
+.error .outline {
+  border: 1px solid var(--border-error_subtle);
 }
 
 .on-top .dropdown-menu {

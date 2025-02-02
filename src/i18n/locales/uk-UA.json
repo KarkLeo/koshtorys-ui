@@ -341,6 +341,17 @@
         "add": "Додати",
         "update": "Оновити",
         "cancel": "Скасувати"
+      },
+      "errors": {
+        "amount_required": "Сума обов'язкова",
+        "amount_min": "Сума не може бути менше 0",
+        "currency_required": "Валюта обов'язкова",
+        "currency_invalid": "Недійсна валюта",
+        "description_max": "Опис не може бути більше 255 символів",
+        "date_required": "Дата обов'язкова",
+        "date_max": "Недійсна дата",
+        "category_required": "Категорія обов'язкова",
+        "category_invalid": "Недійсна категорія"
       }
     }
   }
