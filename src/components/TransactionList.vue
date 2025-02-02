@@ -15,14 +15,8 @@ import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import EditTransactionForm from '@/components/EditTransactionForm.vue'
-
-const { statisticDate } = useStatisticDateStore()
-const { me } = useMe()
-
-const editingTransactionId = ref<string | null>(null)
-
-const { transactions } = useTransactionList()
-const { deleteTransaction } = useDeleteTransaction()
+import { useI18n } from 'vue-i18n'
+import { useToastStore } from '@/stores/toastStore.ts'
 
 type BaseTransaction = TransactionsQuery['transactions'][number]
 
@@ -30,6 +24,16 @@ interface ExtendedTransaction extends BaseTransaction {
   originalAmount?: number
   originalCurrency?: string
 }
+
+const { t } = useI18n()
+const toastStore = useToastStore()
+const { statisticDate } = useStatisticDateStore()
+const { me } = useMe()
+
+const { transactions } = useTransactionList()
+const { deleteTransaction } = useDeleteTransaction()
+
+const editingTransactionId = ref<string | null>(null)
 
 const list = computed<ExtendedTransaction[]>(() => {
   const meCurrency = me.value?.me.currency
@@ -73,10 +77,23 @@ const getCategoryColor = (categoryId: string) => {
   return TRANSACTION_CATEGORIES_COLORS[categoryId.replace(/--.*$/, '')] || ''
 }
 
-const handleDeleteTransaction = (id: string) => {
-  deleteTransaction({
-    transactionId: Number(id),
-  })
+const handleDeleteTransaction = async (id: string) => {
+  try {
+    await deleteTransaction({
+      transactionId: Number(id),
+    })
+    // eslint-disable-next-line
+  } catch (e: any) {
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes?.form) {
+        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
+  }
 }
 </script>
 

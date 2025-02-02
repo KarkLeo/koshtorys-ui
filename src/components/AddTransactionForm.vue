@@ -89,7 +89,18 @@ const handlerCreateTransaction = async () => {
     clearForm()
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error(t('common_errors.server_error'))
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes) {
+        errors.value = errorCodes
+      }
+      if (errorCodes.form) {
+        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
   }
 }
 

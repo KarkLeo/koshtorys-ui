@@ -30,10 +30,10 @@ const { transaction } = defineProps<{
   transaction: ExtendedTransaction
 }>()
 
-const { me } = useMe()
 const toastStore = useToastStore()
-const { updateTransaction } = useUpdateTransaction()
 const { t } = useI18n()
+const { me } = useMe()
+const { updateTransaction } = useUpdateTransaction()
 
 const formRef = ref<HTMLElement | null>(null)
 const errors = ref<Record<string, string>>({})
@@ -118,7 +118,19 @@ const handlerUpdateTransaction = async () => {
     emit('closeForm')
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error(t('common_errors.server_error'))
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes) {
+        errors.value = errorCodes
+      }
+
+      if (errorCodes.form) {
+        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
   }
 }
 

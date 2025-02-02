@@ -351,7 +351,10 @@
         "date_required": "Date is required",
         "date_max": "Date cannot be in the future",
         "category_required": "Category is required",
-        "category_invalid": "Invalid category"
+        "category_invalid": "Invalid category",
+        "invalid_exchange_rate_data": "Invalid exchange rate, please try again later",
+        "transaction_not_found": "Transaction not found",
+        "forbidden": "You are not allowed to perform this action"
       }
     }
   }
