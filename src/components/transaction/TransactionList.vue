@@ -9,12 +9,12 @@ import { useDeleteTransaction, useTransactionList } from '@/hooks/transaction-ho
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 
 import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
-import WaveChart from '@/components/WaveChart.vue'
+import WaveChart from '@/components/transaction/WaveChart.vue'
 import KitContextMenu from '@/components/kit/KitContextMenu.vue'
 import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
-import EditTransactionForm from '@/components/EditTransactionForm.vue'
+import EditTransactionForm from '@/components/transaction/EditTransactionForm.vue'
 import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toastStore.ts'
 

@@ -7,9 +7,12 @@ import KitInput from '@/components/kit/KitInput.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitToggle from '@/components/kit/KitToggle.vue'
+import KitToggleBar from '@/components/kit/KitToggleBar.vue'
 
 const input = ref<string>('')
 const toastStore = useToastStore()
+
+const menu = ref('')
 </script>
 
 <template>
@@ -21,6 +24,12 @@ const toastStore = useToastStore()
       <router-link to="/register">
         <kit-button variant="secondary-gray">Register</kit-button>
       </router-link>
+    </div>
+    <div class="row">
+      <kit-toggle-bar v-model="menu" :options="['one', 'two', 'three']" />
+      <h1>
+        {{ menu }}
+      </h1>
     </div>
     <div class="row">
       <kit-date-picker />

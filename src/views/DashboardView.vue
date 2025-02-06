@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import AddTransactionForm from '@/components/AddTransactionForm.vue'
-import TransactionList from '@/components/TransactionList.vue'
+import KitTabs from '@/components/kit/KitTabs.vue'
+import { DASHBOARD_TABS } from '@/constants/dashbord.ts'
 </script>
 
 <template>
   <main>
-    <transaction-list />
-    <add-transaction-form />
+    <kit-tabs :tabs="DASHBOARD_TABS" lang-prefix="dashboard.tabs." />
   </main>
 </template>
