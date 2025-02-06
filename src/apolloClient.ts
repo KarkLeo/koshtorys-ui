@@ -29,7 +29,9 @@ function rejectPendingRequests(error: Error) {
 export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   if (graphQLErrors) {
     for (const err of graphQLErrors) {
-      if (err.extensions?.code === 'UNAUTHENTICATED') {
+      console.error(`[GraphQL error]: Message: ${err.message}, Path: ${err.path}`)
+
+      if (err.extensions?.code === 'UNAUTHENTICATED' && err.path?.[0] !== 'refreshTokens') {
         if (!isRefreshing && retryCount < maxRetries) {
           isRefreshing = true
           retryCount++
@@ -86,6 +88,8 @@ export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
             })
           })
         })
+      } else {
+        return forward(operation)
       }
     }
   }

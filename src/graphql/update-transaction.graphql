@@ -1,0 +1,15 @@
+mutation UpdateTransaction ($transactionId: Float!, $transactionData: TransactionInput!) {
+  updateTransaction(transactionData: $transactionData, id: $transactionId) {
+    id
+    amount
+    categoryId
+    date
+    description
+    exchangeRate {
+      id
+      base
+      date
+      rates
+    }
+  }
+}

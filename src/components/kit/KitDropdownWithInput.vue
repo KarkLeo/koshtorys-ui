@@ -1,31 +1,44 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, computed } from 'vue'
 import IconChevronDown from '@/components/icons/IconChevronDown.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 
-const props = defineProps<{
+const {
+  options,
+  getOptionLabel = (_) => _,
+  getOptionClass = (_) => _,
+  getOptionStyle = () => ({}),
+} = defineProps<{
   options: string[]
   placeholder?: string
   getOptionLabel?: (option: string) => string
+  getOptionClass?: (option: string) => string
+  getOptionStyle?: (option: string) => object
+  withDot?: boolean
+  error?: boolean
 }>()
 
 const model = defineModel<string | null>()
 
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
-const buttonRef = ref<HTMLElement | null>(null)
-const listRef = ref<HTMLElement | null>(null)
+const searchRef = ref<HTMLElement | null>(null)
 const selectedIndex = ref<number>(-1)
+const search = ref<string>('')
+const isFiltered = ref(false)
 const isPositionTopOfPage = ref<boolean>(true)
-const maxVisibleHeight = ref<number>(320)
+const maxVisibleHeight = ref<number>(360)
 
 const toggleDropdown = async () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     checkPositionOnPage()
     await nextTick()
-    listRef.value?.focus()
-    selectedIndex.value = props.options.indexOf(model.value ?? '')
+    searchRef.value?.focus()
+    selectedIndex.value = options.indexOf(model.value ?? '')
+  } else {
+    search.value = model?.value ? getOptionLabel(model.value) : ''
+    isFiltered.value = false
   }
 }
 
@@ -34,7 +47,7 @@ const checkPositionOnPage = () => {
     const { top, bottom } = dropdownRef.value.getBoundingClientRect()
     const bottomSpace = document.documentElement.clientHeight - bottom
     isPositionTopOfPage.value = top < bottomSpace
-    maxVisibleHeight.value = Math.min(Math.max(top, bottomSpace), 320)
+    maxVisibleHeight.value = Math.min(Math.max(top, bottomSpace), 360)
   }
 }
 
@@ -42,30 +55,29 @@ const selectOption = async (option: string, index: number) => {
   selectedIndex.value = index
   model.value = option
   isOpen.value = false
+  isFiltered.value = false
   await nextTick()
-  buttonRef.value?.focus()
+  searchRef.value?.focus()
 }
 
 const handleKeyDown = (event: KeyboardEvent) => {
   event.preventDefault()
   switch (event.key) {
     case 'ArrowDown':
-      selectedIndex.value =
-        selectedIndex.value < props.options.length - 1 ? selectedIndex.value + 1 : 0
+      selectedIndex.value = selectedIndex.value < options.length - 1 ? selectedIndex.value + 1 : 0
       break
     case 'ArrowUp':
-      selectedIndex.value =
-        selectedIndex.value > 0 ? selectedIndex.value - 1 : props.options.length - 1
+      selectedIndex.value = selectedIndex.value > 0 ? selectedIndex.value - 1 : options.length - 1
       break
     case 'Enter':
-      if (selectedIndex.value >= 0 && selectedIndex.value < props.options.length) {
-        selectOption(props.options[selectedIndex.value], selectedIndex.value)
+      if (selectedIndex.value >= 0 && selectedIndex.value < options.length) {
+        selectOption(options[selectedIndex.value], selectedIndex.value)
       }
       break
     case 'Escape':
-      selectedIndex.value = props.options.indexOf(model.value ?? '')
+      selectedIndex.value = options.indexOf(model.value ?? '')
       isOpen.value = false
-      buttonRef.value?.focus()
+      searchRef.value?.blur()
       break
   }
 }
@@ -73,6 +85,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
 const handleClickOutside = (event: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     isOpen.value = false
+    isFiltered.value = false
+    search.value = model.value ? getOptionLabel(model.value) : ''
   }
 }
 
@@ -84,38 +98,53 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+watch(model, () => {
+  search.value = model?.value ? getOptionLabel(model.value) : ''
+})
+
+const filteredOptions = computed(() => {
+  return isFiltered.value
+    ? options.filter((option) =>
+        getOptionLabel(option).toLowerCase().includes(search.value.toLowerCase()),
+      )
+    : options
+})
+
+const handleInput = () => {
+  isFiltered.value = true
+  isOpen.value = true
+  checkPositionOnPage()
+}
 </script>
 
 <template>
   <div
-    :class="['dropdown', { 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage }]"
+    :class="[
+      'dropdown',
+      { 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage, error: error },
+    ]"
     ref="dropdownRef"
     :style="{ '--max-height': `${maxVisibleHeight}px` }"
   >
-    <button
-      type="button"
-      class="dropdown-toggle"
-      :class="{ open: isOpen }"
-      @click="toggleDropdown"
-      aria-haspopup="listbox"
-      ref="buttonRef"
-    >
-      <span v-if="model" class="selected-option">{{
-        getOptionLabel ? getOptionLabel(model) : model
-      }}</span>
-      <span v-else class="placeholder">{{ placeholder }}</span>
+    <div class="dropdown-toggle" :class="{ open: isOpen }" @click="toggleDropdown">
+      <input
+        v-model="search"
+        class="search-input"
+        :placeholder="placeholder"
+        ref="searchRef"
+        @input="handleInput"
+      />
       <icon-chevron-down class="chevron" />
-      <span class="outline"></span>
-    </button>
-    <ul
-      v-if="isOpen"
-      class="dropdown-menu"
-      role="listbox"
-      tabindex="0"
-      @keydown="handleKeyDown"
-      ref="listRef"
-    >
-      <li v-for="(option, index) in options" :key="index" class="dropdown-item">
+      <div class="outline" />
+    </div>
+    <ul v-if="isOpen" class="dropdown-menu" role="listbox" tabindex="0" @keydown="handleKeyDown">
+      <li
+        v-for="(option, index) in filteredOptions"
+        :key="index"
+        :class="['dropdown-item', getOptionClass(option)]"
+        :style="getOptionStyle(option)"
+      >
         <button
           type="button"
           role="option"
@@ -125,7 +154,8 @@ onBeforeUnmount(() => {
           class="dropdown-item-handler"
           @click.prevent="selectOption(option, index)"
         >
-          <span class="option">{{ getOptionLabel ? getOptionLabel(option) : option }}</span>
+          <span v-if="withDot" class="dropdown-item-dot" />
+          <span class="option">{{ getOptionLabel(option) }}</span>
           <icon-check v-if="option === model" class="check" />
         </button>
       </li>
@@ -145,13 +175,8 @@ onBeforeUnmount(() => {
   justify-content: flex-start;
   gap: var(--spacing-md);
   width: 100%;
-  padding: 10px 14px;
+  padding: 0 14px 0 0;
   box-sizing: border-box;
-
-  font-size: var(--font-size-text-md);
-  line-height: var(--line-height-text-md);
-  font-weight: var(--font-weight-regular);
-  text-align: left;
 
   background-color: var(--bg-primary);
   border: 1px solid transparent;
@@ -159,6 +184,7 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-xs);
   cursor: pointer;
 }
+
 .dropdown-toggle:focus {
   outline: none;
 }
@@ -168,21 +194,29 @@ onBeforeUnmount(() => {
   background-color: var(--bg-disabled_subtle);
 }
 
-.placeholder {
-  width: 100%;
-
-  color: var(--text-placeholder);
-}
-.selected-option {
-  width: 100%;
-
-  color: var(--text-primary);
-}
 .dropdown-toggle :deep(.chevron) {
   width: 20px;
   height: 20px;
 
   color: var(--fg-tertiary);
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 14px;
+
+  font-size: var(--font-size-text-md);
+  line-height: var(--line-height-text-md);
+  font-weight: var(--font-weight-regular);
+  text-align: left;
+  color: var(--text-primary);
+
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+.search-input::placeholder {
+  color: var(--text-placeholder);
 }
 
 .outline {
@@ -201,6 +235,7 @@ onBeforeUnmount(() => {
 
   pointer-events: none;
 }
+.search-input:focus ~ .outline,
 .dropdown-toggle:focus .outline,
 .dropdown-toggle.open .outline {
   border: 2px solid var(--border-brand);
@@ -209,11 +244,14 @@ onBeforeUnmount(() => {
   border: 1px solid var(--border-disabled);
 }
 
+.error .outline {
+  border: 1px solid var(--border-error_subtle);
+}
+
 .on-top .dropdown-menu {
   top: calc(100% + var(--spacing-xs));
   bottom: auto;
 }
-
 .on-bottom .dropdown-menu {
   top: auto;
   bottom: calc(100% + var(--spacing-xs));
@@ -232,7 +270,6 @@ onBeforeUnmount(() => {
   padding: var(--spacing-xs) 0;
 
   list-style: none;
-
   background: var(--bg-primary);
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-md);
@@ -241,12 +278,10 @@ onBeforeUnmount(() => {
     0 12px 16px -4px rgba(16, 24, 40, 0.08);
   outline: none;
 }
-
 .dropdown-menu::-webkit-scrollbar {
   width: var(--spacing-md);
   background-color: transparent;
 }
-
 .dropdown-menu::-webkit-scrollbar-thumb {
   background-color: var(--border-primary);
   border-radius: var(--radius-xs);
@@ -261,10 +296,21 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
+.dropdown-item-dot {
+  width: 8px;
+  height: 8px;
+  margin-right: var(--spacing-sm);
+  flex-shrink: 0;
+  flex-grow: 0;
+
+  background-color: var(--fg-brand-primary);
+  border-radius: 50%;
+}
+
 .dropdown-item-handler {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--spacing-md);
   width: 100%;
   padding: 10px 10px 10px var(--spacing-md);

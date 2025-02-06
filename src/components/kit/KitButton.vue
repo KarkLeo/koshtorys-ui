@@ -7,8 +7,9 @@ const {
 } = defineProps<{
   type?: 'button' | 'submit' | 'reset'
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
-  variant?: 'primary' | 'secondary-gray'
+  variant?: 'primary' | 'secondary-gray' | 'danger' | 'transparent'
   fullwidth?: boolean
+  error?: boolean
 }>()
 </script>
 
@@ -21,6 +22,7 @@ const {
       variant,
       {
         'full-width': fullwidth,
+        error: error,
       },
     ]"
     v-bind="$attrs"
@@ -115,6 +117,26 @@ const {
   color: white;
 }
 
+.btn.transparent {
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+  background-color: transparent;
+  box-shadow: var(--shadow-btn);
+}
+.btn.secondary-gray:hover {
+  color: var(--text-secondary_hover);
+}
+.btn.secondary-gray:focus {
+  outline: none;
+  box-shadow: var(--shadow-focused), var(--shadow-btn);
+}
+.btn.secondary-gray:disabled {
+  color: var(--fg-disabled);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-disabled_subtle);
+  box-shadow: var(--shadow-disabled);
+}
+
 .btn.sm {
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: var(--font-size-text-sm);
@@ -162,5 +184,9 @@ const {
 
 .btn.full-width {
   width: 100%;
+}
+
+.btn.error {
+  border-color: var(--border-error_subtle);
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import KitButton from '@/components/kit/KitButton.vue'
 import KitIconButton from '@/components/kit/KitIconButton.vue'
@@ -7,15 +7,48 @@ import IconCalendar from '@/components/icons/IconCalendar.vue'
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
 
-const selectedDate = ref<Date | null>(null)
+const model = defineModel<Date | null>()
+
+const { minDate, maxDate } = defineProps<{
+  fullWidth?: boolean
+  minDate?: Date
+  maxDate?: Date
+  error?: boolean
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
+}>()
+
 const currentDate = ref<Date>(new Date())
 const displayedMonth = ref<number>(currentDate.value.getMonth())
 const displayedYear = ref<number>(currentDate.value.getFullYear())
 const isOpen = ref<boolean>(false)
+const datePickerRef = ref<HTMLElement | null>(null)
+const isPositionTopOfPage = ref<boolean>(true)
+const isPositionLeftOfPage = ref<boolean>(true)
 
 const selectDate = (day: number) => {
   isOpen.value = false
-  selectedDate.value = new Date(displayedYear.value, displayedMonth.value, day)
+  model.value = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+}
+
+const validateDate = (day: number): boolean => {
+  const date = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+  if (minDate && date < minDate) {
+    return false
+  }
+  if (maxDate && date > maxDate) {
+    return false
+  }
+  return true
+}
+
+const checkPositionOnPage = () => {
+  if (datePickerRef.value) {
+    const { top, bottom, left, right } = datePickerRef.value.getBoundingClientRect()
+    const bottomSpace = document.documentElement.clientHeight - bottom
+    const rightSpace = document.documentElement.clientWidth - right
+    isPositionTopOfPage.value = top < bottomSpace
+    isPositionLeftOfPage.value = left < rightSpace
+  }
 }
 
 const changeMonth = (offset: number) => {
@@ -36,10 +69,10 @@ const getDaysInMonth = (month: number, year: number) => {
 
 const isSelected = (day: number): boolean => {
   return Boolean(
-    selectedDate.value &&
-      selectedDate.value.getDate() === day &&
-      selectedDate.value.getMonth() === displayedMonth.value &&
-      selectedDate.value.getFullYear() === displayedYear.value,
+    model.value &&
+      model.value.getDate() === day &&
+      model.value.getMonth() === displayedMonth.value &&
+      model.value.getFullYear() === displayedYear.value,
   )
 }
 
@@ -51,14 +84,58 @@ const firstDayOfMonth = computed(() => {
   const date = new Date(displayedYear.value, displayedMonth.value, 1)
   return date.getDay() || 7
 })
+
+const handleOpen = () => {
+  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    checkPositionOnPage()
+    displayedMonth.value = model.value ? model.value.getMonth() : currentDate.value.getMonth()
+    displayedYear.value = model.value ? model.value.getFullYear() : currentDate.value.getFullYear()
+  }
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (datePickerRef.value && !datePickerRef?.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  checkPositionOnPage()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
-  <div class="date-picker">
-    <kit-button class="date-picker-button" variant="secondary-gray" @click="isOpen = true">
+  <div
+    :class="[
+      'date-picker',
+      {
+        'on-top': isPositionTopOfPage,
+        'on-bottom': !isPositionTopOfPage,
+        'on-left': isPositionLeftOfPage,
+        'on-right': !isPositionLeftOfPage,
+        'full-width': fullWidth,
+        error: error,
+      },
+    ]"
+    ref="datePickerRef"
+  >
+    <kit-button
+      class="date-picker-button"
+      :size
+      variant="transparent"
+      @click="handleOpen"
+      :fullwidth="fullWidth"
+      :error="error"
+    >
       <icon-calendar class="date-picker-button-icon" />
-      <span v-if="selectedDate" class="date-picker-button-text">
-        {{ selectedDate?.toLocaleDateString() }}
+      <span v-if="model" class="date-picker-button-text">
+        {{ model?.toLocaleDateString() }}
       </span>
       <span v-else class="date-picker-button-placeholder">
         {{ $t('calendar.placeholder') }}
@@ -87,6 +164,7 @@ const firstDayOfMonth = computed(() => {
           :class="['date-picker-calendar-day', { selected: isSelected(day) }]"
           :key="day"
           @click="selectDate(day)"
+          :disabled="!validateDate(day)"
         >
           {{ day }}
         </button>
@@ -102,11 +180,15 @@ const firstDayOfMonth = computed(() => {
   display: inline-block;
 }
 
+.date-picker.full-width {
+  width: 100%;
+}
+
 .date-picker-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
 }
 
 .date-picker-button-icon {
@@ -128,10 +210,25 @@ const firstDayOfMonth = computed(() => {
   color: var(--text-placeholder);
 }
 
+.on-top .date-picker-calendar {
+  top: calc(100% + var(--spacing-md));
+  bottom: auto;
+}
+
+.on-bottom .date-picker-calendar {
+  top: auto;
+  bottom: calc(100% + var(--spacing-md));
+}
+
+.on-left .date-picker-calendar,
+.on-right .date-picker-calendar {
+  left: 50%;
+
+  transform: translateX(-50%);
+}
+
 .date-picker-calendar {
   position: absolute;
-  top: calc(100% + var(--spacing-md));
-  left: 0;
   z-index: 999;
 
   display: flex;
@@ -216,7 +313,28 @@ const firstDayOfMonth = computed(() => {
   border-radius: 50%;
 }
 
+.date-picker-calendar-day:disabled {
+  cursor: not-allowed;
+  color: var(--text-disabled);
+}
+
 .date-picker-calendar-grid .empty {
   visibility: hidden;
+}
+
+@media screen and (min-width: 768px) {
+  .on-left .date-picker-calendar {
+    left: 0;
+    right: auto;
+
+    transform: none;
+  }
+
+  .on-right .date-picker-calendar {
+    left: auto;
+    right: 0;
+
+    transform: none;
+  }
 }
 </style>

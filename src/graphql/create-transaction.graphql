@@ -1,0 +1,15 @@
+mutation CreateTransaction ($transactionData: TransactionInput!) {
+  createTransaction(transactionData: $transactionData) {
+    id
+    amount
+    categoryId
+    date
+    description
+    exchangeRate {
+      id
+      base
+      date
+      rates
+    }
+  }
+}

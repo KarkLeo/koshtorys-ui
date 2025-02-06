@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useToastStore } from '@/stores/toastStore.ts'
+
 import KitButton from '@/components/kit/KitButton.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
-import { useToastStore } from '@/stores/toastStore.ts'
+import KitCategories from '@/components/kit/KitCategories.vue'
+import KitToggle from '@/components/kit/KitToggle.vue'
+import KitToggleBar from '@/components/kit/KitToggleBar.vue'
 
 const input = ref<string>('')
 const toastStore = useToastStore()
+
+const menu = ref('')
 </script>
 
 <template>
@@ -20,7 +26,19 @@ const toastStore = useToastStore()
       </router-link>
     </div>
     <div class="row">
+      <kit-toggle-bar v-model="menu" :options="['one', 'two', 'three']" />
+      <h1>
+        {{ menu }}
+      </h1>
+    </div>
+    <div class="row">
       <kit-date-picker />
+    </div>
+    <div class="row">
+      <kit-categories />
+    </div>
+    <div class="row">
+      <kit-toggle />
     </div>
     <div class="row">
       <KitButton>Primary</KitButton>
@@ -52,7 +70,6 @@ const toastStore = useToastStore()
         type="text"
         placeholder="Enter your email"
         :class="'custom-class'"
-        @blur="(e) => console.log(e)"
       />
     </div>
     <div class="row">
