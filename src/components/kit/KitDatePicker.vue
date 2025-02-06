@@ -14,6 +14,7 @@ const { minDate, maxDate } = defineProps<{
   minDate?: Date
   maxDate?: Date
   error?: boolean
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 }>()
 
 const currentDate = ref<Date>(new Date())
@@ -126,6 +127,7 @@ onBeforeUnmount(() => {
   >
     <kit-button
       class="date-picker-button"
+      :size
       variant="transparent"
       @click="handleOpen"
       :fullwidth="fullWidth"

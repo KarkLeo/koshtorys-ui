@@ -10,6 +10,7 @@ type Tab = {
 const { tabs } = defineProps<{
   tabs: Tab[]
   langPrefix: string
+  withBorder?: boolean
 }>()
 
 const activeTab = shallowRef<Tab>(tabs[0])
@@ -28,7 +29,7 @@ const activeTab = shallowRef<Tab>(tabs[0])
       </li>
     </ul>
 
-    <div class="tab-container">
+    <div :class="['tab-container', { 'with-border': withBorder }]">
       <component :is="activeTab.component" />
     </div>
   </div>
@@ -92,7 +93,8 @@ const activeTab = shallowRef<Tab>(tabs[0])
 
 .tab-container {
   width: 100%;
-
+}
+.tab-container.with-border {
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xs);

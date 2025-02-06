@@ -4,6 +4,7 @@ import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
 import { computed } from 'vue'
 import { useMe } from '@/hooks/auth-hooks.ts'
+import { getMonthIndex } from '@/helpers/date.ts'
 
 const model = defineModel<Date>({
   default: new Date(),
@@ -13,16 +14,8 @@ const { me } = useMe()
 
 const showedMonth = computed(() => {
   const monthStartDay = me.value?.me?.monthStartDay
-  if (!monthStartDay) return model.value.getMonth() + 1
 
-  const monthShift = monthStartDay > 15 ? 1 : 0
-
-  const monthIndex =
-    model.value.getDate() < monthStartDay
-      ? model.value.getMonth() + monthShift
-      : model.value.getMonth() + monthShift + 1
-
-  return monthIndex > 12 ? monthIndex - 12 : monthIndex
+  return getMonthIndex(model.value, monthStartDay) + 1
 })
 
 const handlePrevMonth = () => {

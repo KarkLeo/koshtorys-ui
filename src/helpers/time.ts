@@ -1,4 +1,0 @@
-export const nowDateUTC = () => {
-  const now = new Date()
-  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
-}
