@@ -385,6 +385,18 @@
         "add": "Add",
         "update": "Update",
         "cancel": "Cancel"
+      },
+      "errors": {
+        "type_invalid": "Invalid planning type",
+        "type_required": "Planning type is required",
+        "amount_required": "Amount is required",
+        "amount_min": "Amount must be more than 0",
+        "currency_required": "Currency is required",
+        "currency_invalid": "Invalid currency",
+        "category_required": "Category is required",
+        "category_invalid": "Invalid category",
+        "description_required": "Description is required",
+        "description_max": "Description must be less then 255 characters"
       }
     }
   },

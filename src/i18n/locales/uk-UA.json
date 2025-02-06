@@ -385,6 +385,18 @@
         "add": "Додати",
         "update": "Оновити",
         "cancel": "Скасувати"
+      },
+      "errors": {
+        "type_invalid": "Недійсний тип планування",
+        "type_required": "Тип планування обов'язковий",
+        "amount_required": "Сума обов'язкова",
+        "amount_min": "Сума не може бути менше 0",
+        "currency_required": "Валюта обов'язкова",
+        "currency_invalid": "Недійсна валюта",
+        "category_required": "Категорія обов'язкова",
+        "category_invalid": "Недійсна категорія",
+        "description_required": "Опис обов'язковий",
+        "description_max": "Опис не може бути більше 255 символів"
       }
     }
   },
