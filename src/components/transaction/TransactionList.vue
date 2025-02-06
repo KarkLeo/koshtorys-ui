@@ -155,7 +155,7 @@ const handleDeleteTransaction = async (id: string) => {
 .transaction-container {
   max-width: 600px;
   margin: 0 auto 300px;
-  padding: var(--spacing-2xl) var(--spacing-xl);
+  padding: 0 var(--spacing-xl);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);

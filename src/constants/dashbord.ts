@@ -3,7 +3,7 @@ import PlanningTab from '@/components/planning/PlanningTab.vue'
 
 export const DASHBOARD_TABS = [
   {
-    key: 'transaction',
+    key: 'transactions',
     component: TransactionTab,
   },
   {

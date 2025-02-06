@@ -5,6 +5,6 @@ import { DASHBOARD_TABS } from '@/constants/dashbord.ts'
 
 <template>
   <main>
-    <kit-tabs :tabs="DASHBOARD_TABS" lang-prefix="dashboard.tabs." />
+    <kit-tabs :tabs="DASHBOARD_TABS" lang-prefix="dashboard.tabs." center-mode />
   </main>
 </template>

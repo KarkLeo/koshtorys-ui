@@ -11,6 +11,7 @@ const { tabs } = defineProps<{
   tabs: Tab[]
   langPrefix: string
   withBorder?: boolean
+  centerMode?: boolean
 }>()
 
 const activeTab = shallowRef<Tab>(tabs[0])
@@ -18,7 +19,7 @@ const activeTab = shallowRef<Tab>(tabs[0])
 
 <template>
   <div class="tab-wrapper">
-    <ul class="tab-list">
+    <ul :class="['tab-list', { 'center-mode': centerMode }]">
       <li class="tab-item" v-for="tabItem in tabs" :key="tabItem.key">
         <button
           @click="activeTab = tabItem"
@@ -63,6 +64,11 @@ const activeTab = shallowRef<Tab>(tabs[0])
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-lg);
 }
+.center-mode {
+  justify-content: center;
+  margin: 0 auto;
+}
+
 .tab-item {
   padding: 0;
   margin: 0;

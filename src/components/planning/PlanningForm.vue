@@ -90,11 +90,11 @@ const getPlanningLabel = (type: string) => t(`planning.form.type.${type}`)
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-3xl);
   padding: var(--spacing-xl);
 
   border: 1px solid var(--border-primary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
 }
 
 .planning-form-header {
@@ -111,7 +111,7 @@ const getPlanningLabel = (type: string) => t(`planning.form.type.${type}`)
 
 .planning-from-fields {
   display: grid;
-  grid-template-columns: 3fr 2fr 1fr;
+  grid-template-columns: 5fr 4fr 3fr;
   gap: var(--spacing-md);
   width: 100%;
 }
