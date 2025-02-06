@@ -357,5 +357,41 @@
         "forbidden": "You are not allowed to perform this action"
       }
     }
+  },
+  "planning": {
+    "form": {
+      "type": {
+        "transaction": "One-time expense",
+        "category": "Dynamic budget"
+      },
+      "fields": {
+        "amount": {
+          "placeholder": "Enter amount"
+        },
+        "category": {
+          "placeholder": "Select category"
+        },
+        "description": {
+          "placeholder": "Enter description"
+        },
+        "date": {
+          "placeholder": "Select date"
+        },
+        "repeat": {
+          "label": "Repeat the plan"
+        }
+      },
+      "buttons": {
+        "add": "Add",
+        "update": "Update",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "dashboard": {
+    "tabs":{
+      "transactions": "Transactions",
+      "planning": "Planning"
+    }
   }
 }

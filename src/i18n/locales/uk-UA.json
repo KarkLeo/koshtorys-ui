@@ -357,5 +357,41 @@
         "forbidden": "Дія заборонена"
       }
     }
+  },
+  "planning": {
+    "form": {
+      "type": {
+        "transaction": "Разова витрата",
+        "category": "Динамічний бюджет"
+      },
+      "fields": {
+        "amount": {
+          "placeholder": "Введіть суму"
+        },
+        "category": {
+          "placeholder": "Оберіть категорію"
+        },
+        "description": {
+          "placeholder": "Додайте опис"
+        },
+        "date": {
+          "placeholder": "Оберіть дату"
+        },
+        "repeat": {
+          "label": "Повторювати план"
+        }
+      },
+      "buttons": {
+        "add": "Додати",
+        "update": "Оновити",
+        "cancel": "Скасувати"
+      }
+    }
+  },
+  "dashboard": {
+    "tabs":{
+        "transactions": "Витрати",
+        "planning": "Планування"
+    }
   }
 }
