@@ -13,17 +13,26 @@ import { planSchema } from '@/validations/plan.ts'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
+import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import { getMonthIndex } from '@/helpers/date.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
+import type { PlanningType } from '@/graphql/types.ts'
 
 const { t } = useI18n()
 const { me } = useMe()
+const toastStore = useToastStore()
+const { createPlanning } = useCreatePlanning()
+const { statisticDate } = useStatisticDateStore()
 
-const type = ref('transaction')
+const type = ref<PlanningType>('TRANSACTION' as PlanningType)
 const amount = ref('0')
 const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
 const date = ref()
 const categoryId = ref('')
 const repeat = ref(false)
+
 const errors = ref<Record<string, string>>({})
 
 const getPlanningLabel = (type: string) => t(`planning.form.type.${type}`)
@@ -61,6 +70,7 @@ const validateForm = async () => {
     return false
   }
 }
+
 const clearForm = () => {
   amount.value = ''
   currency.value = me.value?.me.currency || CURRENCIES[0]
@@ -70,6 +80,32 @@ const clearForm = () => {
   repeat.value = false
   errors.value = {}
 }
+
+const handlerCreatePlanning = async () => {
+  try {
+    const isValid = await validateForm()
+    if (!isValid) return
+
+    await createPlanning({
+      planningData: {
+        type: type.value,
+        amount: parseFloat(amount.value),
+        currency: currency.value,
+        description: description.value,
+        categoryId: categoryId.value,
+        date: date.value?.toISOString(),
+        monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
+        year: statisticDate.value.getFullYear(),
+        repeat: repeat.value,
+      },
+    })
+    clearForm()
+    toastStore.success('Success')
+    // eslint-disable-next-line
+  } catch (e: any) {
+    toastStore.error('Error')
+  }
+}
 </script>
 
 <template>
@@ -77,19 +113,19 @@ const clearForm = () => {
     <div class="planning-form-header">
       <kit-toggle-bar
         v-model="type"
-        :options="['transaction', 'category']"
+        :options="['TRANSACTION', 'CATEGORY']"
         :get-option-label="getPlanningLabel"
       />
       <div class="planning-form-buttons">
         <kit-button size="md" variant="secondary-gray" @click="clearForm">
           {{ $t('planning.form.buttons.cancel') }}</kit-button
         >
-        <kit-button size="md" @click="validateForm">{{
+        <kit-button size="md" @click="handlerCreatePlanning">{{
           $t('planning.form.buttons.add')
         }}</kit-button>
       </div>
     </div>
-    <div class="planning-from-fields" v-if="type === 'category'">
+    <div class="planning-from-fields" v-if="type === 'CATEGORY'">
       <kit-simple-field-wrapper
         :error="Boolean(errors?.categoryId)"
         :message="errors?.categoryId ? $t(`planning.form.errors.${errors.categoryId}`) : ''"

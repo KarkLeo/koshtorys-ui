@@ -3,7 +3,7 @@ import { CURRENCIES } from '@/constants/currencies.ts'
 import { TRANSACTION_CATEGORIES } from '@/constants/transaction-categories.ts'
 
 export const planSchema = yup.object().shape({
-  type: yup.string().oneOf(['transaction', 'category'], 'type_invalid').required('type_required'),
+  type: yup.string().oneOf(['TRANSACTION', 'CATEGORY'], 'type_invalid').required('type_required'),
 
   amount: yup.number().required('amount_required').min(0.01, 'amount_min'),
   currency: yup.string().required('currency_required').oneOf(CURRENCIES, 'currency_invalid'),

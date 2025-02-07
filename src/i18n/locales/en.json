@@ -361,8 +361,8 @@
   "planning": {
     "form": {
       "type": {
-        "transaction": "One-time expense",
-        "category": "Dynamic budget"
+        "TRANSACTION": "One-time expense",
+        "CATEGORY": "Dynamic budget"
       },
       "fields": {
         "amount": {

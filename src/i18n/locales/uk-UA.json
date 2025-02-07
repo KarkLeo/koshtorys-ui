@@ -361,8 +361,8 @@
   "planning": {
     "form": {
       "type": {
-        "transaction": "Разова витрата",
-        "category": "Динамічний бюджет"
+        "TRANSACTION": "Разова витрата",
+        "CATEGORY": "Динамічний бюджет"
       },
       "fields": {
         "amount": {

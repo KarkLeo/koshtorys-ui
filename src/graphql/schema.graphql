@@ -1,18 +1,13 @@
-# This file was generated. Do not edit manually.
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-"Indicates exactly one field must be supplied and this field must not be `null`."
-directive @oneOf on INPUT_OBJECT
-
 type AuthResponse {
   accessToken: String!
   refreshToken: String!
   user: UserWithoutPasswordModel!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type ExchangeRate {
   _count: ExchangeRateCount!
@@ -27,27 +22,92 @@ type ExchangeRateCount {
   transaction: Int!
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 type Mutation {
+  createPlanning(planningData: PlanningInput!): Planning!
   createTransaction(transactionData: TransactionInput!): Transaction!
   createUser(email: String!, name: String, password: String!): UserWithoutPasswordModel!
+  deletePlanning(planningId: Float!): Planning!
   deleteTransaction(id: Float!): Transaction!
   onboarding(onboardingData: OnboardingInput!): UserWithoutPasswordModel!
   refreshTokens(refreshToken: String!): AuthResponse!
   signIn(signInData: SignInInput!): AuthResponse!
   signOut: Boolean!
   signUp(signUpData: SignUpInput!): UserWithoutPasswordModel!
+  updatePlanning(planningData: PlanningInput!, planningId: Float!): Planning!
   updateProfile(updateProfileData: UpdateProfileInput!): UserWithoutPasswordModel!
   updateTransaction(id: Float!, transactionData: TransactionInput!): Transaction!
+}
+
+input OnboardingInput {
+  currency: String!
+  monthStartDay: Float!
+  monthlyBudget: Float!
+}
+
+type Planning {
+  amount: Float!
+  categoryId: String
+  createdAt: DateTime!
+  currency: String!
+  date: DateTime
+  description: String
+  id: ID!
+  monthIndex: Int!
+  repeat: Boolean!
+  transaction: Transaction
+  transactionId: Int
+  type: PlanningType!
+  updatedAt: DateTime!
+  user: User!
+  userId: Int!
+  year: Int!
+}
+
+input PlanningInput {
+  amount: Float!
+  categoryId: String!
+  currency: String!
+  date: DateTime
+  description: String
+  monthIndex: Float!
+  repeat: Boolean = false
+  type: PlanningType!
+  year: Float!
+}
+
+enum PlanningType {
+  CATEGORY
+  TRANSACTION
 }
 
 type Query {
   exchangeRate(date: DateTime!): ExchangeRate!
   exchangeRates: [ExchangeRate!]!
   me: UserWithoutPasswordModel!
+  planning(monthIndex: Float!, year: Float!): [Planning!]!
   transactions(date: DateTime): [Transaction!]!
 }
 
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input SignUpInput {
+  email: String!
+  lang: String!
+  name: String!
+  password: String!
+}
+
 type Transaction {
+  Planning: [Planning!]
+  _count: TransactionCount!
   amount: Float!
   categoryId: String
   createdAt: DateTime!
@@ -62,58 +122,8 @@ type Transaction {
   userId: Int!
 }
 
-type User {
-  _count: UserCount!
-  currency: String!
-  email: String!
-  id: ID!
-  lang: String!
-  monthStartDay: Int!
-  monthlyBudget: Float!
-  name: String!
-  onboardingAt: DateTime
-  password: String!
-  refreshToken: String
-  transaction: [Transaction!]
-}
-
-type UserCount {
-  transaction: Int!
-}
-
-type UserWithoutPasswordModel {
-  currency: String!
-  email: String!
-  id: ID!
-  lang: String
-  monthStartDay: Int!
-  monthlyBudget: Float!
-  name: String!
-  onboardingAt: DateTime
-}
-
-"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
-scalar DateTime
-
-"The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
-scalar JSON
-
-input OnboardingInput {
-  currency: String!
-  monthStartDay: Float!
-  monthlyBudget: Float!
-}
-
-input SignInInput {
-  email: String!
-  password: String!
-}
-
-input SignUpInput {
-  email: String!
-  lang: String!
-  name: String!
-  password: String!
+type TransactionCount {
+  Planning: Int!
 }
 
 input TransactionInput {
@@ -132,4 +142,36 @@ input UpdateProfileInput {
   name: String
   newPassword: String
   oldPassword: String
+}
+
+type User {
+  Planning: [Planning!]
+  _count: UserCount!
+  currency: String!
+  email: String!
+  id: ID!
+  lang: String!
+  monthStartDay: Int!
+  monthlyBudget: Float!
+  name: String!
+  onboardingAt: DateTime
+  password: String!
+  refreshToken: String
+  transaction: [Transaction!]
+}
+
+type UserCount {
+  Planning: Int!
+  transaction: Int!
+}
+
+type UserWithoutPasswordModel {
+  currency: String!
+  email: String!
+  id: ID!
+  lang: String
+  monthStartDay: Int!
+  monthlyBudget: Float!
+  name: String!
+  onboardingAt: DateTime
 }

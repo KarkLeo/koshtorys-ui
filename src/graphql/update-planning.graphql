@@ -1,0 +1,15 @@
+mutation UpdatePlanning($planningData: PlanningInput!, $planningId: Float!) {
+  updatePlanning(planningData: $planningData, planningId: $planningId) {
+    id
+    amount
+    categoryId
+    currency
+    date
+    description
+    monthIndex
+    repeat
+    transactionId
+    type
+    year
+  }
+}

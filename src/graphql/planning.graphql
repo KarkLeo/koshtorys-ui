@@ -1,0 +1,15 @@
+query Planning($monthIndex: Float!, $year: Float!) {
+  planning (monthIndex: $monthIndex, year: $year) {
+    id
+    amount
+    currency
+    date
+    description
+    categoryId
+    repeat
+    transactionId
+    type
+    year
+    monthIndex
+  }
+}

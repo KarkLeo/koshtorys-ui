@@ -1,0 +1,15 @@
+mutation CreatePlanning($planningData: PlanningInput!) {
+  createPlanning(planningData: $planningData) {
+    id
+    amount
+    categoryId
+    currency
+    date
+    description
+    monthIndex
+    repeat
+    transactionId
+    type
+    year
+  }
+}
