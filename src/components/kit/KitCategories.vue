@@ -6,6 +6,7 @@ import {
   TRANSACTION_CATEGORIES_COLORS,
 } from '@/constants/transaction-categories.ts'
 import KitDropdownWithInput from '@/components/kit/KitDropdownWithInput.vue'
+import { getMainCategory } from '@/helpers/category.ts'
 
 const { t } = useI18n()
 
@@ -13,7 +14,7 @@ const category = ref<string>('')
 
 const getCategoriesLabel = (category: string) => t(`transaction.categories.${category}`)
 const getCategoryStyle = (category: string) => ({
-  '--color': TRANSACTION_CATEGORIES_COLORS[category.replace(/--.*$/, '') as string] || '',
+  '--color': TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || '',
 })
 </script>
 
