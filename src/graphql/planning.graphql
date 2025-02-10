@@ -1,4 +1,4 @@
-query Planning($monthIndex: Float!, $year: Float!) {
+query Planning($monthIndex: Float!, $year: Float!, $exchangeDate: DateTime!) {
   planning (monthIndex: $monthIndex, year: $year) {
     id
     amount
@@ -11,5 +11,11 @@ query Planning($monthIndex: Float!, $year: Float!) {
     type
     year
     monthIndex
+  }
+  exchangeRate(date: $exchangeDate) {
+    id
+    base
+    date
+    rates
   }
 }

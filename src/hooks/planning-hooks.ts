@@ -1,5 +1,5 @@
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getMonthIndex } from '@/helpers/date.ts'
+import { getExchangeDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import type {
   CreatePlanningMutation,
@@ -29,10 +29,11 @@ export const useCreatePlanning = () => {
   const createPlanning = async (variables: CreatePlanningMutationVariables) => {
     try {
       const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-      const year = statisticDate.value.getFullYear()
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
 
       const result = await mutate(variables, {
-        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year } }],
+        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year, exchangeDate } }],
       })
       return result?.data?.createPlanning || null
     } catch (e) {
@@ -54,10 +55,11 @@ export const useUpdatePlanning = () => {
   const updatePlanning = async (variables: UpdatePlanningMutationVariables) => {
     try {
       const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-      const year = statisticDate.value.getFullYear()
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
 
       const result = await mutate(variables, {
-        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year } }],
+        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year, exchangeDate } }],
       })
       return result?.data?.updatePlanning || null
     } catch (e) {
@@ -79,10 +81,11 @@ export const useDeletePlanning = () => {
   const deletePlanning = async (variables: DeletePlanningMutationVariables) => {
     try {
       const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-      const year = statisticDate.value.getFullYear()
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
 
       const result = await mutate(variables, {
-        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year } }],
+        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year, exchangeDate } }],
       })
       return result?.data?.deletePlanning || null
     } catch (e) {
@@ -98,17 +101,24 @@ export const usePlanningList = () => {
   const { statisticDate } = useStatisticDateStore()
 
   const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-  const year = statisticDate.value.getFullYear()
+  const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+  const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
 
   const { result, refetch } = useQuery<PlanningQuery, PlanningQueryVariables>(PLANNING, {
     monthIndex,
     year,
+    exchangeDate,
   })
 
   watch(statisticDate, (date) => {
+    const monthIndex = getMonthIndex(date, me.value?.me.monthStartDay)
+    const year = getIndexedYear(date, me.value?.me.monthStartDay)
+    const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
+
     refetch({
-      monthIndex: getMonthIndex(date, me.value?.me.monthStartDay),
-      year: date.getFullYear(),
+      monthIndex,
+      year,
+      exchangeDate,
     })
   })
 

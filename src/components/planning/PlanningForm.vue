@@ -14,7 +14,7 @@ import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getMonthIndex } from '@/helpers/date.ts'
+import { getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
 import type { PlanningType } from '@/graphql/types.ts'
@@ -95,7 +95,7 @@ const handlerCreatePlanning = async () => {
         categoryId: categoryId.value,
         date: date.value?.toISOString(),
         monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
-        year: statisticDate.value.getFullYear(),
+        year: getIndexedYear(statisticDate.value, me.value?.me.monthStartDay),
         repeat: repeat.value,
       },
     })

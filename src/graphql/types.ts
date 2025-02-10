@@ -333,10 +333,11 @@ export type OnboardingMutation = { __typename?: 'Mutation', onboarding: { __type
 export type PlanningQueryVariables = Exact<{
   monthIndex: Scalars['Float']['input'];
   year: Scalars['Float']['input'];
+  exchangeDate: Scalars['DateTime']['input'];
 }>;
 
 
-export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId?: string | null, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number, monthIndex: number }> };
+export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId?: string | null, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number, monthIndex: number }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
