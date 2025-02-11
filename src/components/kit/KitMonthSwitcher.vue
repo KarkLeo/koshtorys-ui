@@ -4,7 +4,7 @@ import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
 import { computed } from 'vue'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { getMonthIndex } from '@/helpers/date.ts'
+import { getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
 
 const model = defineModel<Date>({
   default: new Date(),
@@ -34,23 +34,7 @@ const handleNextMonth = () => {
 }
 
 const currentPeriod = computed(() => {
-  const monthStartDay = me.value?.me?.monthStartDay
-
-  if (!monthStartDay) {
-    return [
-      new Date(model.value.getFullYear(), model.value.getMonth(), 1),
-      new Date(model.value.getFullYear(), model.value.getMonth() + 1, 0),
-    ]
-  }
-  return model.value.getDate() < monthStartDay
-    ? [
-        new Date(model.value.getFullYear(), model.value.getMonth() - 1, monthStartDay),
-        new Date(model.value.getFullYear(), model.value.getMonth(), monthStartDay - 1),
-      ]
-    : [
-        new Date(model.value.getFullYear(), model.value.getMonth(), monthStartDay),
-        new Date(model.value.getFullYear(), model.value.getMonth() + 1, monthStartDay - 1),
-      ]
+  return getMonthPeriod(me.value?.me?.monthStartDay, model.value)
 })
 </script>
 

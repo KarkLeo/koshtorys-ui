@@ -6,15 +6,22 @@ import { usePlanningList } from '@/hooks/planning-hooks.ts'
 import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { computed } from 'vue'
-import { reducePlanningByCategory } from '@/helpers/planning.ts'
+import {
+  getExchangedAmount,
+  getTotalAmount,
+  type PlanningItem,
+  reducePlanningByCategory,
+} from '@/helpers/planning.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { getMainCategory } from '@/helpers/category.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
 
 const { t } = useI18n()
 // const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
 const { planning } = usePlanningList()
+const { me } = useMe()
 
 const planningTables = computed(() => {
   if (!planning?.value?.planning) return []
@@ -29,6 +36,22 @@ const getCategoryStyle = (category: string) => ({
 const formatCurrency = (value: string) => {
   return CURRENCIES_SYMBOL[value] || value
 }
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString()
+}
+
+const preparePlaningTotal = (items: PlanningItem[]) => {
+  if (!planning?.value || !me.value) return 0
+  return Math.round(getTotalAmount(items, planning?.value.exchangeRate, me?.value.me.currency))
+}
+
+const prepareExchangedAmount = (amount: number, currency: string): number => {
+  if (!planning?.value || !me.value) return 0
+  return Math.round(
+    getExchangedAmount(planning?.value.exchangeRate, amount, currency, me?.value.me.currency),
+  )
+}
 </script>
 <template>
   <div class="planning-container">
@@ -38,6 +61,9 @@ const formatCurrency = (value: string) => {
     <div class="planning-table" v-for="table in planningTables" :key="table.category">
       <div class="planning-table-header" :style="getCategoryStyle(table.category)">
         {{ getCategoriesLabel(table.category) }}
+        <span>
+          {{ preparePlaningTotal(table.items) }} {{ formatCurrency(me?.me.currency || '') }}
+        </span>
       </div>
       <div class="planning-table-body">
         <div class="planning-table-item" v-for="plan in table.items" :key="plan.id">
@@ -49,8 +75,18 @@ const formatCurrency = (value: string) => {
             >
               {{ getCategoriesLabel(plan.categoryId as string) }}
             </div>
-            <div class="planning-table-item-amount">
+            <div class="planning-table-item-date" v-if="plan.date">
+              {{ formatDate(plan.date) }}
+            </div>
+            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
               {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+            </div>
+            <div class="planning-table-item-amount" v-else>
+              <span class="planning-table-item-amount-original">
+                {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+              </span>
+              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+              {{ formatCurrency(me?.me.currency || '') }}
             </div>
           </template>
           <template v-else>
@@ -60,8 +96,15 @@ const formatCurrency = (value: string) => {
             >
               {{ getCategoriesLabel(plan.categoryId as string) }}
             </div>
-            <div class="planning-table-item-amount">
+            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
               {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+            </div>
+            <div class="planning-table-item-amount" v-else>
+              <span class="planning-table-item-amount-original">
+                {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+              </span>
+              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+              {{ formatCurrency(me?.me.currency || '') }}
             </div>
           </template>
         </div>
@@ -128,6 +171,13 @@ const formatCurrency = (value: string) => {
 
 .planning-table-item-amount {
   margin-left: auto;
+}
+
+.planning-table-item-amount-original {
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
 }
 
 .planning-table-item-category {

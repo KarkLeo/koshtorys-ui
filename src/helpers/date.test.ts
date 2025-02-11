@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { getMonthIndex, getIndexedYear, getExchangeDate, nowDateUTC } from './date'
+import { getMonthIndex, getIndexedYear, getExchangeDate, nowDateUTC, getMonthPeriod } from './date'
 
 describe('getMonthIndex', () => {
   it('should return the current month index if monthStartDay is not provided', () => {
@@ -47,15 +47,6 @@ describe('getIndexedYear', () => {
   })
 })
 
-vi.mock('./date.ts', async (importOriginal) => {
-  const actual = await importOriginal()
-  return {
-    // eslint-disable-next-line
-    ...(actual as any),
-    nowDateUTC: vi.fn(() => new Date(Date.UTC(2025, 1, 10))),
-  }
-})
-
 describe('getExchangeDate', () => {
   it('should return the current date for the current month', () => {
     const result = getExchangeDate(1, 2025, 5)
@@ -69,7 +60,7 @@ describe('getExchangeDate', () => {
 
   it('should return the last day of the previous month', () => {
     const result = getExchangeDate(0, 2025, 5)
-    expect(result).toEqual(new Date(2025, 1, 4))
+    expect(result).toEqual(new Date(Date.UTC(2025, 1, 4)))
   })
 
   it('should return the current date for the next month, monthStartDay > 15', () => {
@@ -79,16 +70,53 @@ describe('getExchangeDate', () => {
 
   it('should return the last day of the previous month, monthStartDay > 15', () => {
     const result = getExchangeDate(0, 2025, 20)
-    expect(result).toEqual(new Date(2025, 1, 19))
+    expect(result).toEqual(new Date(Date.UTC(2025, 1, 19)))
   })
 
   it('should return the last day of the previous year for December', () => {
     const result = getExchangeDate(11, 2024, 5)
-    expect(result).toEqual(new Date(2025, 0, 4))
+    expect(result).toEqual(new Date(Date.UTC(2025, 0, 4)))
   })
 
   it('should return the last day of the previous year for December, monthStartDay > 15', () => {
     const result = getExchangeDate(11, 2024, 20)
-    expect(result).toEqual(new Date(2025, 0, 19))
+    expect(result).toEqual(new Date(Date.UTC(2025, 0, 19)))
+  })
+})
+
+describe('getMonthPeriod', () => {
+  it('should return correct period for a date before monthStartDay', () => {
+    const date = new Date(Date.UTC(2024, 1, 5))
+    const monthStartDay = 10
+    const [start, end] = getMonthPeriod(monthStartDay, date)
+
+    expect(start).toEqual(new Date(Date.UTC(2024, 0, 10)))
+    expect(end).toEqual(new Date(Date.UTC(2024, 1, 9)))
+  })
+
+  it('should return correct period for a date on or after monthStartDay', () => {
+    const date = new Date(Date.UTC(2024, 1, 15))
+    const monthStartDay = 10
+    const [start, end] = getMonthPeriod(monthStartDay, date)
+
+    expect(start).toEqual(new Date(Date.UTC(2024, 1, 10)))
+    expect(end).toEqual(new Date(Date.UTC(2024, 2, 9)))
+  })
+
+  it('should handle default monthStartDay correctly', () => {
+    const date = new Date(Date.UTC(2024, 1, 5))
+    const [start, end] = getMonthPeriod(undefined, date)
+
+    expect(start).toEqual(new Date(Date.UTC(2024, 1, 1)))
+    expect(end).toEqual(new Date(Date.UTC(2024, 1, 29)))
+  })
+
+  it('should handle edge case when date is exactly on monthStartDay', () => {
+    const date = new Date(Date.UTC(2024, 1, 10))
+    const monthStartDay = 10
+    const [start, end] = getMonthPeriod(monthStartDay, date)
+
+    expect(start).toEqual(new Date(Date.UTC(2024, 1, 10)))
+    expect(end).toEqual(new Date(Date.UTC(2024, 2, 9)))
   })
 })

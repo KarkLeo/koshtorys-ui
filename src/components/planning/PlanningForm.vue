@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 import KitToggleBar from '@/components/kit/KitToggleBar.vue'
@@ -14,7 +14,7 @@ import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
 import type { PlanningType } from '@/graphql/types.ts'
@@ -29,7 +29,7 @@ const type = ref<PlanningType>('TRANSACTION' as PlanningType)
 const amount = ref('0')
 const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
-const date = ref()
+const date = ref(statisticDate.value)
 const categoryId = ref('')
 const repeat = ref(false)
 
@@ -71,12 +71,20 @@ const validateForm = async () => {
   }
 }
 
+const currentPeriod = computed(() => {
+  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
+})
+
+watch(statisticDate, () => {
+  date.value = statisticDate.value // todo Or change only month and year
+})
+
 const clearForm = () => {
   amount.value = ''
   currency.value = me.value?.me.currency || CURRENCIES[0]
   description.value = ''
   categoryId.value = ''
-  date.value = undefined
+  date.value = statisticDate.value
   repeat.value = false
   errors.value = {}
 }
@@ -187,6 +195,8 @@ const handlerCreatePlanning = async () => {
             full-width
             @click.stop
             size="xl"
+            :min-date="currentPeriod[0]"
+            :max-date="currentPeriod[1]"
             :error="Boolean(errors?.date)"
           />
         </kit-simple-field-wrapper>

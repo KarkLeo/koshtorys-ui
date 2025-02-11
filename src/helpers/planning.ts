@@ -2,6 +2,7 @@ import type { PlanningQuery } from '@/graphql/types.ts'
 import { getMainCategory } from '@/helpers/category.ts'
 
 export type PlanningItem = PlanningQuery['planning'][number]
+export type ExchangeRate = PlanningQuery['exchangeRate']
 
 const sortPlanning = (plannings: PlanningItem[]) => {
   return plannings.sort((a, b) => {
@@ -29,4 +30,27 @@ export const reducePlanningByCategory = (
     category,
     items: sortPlanning(items),
   }))
+}
+
+export const getExchangedAmount = (
+  exchangeRate: ExchangeRate,
+  amount: number,
+  currency: string,
+  baseCurrency: string,
+): number => {
+  if (currency === baseCurrency) {
+    return amount
+  }
+
+  return (amount / exchangeRate.rates[currency]) * exchangeRate.rates[baseCurrency]
+}
+
+export const getTotalAmount = (
+  plannings: PlanningItem[],
+  exchangeRate: ExchangeRate,
+  baseCurrency: string,
+): number => {
+  return plannings.reduce((acc, planning) => {
+    return acc + getExchangedAmount(exchangeRate, planning.amount, planning.currency, baseCurrency)
+  }, 0)
 }
