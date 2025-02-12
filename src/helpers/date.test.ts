@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getMonthIndex, getIndexedYear, getExchangeDate, nowDateUTC, getMonthPeriod } from './date'
 
 describe('getMonthIndex', () => {
@@ -70,7 +70,7 @@ describe('getExchangeDate', () => {
 
   it('should return the last day of the previous month, monthStartDay > 15', () => {
     const result = getExchangeDate(0, 2025, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 1, 19)))
+    expect(result).toEqual(new Date(Date.UTC(2025, 0, 19)))
   })
 
   it('should return the last day of the previous year for December', () => {
@@ -80,7 +80,7 @@ describe('getExchangeDate', () => {
 
   it('should return the last day of the previous year for December, monthStartDay > 15', () => {
     const result = getExchangeDate(11, 2024, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 0, 19)))
+    expect(result).toEqual(new Date(Date.UTC(2024, 11, 19)))
   })
 })
 

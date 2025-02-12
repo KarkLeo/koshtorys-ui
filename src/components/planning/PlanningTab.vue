@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import PlanningForm from '@/components/planning/PlanningForm.vue'
-import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
-import { usePlanningList } from '@/hooks/planning-hooks.ts'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toastStore.ts'
-import { computed } from 'vue'
+import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import { usePlanningList } from '@/hooks/planning-hooks.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
 import {
   getExchangedAmount,
   getTotalAmount,
   type PlanningItem,
   reducePlanningByCategory,
 } from '@/helpers/planning.ts'
-import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { getMainCategory } from '@/helpers/category.ts'
+import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
-import { useMe } from '@/hooks/auth-hooks.ts'
+import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
+import PlanningForm from '@/components/planning/PlanningForm.vue'
+import IconCalendar from '@/components/icons/IconCalendar.vue'
 
 const { t } = useI18n()
 // const toastStore = useToastStore()
@@ -76,7 +77,7 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
               {{ getCategoriesLabel(plan.categoryId as string) }}
             </div>
             <div class="planning-table-item-date" v-if="plan.date">
-              {{ formatDate(plan.date) }}
+              <icon-calendar /> {{ formatDate(plan.date) }}
             </div>
             <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
               {{ plan.amount }} {{ formatCurrency(plan.currency) }}
@@ -178,6 +179,21 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
   line-height: var(--line-height-text-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
+}
+
+.planning-table-item-date {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+.planning-table-item-date svg {
+  width: var(--line-height-text-sm);
+  height: var(--line-height-text-sm);
 }
 
 .planning-table-item-category {

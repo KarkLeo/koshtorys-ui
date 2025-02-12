@@ -35,11 +35,12 @@ export const getExchangeDate = (
   const currentDate = nowDateUTC()
   const currentIndexedDate = getIndexedDate(currentDate, monthStartDay)
   const selectedIndexedDate = new Date(Date.UTC(indexedYear, monthIndex, monthStartDay))
+  const monthShift = monthStartDay > 15 ? 1 : 0
 
   if (selectedIndexedDate >= currentIndexedDate) {
     return currentDate
   } else {
-    return new Date(Date.UTC(indexedYear, monthIndex + 1, monthStartDay - 1))
+    return new Date(Date.UTC(indexedYear, monthIndex + 1 - monthShift, monthStartDay - 1))
   }
 }
 
