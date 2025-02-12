@@ -55,3 +55,13 @@ export const getMonthPeriod = (monthStartDay: number = 1, date: Date): [Date, Da
         new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, monthStartDay - 1)),
       ]
 }
+
+export const getStartMonthDate = (
+  indexedYear: number,
+  monthIndex: number,
+  monthStartDay: number = 1,
+) => {
+  const monthShift = monthStartDay > 15 ? 1 : 0
+
+  return new Date(Date.UTC(indexedYear, monthIndex - monthShift, monthStartDay))
+}

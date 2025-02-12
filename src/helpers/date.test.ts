@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { getMonthIndex, getIndexedYear, getExchangeDate, nowDateUTC, getMonthPeriod } from './date'
+import {
+  getMonthIndex,
+  getIndexedYear,
+  getExchangeDate,
+  nowDateUTC,
+  getMonthPeriod,
+  getStartMonthDate,
+} from './date'
 
 describe('getMonthIndex', () => {
   it('should return the current month index if monthStartDay is not provided', () => {
@@ -118,5 +125,32 @@ describe('getMonthPeriod', () => {
 
     expect(start).toEqual(new Date(Date.UTC(2024, 1, 10)))
     expect(end).toEqual(new Date(Date.UTC(2024, 2, 9)))
+  })
+})
+
+describe('getStartMonthDate', () => {
+  it('should return the correct date without monthStartDay', () => {
+    const result = getStartMonthDate(2025, 5)
+    expect(result).toEqual(new Date(Date.UTC(2025, 5, 1)))
+  })
+
+  it('should return the correct date with monthStartDay < 15', () => {
+    const result = getStartMonthDate(2025, 5, 5)
+    expect(result).toEqual(new Date(Date.UTC(2025, 5, 5)))
+  })
+
+  it('should return the correct date for the next month, monthStartDay > 15', () => {
+    const result = getStartMonthDate(2025, 5, 20)
+    expect(result).toEqual(new Date(Date.UTC(2025, 4, 20)))
+  })
+
+  it('should return the correct date for December', () => {
+    const result = getStartMonthDate(2024, 11, 10)
+    expect(result).toEqual(new Date(Date.UTC(2024, 11, 10)))
+  })
+
+  it('should return the correct date for December, monthStartDay > 15', () => {
+    const result = getStartMonthDate(2025, 0, 20)
+    expect(result).toEqual(new Date(Date.UTC(2024, 11, 20)))
   })
 })

@@ -18,4 +18,16 @@ query Planning($monthIndex: Float!, $year: Float!, $exchangeDate: DateTime!) {
     date
     rates
   }
+  repeatingPlanning(monthIndex: $monthIndex, year: $year) {
+    id
+    amount
+    currency
+    date
+    description
+    categoryId
+    repeat
+    type
+    year
+    monthIndex
+  }
 }

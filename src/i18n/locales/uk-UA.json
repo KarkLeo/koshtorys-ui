@@ -353,6 +353,7 @@
         "category_required": "Категорія обов'язкова",
         "category_invalid": "Недійсна категорія",
         "invalid_exchange_rate_data": "Недійсні дані курсу обміну, спробуйте пізніше",
+        "invalid_exchange_rate_date": "Недійсна дата курсу обміну, спробуйте колишню дату",
         "transaction_not_found": "Транзакція не знайдена",
         "forbidden": "Дія заборонена"
       }
@@ -371,6 +372,7 @@
         "category": {
           "placeholder": "Оберіть категорію"
         },
+
         "description": {
           "placeholder": "Додайте опис"
         },
@@ -398,7 +400,9 @@
         "description_required": "Опис обов'язковий",
         "description_max": "Опис не може бути більше 255 символів",
         "planning_not_found": "Планування не знайдено",
-        "forbidden": "Дія заборонена"
+        "forbidden": "Дія заборонена",
+        "invalid_exchange_rate_data": "Недійсні дані курсу обміну, спробуйте пізніше",
+        "invalid_exchange_rate_date": "Недійсна дата курсу обміну, спробуйте колишню дату"
       }
     }
   },

@@ -102,6 +102,7 @@ type Query {
   exchangeRates: [ExchangeRate!]!
   me: UserWithoutPasswordModel!
   planning(monthIndex: Float!, year: Float!): [Planning!]!
+  repeatingPlanning(monthIndex: Float!, year: Float!): [Planning!]!
   transactions(date: DateTime): [Transaction!]!
 }
 
