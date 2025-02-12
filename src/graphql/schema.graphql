@@ -50,15 +50,22 @@ input OnboardingInput {
 }
 
 type Planning {
+  _count: PlanningCount!
   amount: Float!
-  categoryId: String
+  categoryId: String!
   createdAt: DateTime!
   currency: String!
   date: DateTime
   description: String
   id: ID!
   monthIndex: Int!
+  parentPlanning: Planning
+  parentPlanningId: Int
+  parentPlannings: [Planning!]
   repeat: Boolean!
+  repeatedPlanning: Planning
+  repeatedPlanningId: Int
+  repeatedPlannings: [Planning!]
   transaction: Transaction
   transactionId: Int
   type: PlanningType!
@@ -66,6 +73,11 @@ type Planning {
   user: User!
   userId: Int!
   year: Int!
+}
+
+type PlanningCount {
+  parentPlannings: Int!
+  repeatedPlannings: Int!
 }
 
 input PlanningInput {
