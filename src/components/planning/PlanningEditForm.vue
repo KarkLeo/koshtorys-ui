@@ -16,22 +16,42 @@ import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
-import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
-import type { PlanningType } from '@/graphql/types.ts'
+import { useUpdatePlanning } from '@/hooks/planning-hooks.ts'
+import type { PlanningQuery, PlanningType } from '@/graphql/types.ts'
+
+type BasePlanning = PlanningQuery['planning'][number]
+
+const emit = defineEmits(['closeForm'])
+const { planning } = defineProps<{
+  planning: BasePlanning
+}>()
 
 const { t } = useI18n()
 const { me } = useMe()
 const toastStore = useToastStore()
-const { createPlanning } = useCreatePlanning()
+const { updatePlanning } = useUpdatePlanning()
 const { statisticDate } = useStatisticDateStore()
 
-const type = ref<PlanningType>('TRANSACTION' as PlanningType)
-const amount = ref('0')
-const currency = ref(me.value?.me.currency || CURRENCIES[0])
-const description = ref('')
-const date = ref()
-const categoryId = ref('')
-const repeat = ref(false)
+const type = ref<PlanningType>(planning.type as PlanningType)
+const amount = ref(String(planning.amount))
+const currency = ref(planning.currency || me.value?.me.currency || CURRENCIES[0])
+const description = ref(planning.description || '')
+const date = ref<Date | null>(planning.date ? new Date(planning.date) : null)
+const categoryId = ref(planning.categoryId || '')
+const repeat = ref(planning.repeat || false)
+
+watch(
+  () => planning,
+  (newPlanning) => {
+    type.value = newPlanning.type as PlanningType
+    amount.value = String(newPlanning.amount)
+    currency.value = newPlanning.currency || me.value?.me.currency || CURRENCIES[0]
+    description.value = newPlanning.description || ''
+    date.value = newPlanning.date ? new Date(newPlanning.date) : null
+    categoryId.value = newPlanning.categoryId || ''
+    repeat.value = newPlanning.repeat || false
+  },
+)
 
 const errors = ref<Record<string, string>>({})
 
@@ -46,13 +66,12 @@ const validateForm = async () => {
         currency: currency.value,
         description: description.value,
         categoryId: categoryId.value,
-        date: date.value?.toISOString(),
+        date: date.value?.toISOString() || null,
         repeat: repeat.value,
       },
       { abortEarly: false },
     )
     errors.value = {}
-    console.log('Plan is valid')
     return true
     // eslint-disable-next-line
   } catch (validationErrors: any) {
@@ -65,8 +84,6 @@ const validateForm = async () => {
       },
       {},
     )
-    console.log('Plan is invalid')
-    console.log(errors.value)
     return false
   }
 }
@@ -85,12 +102,15 @@ const clearForm = () => {
   errors.value = {}
 }
 
-const handlerCreatePlanning = async () => {
+const handlerUpdatePlanning = async () => {
   try {
     const isValid = await validateForm()
     if (!isValid) return
 
-    await createPlanning({
+    console.log('repeat', repeat.value)
+
+    await updatePlanning({
+      planningId: Number(planning.id),
       planningData: {
         type: type.value,
         amount: parseFloat(amount.value),
@@ -105,10 +125,15 @@ const handlerCreatePlanning = async () => {
     })
     clearForm()
     toastStore.success('Success')
+    emit('closeForm')
     // eslint-disable-next-line
   } catch (e: any) {
     toastStore.error('Error')
   }
+}
+const handleCloseForm = () => {
+  clearForm()
+  emit('closeForm')
 }
 </script>
 
@@ -121,11 +146,11 @@ const handlerCreatePlanning = async () => {
         :get-option-label="getPlanningLabel"
       />
       <div class="planning-form-buttons">
-        <kit-button size="md" variant="secondary-gray" @click="clearForm">
+        <kit-button size="md" variant="secondary-gray" @click="handleCloseForm">
           {{ $t('planning.form.buttons.cancel') }}</kit-button
         >
-        <kit-button size="md" @click="handlerCreatePlanning">{{
-          $t('planning.form.buttons.add')
+        <kit-button size="md" @click="handlerUpdatePlanning">{{
+          $t('planning.form.buttons.update')
         }}</kit-button>
       </div>
     </div>

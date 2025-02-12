@@ -6,6 +6,7 @@ import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
+import IconXClose from '@/components/icons/IconXClose.vue'
 
 const model = defineModel<Date | null>()
 
@@ -134,22 +135,27 @@ onBeforeUnmount(() => {
       :error="error"
     >
       <icon-calendar class="date-picker-button-icon" />
-      <span v-if="model" class="date-picker-button-text">
-        {{ model?.toLocaleDateString() }}
-      </span>
+      <template v-if="model">
+        <span class="date-picker-button-text">
+          {{ model?.toLocaleDateString() }}
+        </span>
+        <kit-icon-button class="date-picker-button-remove" @click.stop="model = null" size="sm">
+          <icon-x-close />
+        </kit-icon-button>
+      </template>
       <span v-else class="date-picker-button-placeholder">
         {{ $t('calendar.placeholder') }}
       </span>
     </kit-button>
     <div v-if="isOpen" class="date-picker-calendar">
       <div class="date-picker-calendar-header">
-        <kit-icon-button @click="changeMonth(-1)">
+        <kit-icon-button @click="changeMonth(-1)" size="md">
           <icon-chevron-left />
         </kit-icon-button>
         <span class="date-picker-calendar-header-title">
           {{ $t(`calendar.months.${displayedMonth + 1}`) }} {{ displayedYear }}
         </span>
-        <kit-icon-button @click="changeMonth(1)">
+        <kit-icon-button @click="changeMonth(1)" size="md">
           <icon-chevron-right />
         </kit-icon-button>
       </div>
@@ -194,6 +200,10 @@ onBeforeUnmount(() => {
 .date-picker-button-icon {
   width: auto;
   height: var(--line-height-text-sm);
+}
+
+.date-picker-button-remove {
+  margin: calc(-1 * var(--spacing-md)) -14px calc(-1 * var(--spacing-md)) auto;
 }
 
 .date-picker-button-text {

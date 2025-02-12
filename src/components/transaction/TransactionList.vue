@@ -131,10 +131,10 @@ const handleDeleteTransaction = async (id: string) => {
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
 
             <kit-context-menu class="transaction-menu">
-              <kit-icon-button @click="editingTransactionId = transaction.id">
+              <kit-icon-button @click="editingTransactionId = transaction.id" size="md">
                 <icon-edit />
               </kit-icon-button>
-              <kit-icon-button @click="handleDeleteTransaction(transaction.id)">
+              <kit-icon-button @click="handleDeleteTransaction(transaction.id)" size="md">
                 <icon-trash />
               </kit-icon-button>
             </kit-context-menu>

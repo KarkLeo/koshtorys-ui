@@ -23,7 +23,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="menuRef" :class="['kit-context-menu', { 'is-open': isOpen }]">
-    <kit-icon-button @click="isOpen = !isOpen" class="kit-context-menu-toggle">
+    <kit-icon-button @click="isOpen = !isOpen" class="kit-context-menu-toggle" size="md">
       <icon-dots-vertical />
     </kit-icon-button>
     <div v-if="isOpen" class="kit-context-menu-panel">

@@ -396,7 +396,9 @@
         "category_required": "Категорія обов'язкова",
         "category_invalid": "Недійсна категорія",
         "description_required": "Опис обов'язковий",
-        "description_max": "Опис не може бути більше 255 символів"
+        "description_max": "Опис не може бути більше 255 символів",
+        "planning_not_found": "Планування не знайдено",
+        "forbidden": "Дія заборонена"
       }
     }
   },

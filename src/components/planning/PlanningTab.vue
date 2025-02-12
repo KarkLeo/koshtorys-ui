@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { usePlanningList } from '@/hooks/planning-hooks.ts'
+import { useDeletePlanning, usePlanningList } from '@/hooks/planning-hooks.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import {
   getExchangedAmount,
@@ -17,18 +17,46 @@ import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
 import PlanningForm from '@/components/planning/PlanningForm.vue'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
+import KitIconButton from '@/components/kit/KitIconButton.vue'
+import IconTrash from '@/components/icons/IconTrash.vue'
+import IconEdit from '@/components/icons/IconEdit.vue'
+import PlanningEditForm from '@/components/planning/PlanningEditForm.vue'
+import IconRepeat from '@/components/icons/IconRepeat.vue'
 
 const { t } = useI18n()
-// const toastStore = useToastStore()
+const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
 const { planning } = usePlanningList()
+const { deletePlanning } = useDeletePlanning()
 const { me } = useMe()
+
+const editingPlanningId = ref<string | null>(null)
 
 const planningTables = computed(() => {
   if (!planning?.value?.planning) return []
   return reducePlanningByCategory(planning.value.planning)
 })
 
+const handleDeletePlanning = (id: string) => {
+  try {
+    deletePlanning({
+      planningId: Number(id),
+    })
+    // eslint-disable-next-line
+  } catch (e: any) {
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes?.form) {
+        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
+  }
+}
+
+// ===== Render Helpers =====
 const getCategoriesLabel = (category: string) => t(`transaction.categories.${category}`)
 const getCategoryStyle = (category: string) => ({
   '--color': TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || '',
@@ -68,45 +96,68 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
       </div>
       <div class="planning-table-body">
         <div class="planning-table-item" v-for="plan in table.items" :key="plan.id">
-          <template v-if="plan.type === 'TRANSACTION'">
-            <div>{{ plan.description }}</div>
-            <div
-              class="planning-table-item-category"
-              :style="getCategoryStyle(plan.categoryId as string)"
-            >
-              {{ getCategoriesLabel(plan.categoryId as string) }}
-            </div>
-            <div class="planning-table-item-date" v-if="plan.date">
-              <icon-calendar /> {{ formatDate(plan.date) }}
-            </div>
-            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-              {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-            </div>
-            <div class="planning-table-item-amount" v-else>
-              <span class="planning-table-item-amount-original">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
-              </span>
-              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-              {{ formatCurrency(me?.me.currency || '') }}
-            </div>
+          <template v-if="plan.id === editingPlanningId">
+            <planning-edit-form :planning="plan" @closeForm="editingPlanningId = null" />
           </template>
           <template v-else>
-            <div
-              class="planning-table-item-category"
-              :style="getCategoryStyle(plan.categoryId as string)"
-            >
-              {{ getCategoriesLabel(plan.categoryId as string) }}
-            </div>
-            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-              {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-            </div>
-            <div class="planning-table-item-amount" v-else>
-              <span class="planning-table-item-amount-original">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
-              </span>
-              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-              {{ formatCurrency(me?.me.currency || '') }}
-            </div>
+            <template v-if="plan.type === 'TRANSACTION'">
+              <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
+              <div>{{ plan.description }}</div>
+              <div
+                class="planning-table-item-category"
+                :style="getCategoryStyle(plan.categoryId as string)"
+              >
+                {{ getCategoriesLabel(plan.categoryId as string) }}
+              </div>
+              <div class="planning-table-item-date" v-if="plan.date">
+                <icon-calendar /> {{ formatDate(plan.date) }}
+              </div>
+              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
+                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+              </div>
+              <div class="planning-table-item-amount" v-else>
+                <span class="planning-table-item-amount-original">
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                </span>
+                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+                {{ formatCurrency(me?.me.currency || '') }}
+              </div>
+              <div class="planning-table-item-buttons">
+                <kit-icon-button size="sm" @click="editingPlanningId = plan.id">
+                  <icon-edit />
+                </kit-icon-button>
+                <kit-icon-button size="sm" @click="handleDeletePlanning(plan.id)">
+                  <icon-trash />
+                </kit-icon-button>
+              </div>
+            </template>
+            <template v-else>
+              <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
+              <div
+                class="planning-table-item-category"
+                :style="getCategoryStyle(plan.categoryId as string)"
+              >
+                {{ getCategoriesLabel(plan.categoryId as string) }}
+              </div>
+              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
+                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+              </div>
+              <div class="planning-table-item-amount" v-else>
+                <span class="planning-table-item-amount-original">
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                </span>
+                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+                {{ formatCurrency(me?.me.currency || '') }}
+              </div>
+              <div class="planning-table-item-buttons">
+                <kit-icon-button size="sm" @click="editingPlanningId = plan.id">
+                  <icon-edit />
+                </kit-icon-button>
+                <kit-icon-button size="sm" @click="handleDeletePlanning(plan.id)">
+                  <icon-trash />
+                </kit-icon-button>
+              </div>
+            </template>
           </template>
         </div>
       </div>
@@ -170,6 +221,13 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
   border-top: 1px solid var(--border-secondary);
 }
 
+.planning-table-item-repeat :deep(svg) {
+  width: 24px;
+  height: 24px;
+
+  color: var(--text-primary);
+}
+
 .planning-table-item-amount {
   margin-left: auto;
 }
@@ -185,6 +243,7 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  margin-left: auto;
 
   font-size: var(--font-size-text-sm);
   line-height: var(--line-height-text-sm);
@@ -207,5 +266,11 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
   color: var(--color);
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.planning-table-item-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 </style>

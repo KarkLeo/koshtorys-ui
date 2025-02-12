@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const value = ref<boolean>(false)
+const model = defineModel<boolean>()
 </script>
 
 <template>
-  <label :class="['toggle', { active: value }]">
-    <input class="toggle-input" v-model="value" type="checkbox" />
+  <label :class="['toggle', { active: model }]">
+    <input class="toggle-input" v-model="model" type="checkbox" />
     <span class="toggle-base" />
     <span class="toggle-switch" />
     <span class="toggle-outline" />

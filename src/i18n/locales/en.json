@@ -396,7 +396,9 @@
         "category_required": "Category is required",
         "category_invalid": "Invalid category",
         "description_required": "Description is required",
-        "description_max": "Description must be less then 255 characters"
+        "description_max": "Description must be less then 255 characters",
+        "planning_not_found": "Planning not found",
+        "forbidden": "You are not allowed to perform this action"
       }
     }
   },
