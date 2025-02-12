@@ -29,7 +29,7 @@ const type = ref<PlanningType>('TRANSACTION' as PlanningType)
 const amount = ref('0')
 const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
-const date = ref()
+const date = ref<Date | null>()
 const categoryId = ref('')
 const repeat = ref(false)
 
@@ -80,7 +80,7 @@ const clearForm = () => {
   currency.value = me.value?.me.currency || CURRENCIES[0]
   description.value = ''
   categoryId.value = ''
-  date.value = statisticDate.value
+  date.value = null
   repeat.value = false
   errors.value = {}
 }

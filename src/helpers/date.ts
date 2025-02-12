@@ -65,3 +65,20 @@ export const getStartMonthDate = (
 
   return new Date(Date.UTC(indexedYear, monthIndex - monthShift, monthStartDay))
 }
+
+export const getChangedDateByMonthIndex = (
+  date: Date,
+  indexedYear: number,
+  monthIndex: number,
+  monthStartDay: number = 1,
+) => {
+  const monthShift = monthStartDay > 15 ? 1 : 0
+
+  return new Date(
+    Date.UTC(
+      indexedYear,
+      date.getDate() < monthStartDay ? monthIndex + 1 - monthShift : monthIndex - monthShift,
+      date.getDate(),
+    ),
+  )
+}

@@ -3,14 +3,14 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { useDeletePlanning, usePlanningList } from '@/hooks/planning-hooks.ts'
-import { useMe } from '@/hooks/auth-hooks.ts'
 import {
-  getExchangedAmount,
-  getTotalAmount,
-  type PlanningItem,
-  reducePlanningByCategory,
-} from '@/helpers/planning.ts'
+  useCanselRepeatingPlanning,
+  useDeletePlanning,
+  usePlanningList,
+  useRepeatPlanning,
+} from '@/hooks/planning-hooks.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { getExchangedAmount, getTotalAmount, reducePlanningByCategory } from '@/helpers/planning.ts'
 import { getMainCategory } from '@/helpers/category.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
@@ -24,24 +24,28 @@ import PlanningEditForm from '@/components/planning/PlanningEditForm.vue'
 import IconRepeat from '@/components/icons/IconRepeat.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import IconSlashCircle from '@/components/icons/IconSlashCircle.vue'
+import type { ExchangeRate, Planning } from '@/graphql/types.ts'
+import { getChangedDateByMonthIndex, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 
 const { t } = useI18n()
 const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
 const { planning } = usePlanningList()
 const { deletePlanning } = useDeletePlanning()
+const { repeatPlanning } = useRepeatPlanning()
+const { canselRepeatingPlanning } = useCanselRepeatingPlanning()
 const { me } = useMe()
 
 const editingPlanningId = ref<string | null>(null)
 
 const planningTables = computed(() => {
   if (!planning?.value?.planning) return []
-  return reducePlanningByCategory(planning.value.planning)
+  return reducePlanningByCategory(planning.value.planning as Planning[])
 })
 
 const repeatingPlanningTables = computed(() => {
   if (!planning?.value?.repeatingPlanning) return []
-  return reducePlanningByCategory(planning.value.repeatingPlanning)
+  return reducePlanningByCategory(planning.value.repeatingPlanning as Planning[])
 })
 
 const handleDeletePlanning = (id: string) => {
@@ -77,22 +81,66 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString()
 }
 
-const preparePlaningTotal = (items: PlanningItem[]) => {
+const preparePlaningTotal = (items: Planning[]) => {
   if (!planning?.value || !me.value) return 0
-  return Math.round(getTotalAmount(items, planning?.value.exchangeRate, me?.value.me.currency))
+  return Math.round(
+    getTotalAmount(items, planning.value.exchangeRate as ExchangeRate, me?.value.me.currency),
+  )
 }
 
 const prepareExchangedAmount = (amount: number, currency: string): number => {
   if (!planning?.value || !me.value) return 0
   return Math.round(
-    getExchangedAmount(planning?.value.exchangeRate, amount, currency, me?.value.me.currency),
+    getExchangedAmount(
+      planning.value.exchangeRate as ExchangeRate,
+      amount,
+      currency,
+      me?.value.me.currency,
+    ),
   )
+}
+
+const prepareRepeatedDate = (date: string) => {
+  const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+  const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+  return getChangedDateByMonthIndex(
+    new Date(date),
+    year,
+    monthIndex,
+    me.value?.me.monthStartDay,
+  ).toLocaleDateString()
 }
 </script>
 <template>
   <div class="planning-container">
     <kit-month-switcher v-model="statisticDate" />
-    <planning-form />
+
+    <div class="planning-header">
+      <div class="planning-header-item">
+        <div class="planning-header-item-title">{{ t('planning.header.monthlyBudget') }}</div>
+        <div class="planning-header-item-value">
+          {{ me?.me.monthlyBudget }}
+          {{ formatCurrency(me?.me.currency || '') }}
+        </div>
+      </div>
+      <div class="planning-header-item">
+        <div class="planning-header-item-title">{{ t('planning.header.total') }}</div>
+        <div class="planning-header-item-value">
+          {{ preparePlaningTotal((planning?.planning || []) as Planning[]) }}
+          {{ formatCurrency(me?.me.currency || '') }}
+        </div>
+      </div>
+      <div class="planning-header-item">
+        <div class="planning-header-item-title">{{ t('planning.header.remaining') }}</div>
+        <div class="planning-header-item-value">
+          {{
+            (me?.me.monthlyBudget || 0) -
+            preparePlaningTotal((planning?.planning || []) as Planning[])
+          }}
+          {{ formatCurrency(me?.me.currency || '') }}
+        </div>
+      </div>
+    </div>
 
     <div class="planning-table" v-for="table in planningTables" :key="table.category">
       <div class="planning-table-header" :style="getCategoryStyle(table.category)">
@@ -169,7 +217,7 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
         </div>
       </div>
     </div>
-
+    <planning-form />
     <div
       class="planning-table repeating"
       v-for="table in repeatingPlanningTables"
@@ -197,7 +245,7 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
                 {{ getCategoriesLabel(plan.categoryId as string) }}
               </div>
               <div class="planning-table-item-date" v-if="plan.date">
-                <icon-calendar /> {{ formatDate(plan.date) }}
+                <icon-calendar /> {{ prepareRepeatedDate(plan.date) }}
               </div>
               <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
                 {{ plan.amount }} {{ formatCurrency(plan.currency) }}
@@ -210,10 +258,10 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm">
+                <kit-icon-button size="sm" @click="canselRepeatingPlanning(plan)">
                   <icon-slash-circle />
                 </kit-icon-button>
-                <kit-icon-button size="sm">
+                <kit-icon-button size="sm" @click="repeatPlanning(plan)">
                   <icon-check />
                 </kit-icon-button>
               </div>
@@ -237,10 +285,10 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm">
+                <kit-icon-button size="sm" @click="canselRepeatingPlanning(plan)">
                   <icon-slash-circle />
                 </kit-icon-button>
-                <kit-icon-button size="sm">
+                <kit-icon-button size="sm" @click="repeatPlanning(plan)">
                   <icon-check />
                 </kit-icon-button>
               </div>
@@ -259,6 +307,37 @@ const prepareExchangedAmount = (amount: number, currency: string): number => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
+}
+
+.planning-header {
+  display: flex;
+  gap: var(--spacing-2xl);
+}
+.planning-header-item {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-2xl);
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-xl);
+}
+
+.planning-header-item-title {
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-tertiary);
+}
+
+.planning-header-item-value {
+  font-size: var(--font-size-display-sm);
+  line-height: var(--line-height-display-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .planning-table {

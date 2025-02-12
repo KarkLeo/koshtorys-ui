@@ -1,11 +1,17 @@
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getExchangeDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+import {
+  getChangedDateByMonthIndex,
+  getExchangeDate,
+  getIndexedYear,
+  getMonthIndex,
+} from '@/helpers/date.ts'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import type {
   CreatePlanningMutation,
   CreatePlanningMutationVariables,
   DeletePlanningMutation,
   DeletePlanningMutationVariables,
+  Planning,
   PlanningQuery,
   PlanningQueryVariables,
   UpdatePlanningMutation,
@@ -124,5 +130,87 @@ export const usePlanningList = () => {
 
   return {
     planning: result,
+  }
+}
+
+export const useRepeatPlanning = () => {
+  const { me } = useMe()
+  const { statisticDate } = useStatisticDateStore()
+
+  const { createPlanning } = useCreatePlanning()
+  const { updatePlanning } = useUpdatePlanning()
+
+  const repeatPlanning = async (planning: Planning) => {
+    const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+    const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+    const newDate =
+      planning.date &&
+      getChangedDateByMonthIndex(
+        new Date(planning.date),
+        year,
+        monthIndex,
+        me.value?.me.monthStartDay,
+      ).toISOString()
+
+    const newPlanning = await createPlanning({
+      planningData: {
+        type: planning.type,
+        amount: planning.amount,
+        currency: planning.currency,
+        description: planning.description,
+        categoryId: planning.categoryId,
+        date: newDate,
+        monthIndex: monthIndex,
+        year: year,
+        repeat: planning.repeat,
+      },
+    })
+
+    if (newPlanning) {
+      return await updatePlanning({
+        planningId: Number(planning.id),
+        planningData: {
+          type: planning.type,
+          amount: planning.amount,
+          currency: planning.currency,
+          description: planning.description,
+          categoryId: planning.categoryId,
+          date: planning.date,
+          monthIndex: planning.monthIndex,
+          year: planning.year,
+          repeat: planning.repeat,
+          repeatedPlanningId: Number(newPlanning.id),
+        },
+      })
+    }
+  }
+
+  return {
+    repeatPlanning,
+  }
+}
+
+export const useCanselRepeatingPlanning = () => {
+  const { updatePlanning } = useUpdatePlanning()
+
+  const canselRepeatingPlanning = async (planning: Planning) => {
+    return await updatePlanning({
+      planningId: Number(planning.id),
+      planningData: {
+        type: planning.type,
+        amount: planning.amount,
+        currency: planning.currency,
+        description: planning.description,
+        categoryId: planning.categoryId,
+        date: planning.date,
+        monthIndex: planning.monthIndex,
+        year: planning.year,
+        repeat: false,
+      },
+    })
+  }
+
+  return {
+    canselRepeatingPlanning,
   }
 }

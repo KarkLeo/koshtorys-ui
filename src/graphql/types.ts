@@ -166,6 +166,7 @@ export type PlanningInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   monthIndex: Scalars['Float']['input'];
   repeat?: InputMaybe<Scalars['Boolean']['input']>;
+  repeatedPlanningId?: InputMaybe<Scalars['Float']['input']>;
   type: PlanningType;
   year: Scalars['Float']['input'];
 };

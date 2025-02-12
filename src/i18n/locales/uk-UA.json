@@ -360,6 +360,11 @@
     }
   },
   "planning": {
+    "header": {
+      "monthlyBudget": "Місячний бюджет",
+      "remaining": "Залишок",
+      "total": "Всього"
+    },
     "form": {
       "type": {
         "TRANSACTION": "Разова витрата",
@@ -372,7 +377,6 @@
         "category": {
           "placeholder": "Оберіть категорію"
         },
-
         "description": {
           "placeholder": "Додайте опис"
         },
@@ -407,9 +411,9 @@
     }
   },
   "dashboard": {
-    "tabs":{
-        "transactions": "Витрати",
-        "planning": "Планування"
+    "tabs": {
+      "transactions": "Витрати",
+      "planning": "Планування"
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   nowDateUTC,
   getMonthPeriod,
   getStartMonthDate,
+  getChangedDateByMonthIndex,
 } from './date'
 
 describe('getMonthIndex', () => {
@@ -152,5 +153,32 @@ describe('getStartMonthDate', () => {
   it('should return the correct date for December, monthStartDay > 15', () => {
     const result = getStartMonthDate(2025, 0, 20)
     expect(result).toEqual(new Date(Date.UTC(2024, 11, 20)))
+  })
+})
+
+describe('getChangedDateByMonthIndex', () => {
+  it('should return the correct date without monthStartDay', () => {
+    const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5)
+    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+  })
+
+  it('should return the correct date with monthStartDay', () => {
+    const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5, 10)
+    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+  })
+
+  it('should return the correct date with monthStartDay, date < monthStartDay', () => {
+    const result = getChangedDateByMonthIndex(new Date('2025-01-05T00:00:00.000Z'), 2025, 5, 10)
+    expect(result).toEqual(new Date(Date.UTC(2025, 6, 5)))
+  })
+
+  it('should return the correct date with monthStartDay, monthStartDay > 15', () => {
+    const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5, 20)
+    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+  })
+
+  it('should return the correct date with monthStartDay, monthStartDay > 15, date > monthStartDay', () => {
+    const result = getChangedDateByMonthIndex(new Date('2025-01-25T00:00:00.000Z'), 2025, 5, 20)
+    expect(result).toEqual(new Date(Date.UTC(2025, 4, 25)))
   })
 })

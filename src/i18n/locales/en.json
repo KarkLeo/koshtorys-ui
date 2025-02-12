@@ -360,6 +360,11 @@
     }
   },
   "planning": {
+    "header": {
+      "monthlyBudget": "Monthly Budget",
+      "remaining": "Remaining",
+      "total": "Total"
+    },
     "form": {
       "type": {
         "TRANSACTION": "One-time expense",
