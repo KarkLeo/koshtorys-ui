@@ -274,27 +274,24 @@ const handleCloseForm = () => {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-3xl);
-  padding: var(--spacing-xl);
-
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-2xl);
 }
 
 .planning-form-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column-reverse;
   width: 100%;
+  gap: var(--spacing-xl);
 }
 
 .planning-form-buttons {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  gap: var(--spacing-md);
 }
 
 .planning-from-fields {
-  display: grid;
-  grid-template-columns: 5fr 4fr 3fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-md);
   width: 100%;
 }
@@ -331,5 +328,21 @@ const handleCloseForm = () => {
 
   cursor: pointer;
   user-select: none;
+}
+
+@media screen and (min-width: 768px) {
+  .planning-form-header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .planning-form-buttons {
+    justify-content: flex-end;
+  }
+
+  .planning-from-fields {
+    display: grid;
+    grid-template-columns: 5fr 4fr 3fr;
+  }
 }
 </style>

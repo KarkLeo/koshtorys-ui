@@ -168,7 +168,7 @@ const getCategoryColor = (categoryId: string) => {
 .transaction-container {
   max-width: 600px;
   margin: 0 auto 300px;
-  padding: 0 var(--spacing-xl);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
@@ -274,6 +274,10 @@ const getCategoryColor = (categoryId: string) => {
   border-radius: var(--radius-full);
 }
 @media screen and (min-width: 768px) {
+  .transaction-container {
+    padding: 0 var(--spacing-xl);
+  }
+
   .transaction-header {
     display: flex;
     justify-content: flex-start;

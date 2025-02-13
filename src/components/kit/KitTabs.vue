@@ -42,8 +42,7 @@ const activeTab = shallowRef<Tab>(tabs[0])
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  padding: 0 var(--spacing-4xl);
-  max-width: calc(var(--container-max-width-desktop) + 2 * var(--spacing-4xl));
+  padding: 0 var(--spacing-2xl);
   width: 100%;
   margin: var(--spacing-2xl) auto;
   gap: var(--spacing-4xl);
@@ -104,5 +103,12 @@ const activeTab = shallowRef<Tab>(tabs[0])
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xs);
+}
+
+@media screen and (min-width: 768px) {
+  .tab-wrapper {
+    padding: 0 var(--spacing-4xl);
+    max-width: calc(var(--container-max-width-desktop) + 2 * var(--spacing-4xl));
+  }
 }
 </style>

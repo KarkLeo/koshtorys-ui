@@ -204,8 +204,9 @@ const prepareRepeatedDate = (date: string) => {
               </div>
               <div class="planning-table-item-amount" v-else>
                 <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
                 </span>
+                <span class="planning-table-item-amount-original"> / </span>
                 {{ prepareExchangedAmount(plan.amount, plan.currency) }}
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
@@ -231,8 +232,9 @@ const prepareRepeatedDate = (date: string) => {
               </div>
               <div class="planning-table-item-amount" v-else>
                 <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
                 </span>
+                <span class="planning-table-item-amount-original"> / </span>
                 {{ prepareExchangedAmount(plan.amount, plan.currency) }}
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
@@ -284,8 +286,9 @@ const prepareRepeatedDate = (date: string) => {
               </div>
               <div class="planning-table-item-amount" v-else>
                 <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
                 </span>
+                <span class="planning-table-item-amount-original"> / </span>
                 {{ prepareExchangedAmount(plan.amount, plan.currency) }}
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
@@ -311,8 +314,9 @@ const prepareRepeatedDate = (date: string) => {
               </div>
               <div class="planning-table-item-amount" v-else>
                 <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }} /
+                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
                 </span>
+                <span class="planning-table-item-amount-original"> / </span>
                 {{ prepareExchangedAmount(plan.amount, plan.currency) }}
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
@@ -343,15 +347,17 @@ const prepareRepeatedDate = (date: string) => {
 
 .planning-header {
   display: flex;
-  gap: var(--spacing-2xl);
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
+
 .planning-header-item {
   width: 100%;
   height: auto;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-xl);
   box-sizing: border-box;
 
   border: 1px solid var(--border-secondary);
@@ -414,7 +420,8 @@ const prepareRepeatedDate = (date: string) => {
 
 .planning-table-item {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: var(--spacing-2xl);
   padding: var(--spacing-xl) var(--spacing-3xl);
@@ -423,6 +430,10 @@ const prepareRepeatedDate = (date: string) => {
   border-top: 1px solid var(--border-secondary);
 }
 
+.planning-table-item-repeat {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
 .planning-table-item-repeat :deep(svg) {
   width: 24px;
   height: 24px;
@@ -431,7 +442,12 @@ const prepareRepeatedDate = (date: string) => {
 }
 
 .planning-table-item-amount {
-  margin-left: auto;
+  grid-column: 1/ 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  flex-direction: row-reverse;
+  gap: 1ch;
 }
 
 .planning-table-item-amount-original {
@@ -442,10 +458,10 @@ const prepareRepeatedDate = (date: string) => {
 }
 
 .planning-table-item-date {
+  grid-column: 2 / 3;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-left: auto;
 
   font-size: var(--font-size-text-sm);
   line-height: var(--line-height-text-sm);
@@ -471,8 +487,33 @@ const prepareRepeatedDate = (date: string) => {
 }
 
 .planning-table-item-buttons {
+  grid-column: 2 / 3;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-md);
+}
+
+@media screen and (min-width: 768px) {
+  .planning-header {
+    flex-direction: row;
+    gap: var(--spacing-2xl);
+  }
+
+  .planning-header-item {
+    padding: var(--spacing-2xl);
+  }
+
+  .planning-table-item {
+    display: flex;
+  }
+  .planning-table-item-amount {
+    display: block;
+    margin-left: auto;
+  }
+
+  .planning-table-item-date {
+    margin-left: auto;
+  }
 }
 </style>
