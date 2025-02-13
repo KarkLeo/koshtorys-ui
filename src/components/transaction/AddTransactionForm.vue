@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { ValidationError } from 'yup'
 
-import { useMe } from '@/hooks/auth-hooks.ts'
+import { nowDateUTC } from '@/helpers/date.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { useCreateTransaction } from '@/hooks/transaction-hooks.ts'
+import { transactionSchema } from '@/validations/transaction.ts'
 
 import KitMoneyInput from '@/components/kit/KitMoneyInput.vue'
 import KitInput from '@/components/kit/KitInput.vue'
@@ -11,17 +17,14 @@ import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 
-import { useCreateTransaction } from '@/hooks/transaction-hooks.ts'
-import { nowDateUTC } from '@/helpers/date.ts'
-import { transactionSchema } from '@/validations/transaction.ts'
-import { ValidationError } from 'yup'
-import { useToastStore } from '@/stores/toastStore.ts'
-import { useI18n } from 'vue-i18n'
+// ===== Hooks =====
 
 const { me } = useMe()
 const toastStore = useToastStore()
 const { createTransaction } = useCreateTransaction()
 const { t } = useI18n()
+
+// ===== Refs =====
 
 const formRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
@@ -32,6 +35,8 @@ const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
 const date = ref<Date>(nowDateUTC())
 const categoryId = ref<string>('')
+
+// ===== Handlers ans utils =====
 
 const validateForm = async () => {
   try {
@@ -87,6 +92,7 @@ const handlerCreateTransaction = async () => {
     })
 
     clearForm()
+    toastStore.success(t('transaction.form.messages.add_success'))
     // eslint-disable-next-line
   } catch (e: any) {
     try {

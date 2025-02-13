@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import type { TransactionsQuery } from '@/graphql/types.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
 import { useDeleteTransaction, useTransactionList } from '@/hooks/transaction-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 
@@ -15,8 +17,8 @@ import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import EditTransactionForm from '@/components/transaction/EditTransactionForm.vue'
-import { useI18n } from 'vue-i18n'
-import { useToastStore } from '@/stores/toastStore.ts'
+
+// ===== Types =====
 
 type BaseTransaction = TransactionsQuery['transactions'][number]
 
@@ -24,6 +26,8 @@ interface ExtendedTransaction extends BaseTransaction {
   originalAmount?: number
   originalCurrency?: string
 }
+
+// ===== Hooks =====
 
 const { t } = useI18n()
 const toastStore = useToastStore()
@@ -33,7 +37,11 @@ const { me } = useMe()
 const { transactions } = useTransactionList()
 const { deleteTransaction } = useDeleteTransaction()
 
+// ===== Refs =====
+
 const editingTransactionId = ref<string | null>(null)
+
+// ===== Computed =====
 
 const list = computed<ExtendedTransaction[]>(() => {
   const meCurrency = me.value?.me.currency
@@ -61,6 +69,30 @@ const sum = computed(() => {
   return list.value.reduce((acc, transaction) => acc + transaction.amount, 0)
 })
 
+// ===== Handlers =====
+
+const handleDeleteTransaction = async (id: string) => {
+  try {
+    await deleteTransaction({
+      transactionId: Number(id),
+    })
+    toastStore.success(t('transaction.form.messages.delete_success'))
+    // eslint-disable-next-line
+  } catch (e: any) {
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes?.form) {
+        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
+  }
+}
+
+// ===== Renders utils =====
+
 const formatAmount = (value: number) => {
   // return value.toFixed(2) || ''
   return Math.round(value)
@@ -75,25 +107,6 @@ const formatCurrency = (value: string) => {
 
 const getCategoryColor = (categoryId: string) => {
   return TRANSACTION_CATEGORIES_COLORS[categoryId.replace(/--.*$/, '')] || ''
-}
-
-const handleDeleteTransaction = async (id: string) => {
-  try {
-    await deleteTransaction({
-      transactionId: Number(id),
-    })
-    // eslint-disable-next-line
-  } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes?.form) {
-        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
-    }
-  }
 }
 </script>
 

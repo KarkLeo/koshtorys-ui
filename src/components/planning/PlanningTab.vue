@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ExchangeRate, Planning } from '@/graphql/types.ts'
+import { getChangedDateByMonthIndex, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
+import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import {
@@ -12,20 +17,19 @@ import {
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { getExchangedAmount, getTotalAmount, reducePlanningByCategory } from '@/helpers/planning.ts'
 import { getMainCategory } from '@/helpers/category.ts'
-import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
-import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
-import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
-import PlanningForm from '@/components/planning/PlanningForm.vue'
+
 import IconCalendar from '@/components/icons/IconCalendar.vue'
-import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
-import PlanningEditForm from '@/components/planning/PlanningEditForm.vue'
 import IconRepeat from '@/components/icons/IconRepeat.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import IconSlashCircle from '@/components/icons/IconSlashCircle.vue'
-import type { ExchangeRate, Planning } from '@/graphql/types.ts'
-import { getChangedDateByMonthIndex, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+import KitMonthSwitcher from '@/components/kit/KitMonthSwitcher.vue'
+import KitIconButton from '@/components/kit/KitIconButton.vue'
+import PlanningAddForm from '@/components/planning/PlanningAddForm.vue'
+import PlanningEditForm from '@/components/planning/PlanningEditForm.vue'
+
+// ===== Hooks =====
 
 const { t } = useI18n()
 const toastStore = useToastStore()
@@ -36,7 +40,11 @@ const { repeatPlanning } = useRepeatPlanning()
 const { canselRepeatingPlanning } = useCanselRepeatingPlanning()
 const { me } = useMe()
 
+// ===== Refs =====
+
 const editingPlanningId = ref<string | null>(null)
+
+// ===== Computed =====
 
 const planningTables = computed(() => {
   if (!planning?.value?.planning) return []
@@ -48,11 +56,14 @@ const repeatingPlanningTables = computed(() => {
   return reducePlanningByCategory(planning.value.repeatingPlanning as Planning[])
 })
 
+// ===== Handlers =====
+
 const handleDeletePlanning = (id: string) => {
   try {
     deletePlanning({
       planningId: Number(id),
     })
+    toastStore.success(t('planning.form.messages.delete_success'))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -67,7 +78,28 @@ const handleDeletePlanning = (id: string) => {
   }
 }
 
+const repeatPlanningHandler = async (plan: Planning) => {
+  try {
+    await repeatPlanning(plan)
+    toastStore.success(t('planning.form.messages.repeat_success'))
+    // eslint-disable-next-line
+  } catch (e: any) {
+    toastStore.error(t('common_errors.server_error'))
+  }
+}
+
+const canselRepeatingPlanningHandler = async (plan: Planning) => {
+  try {
+    await canselRepeatingPlanning(plan)
+    toastStore.success(t('planning.form.messages.cansel_repeat_success'))
+    // eslint-disable-next-line
+  } catch (e: any) {
+    toastStore.error(t('common_errors.server_error'))
+  }
+}
+
 // ===== Render Helpers =====
+
 const getCategoriesLabel = (category: string) => t(`transaction.categories.${category}`)
 const getCategoryStyle = (category: string) => ({
   '--color': TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || '',
@@ -217,7 +249,7 @@ const prepareRepeatedDate = (date: string) => {
         </div>
       </div>
     </div>
-    <planning-form />
+    <planning-add-form />
     <div
       class="planning-table repeating"
       v-for="table in repeatingPlanningTables"
@@ -258,10 +290,10 @@ const prepareRepeatedDate = (date: string) => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="canselRepeatingPlanning(plan)">
+                <kit-icon-button size="sm" @click="canselRepeatingPlanningHandler(plan)">
                   <icon-slash-circle />
                 </kit-icon-button>
-                <kit-icon-button size="sm" @click="repeatPlanning(plan)">
+                <kit-icon-button size="sm" @click="repeatPlanningHandler(plan)">
                   <icon-check />
                 </kit-icon-button>
               </div>
@@ -285,10 +317,10 @@ const prepareRepeatedDate = (date: string) => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="canselRepeatingPlanning(plan)">
+                <kit-icon-button size="sm" @click="canselRepeatingPlanningHandler(plan)">
                   <icon-slash-circle />
                 </kit-icon-button>
-                <kit-icon-button size="sm" @click="repeatPlanning(plan)">
+                <kit-icon-button size="sm" @click="repeatPlanningHandler(plan)">
                   <icon-check />
                 </kit-icon-button>
               </div>

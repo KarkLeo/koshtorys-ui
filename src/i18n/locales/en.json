@@ -356,6 +356,11 @@
         "invalid_exchange_rate_date": "Invalid exchange rate date, please use a date in the past",
         "transaction_not_found": "Transaction not found",
         "forbidden": "You are not allowed to perform this action"
+      },
+      "messages": {
+        "add_success": "Transaction successfully added",
+        "update_success": "Transaction successfully updated",
+        "delete_success": "Transaction successfully deleted"
       }
     }
   },
@@ -405,6 +410,13 @@
         "description_max": "Description must be less then 255 characters",
         "planning_not_found": "Planning not found",
         "forbidden": "You are not allowed to perform this action"
+      },
+      "messages": {
+        "add_success": "Planning successfully added",
+        "update_success": "Planning successfully updated",
+        "delete_success": "Planning successfully deleted",
+        "repeat_success": "Planning successfully repeated",
+        "cansel_repeat_success": "Planning repeat successfully canceled"
       }
     }
   },

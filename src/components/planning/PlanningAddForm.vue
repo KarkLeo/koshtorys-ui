@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
+
+import type { PlanningType } from '@/graphql/types.ts'
+import { CURRENCIES } from '@/constants/currencies.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
+import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
+import { planSchema } from '@/validations/plan.ts'
+
 import KitToggleBar from '@/components/kit/KitToggleBar.vue'
 import KitMoneyInput from '@/components/kit/KitMoneyInput.vue'
 import KitInput from '@/components/kit/KitInput.vue'
@@ -9,21 +19,17 @@ import KitCategories from '@/components/kit/KitCategories.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 import KitToggle from '@/components/kit/KitToggle.vue'
-import { planSchema } from '@/validations/plan.ts'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
-import { CURRENCIES } from '@/constants/currencies.ts'
-import { useMe } from '@/hooks/auth-hooks.ts'
-import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
-import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
-import type { PlanningType } from '@/graphql/types.ts'
+
+// ===== Hooks =====
 
 const { t } = useI18n()
 const { me } = useMe()
 const toastStore = useToastStore()
 const { createPlanning } = useCreatePlanning()
 const { statisticDate } = useStatisticDateStore()
+
+// ===== Refs =====
 
 const type = ref<PlanningType>('TRANSACTION' as PlanningType)
 const amount = ref('0')
@@ -34,6 +40,14 @@ const categoryId = ref('')
 const repeat = ref(false)
 
 const errors = ref<Record<string, string>>({})
+
+// ===== Computed =====
+
+const currentPeriod = computed(() => {
+  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
+})
+
+// ===== Handler and utils =====
 
 const getPlanningLabel = (type: string) => t(`planning.form.type.${type}`)
 
@@ -52,7 +66,6 @@ const validateForm = async () => {
       { abortEarly: false },
     )
     errors.value = {}
-    console.log('Plan is valid')
     return true
     // eslint-disable-next-line
   } catch (validationErrors: any) {
@@ -65,15 +78,9 @@ const validateForm = async () => {
       },
       {},
     )
-    console.log('Plan is invalid')
-    console.log(errors.value)
     return false
   }
 }
-
-const currentPeriod = computed(() => {
-  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
-})
 
 const clearForm = () => {
   amount.value = ''
@@ -104,10 +111,21 @@ const handlerCreatePlanning = async () => {
       },
     })
     clearForm()
-    toastStore.success('Success')
+    toastStore.success(t(`planning.form.messages.create_success`))
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error('Error')
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes) {
+        errors.value = errorCodes
+      }
+      if (errorCodes.form) {
+        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
   }
 }
 </script>

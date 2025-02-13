@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { ValidationError } from 'yup'
 
-import { useMe } from '@/hooks/auth-hooks.ts'
+import type { TransactionsQuery } from '@/graphql/types.ts'
+import { nowDateUTC } from '@/helpers/date.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { useUpdateTransaction } from '@/hooks/transaction-hooks.ts'
+import { transactionSchema } from '@/validations/transaction.ts'
 
 import KitMoneyInput from '@/components/kit/KitMoneyInput.vue'
 import KitInput from '@/components/kit/KitInput.vue'
@@ -11,13 +18,7 @@ import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 
-import { useUpdateTransaction } from '@/hooks/transaction-hooks.ts'
-import { nowDateUTC } from '@/helpers/date.ts'
-import type { TransactionsQuery } from '@/graphql/types.ts'
-import { useI18n } from 'vue-i18n'
-import { transactionSchema } from '@/validations/transaction.ts'
-import { ValidationError } from 'yup'
-import { useToastStore } from '@/stores/toastStore.ts'
+// ===== Types =====
 
 type BaseTransaction = TransactionsQuery['transactions'][number]
 
@@ -25,15 +26,22 @@ interface ExtendedTransaction extends BaseTransaction {
   originalAmount?: number
   originalCurrency?: string
 }
+
+// ===== Emits and Props =====
+
 const emit = defineEmits(['closeForm'])
 const { transaction } = defineProps<{
   transaction: ExtendedTransaction
 }>()
 
+// ===== Hooks =====
+
 const toastStore = useToastStore()
 const { t } = useI18n()
 const { me } = useMe()
 const { updateTransaction } = useUpdateTransaction()
+
+// ===== Refs =====
 
 const formRef = ref<HTMLElement | null>(null)
 const errors = ref<Record<string, string>>({})
@@ -45,6 +53,8 @@ const currency = ref(
 const description = ref(transaction?.description || '')
 const date = ref<Date>(new Date(transaction.date))
 const categoryId = ref<string>(transaction?.categoryId || '')
+
+// ===== Watchers =====
 
 watch(
   () => transaction,
@@ -60,6 +70,8 @@ watch(
     categoryId.value = newTransaction?.categoryId || ''
   },
 )
+
+// ===== Handlers and utils =====
 
 const validateForm = async () => {
   try {
@@ -115,6 +127,7 @@ const handlerUpdateTransaction = async () => {
     })
 
     clearForm()
+    toastStore.success(t('transaction.form.messages.update_success'))
     emit('closeForm')
     // eslint-disable-next-line
   } catch (e: any) {

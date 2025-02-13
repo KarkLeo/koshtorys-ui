@@ -2,6 +2,16 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
+
+import type { PlanningQuery, PlanningType } from '@/graphql/types.ts'
+import { CURRENCIES } from '@/constants/currencies.ts'
+import { useToastStore } from '@/stores/toastStore.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import { useUpdatePlanning } from '@/hooks/planning-hooks.ts'
+import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
+import { planSchema } from '@/validations/plan.ts'
+
 import KitToggleBar from '@/components/kit/KitToggleBar.vue'
 import KitMoneyInput from '@/components/kit/KitMoneyInput.vue'
 import KitInput from '@/components/kit/KitInput.vue'
@@ -9,28 +19,28 @@ import KitCategories from '@/components/kit/KitCategories.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 import KitToggle from '@/components/kit/KitToggle.vue'
-import { planSchema } from '@/validations/plan.ts'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
-import { CURRENCIES } from '@/constants/currencies.ts'
-import { useMe } from '@/hooks/auth-hooks.ts'
-import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
-import { useUpdatePlanning } from '@/hooks/planning-hooks.ts'
-import type { PlanningQuery, PlanningType } from '@/graphql/types.ts'
+
+// ===== Types =====
 
 type BasePlanning = PlanningQuery['planning'][number]
+
+// ===== Emits and Props =====
 
 const emit = defineEmits(['closeForm'])
 const { planning } = defineProps<{
   planning: BasePlanning
 }>()
 
+// ===== Hooks =====
+
 const { t } = useI18n()
 const { me } = useMe()
 const toastStore = useToastStore()
 const { updatePlanning } = useUpdatePlanning()
 const { statisticDate } = useStatisticDateStore()
+
+// ===== Refs =====
 
 const type = ref<PlanningType>(planning.type as PlanningType)
 const amount = ref(String(planning.amount))
@@ -39,6 +49,10 @@ const description = ref(planning.description || '')
 const date = ref<Date | null>(planning.date ? new Date(planning.date) : null)
 const categoryId = ref(planning.categoryId || '')
 const repeat = ref(planning.repeat || false)
+
+const errors = ref<Record<string, string>>({})
+
+// ===== Watchers =====
 
 watch(
   () => planning,
@@ -53,7 +67,13 @@ watch(
   },
 )
 
-const errors = ref<Record<string, string>>({})
+// ===== Computed =====
+
+const currentPeriod = computed(() => {
+  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
+})
+
+// ===== Handlers and utils =====
 
 const getPlanningLabel = (type: string) => t(`planning.form.type.${type}`)
 
@@ -75,7 +95,6 @@ const validateForm = async () => {
     return true
     // eslint-disable-next-line
   } catch (validationErrors: any) {
-    console.log('validationErrors', validationErrors)
     errors.value = (validationErrors as ValidationError).inner.reduce(
       // eslint-disable-next-line
       (acc: Record<string, string>, error: any) => {
@@ -87,10 +106,6 @@ const validateForm = async () => {
     return false
   }
 }
-
-const currentPeriod = computed(() => {
-  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
-})
 
 const clearForm = () => {
   amount.value = ''
@@ -107,8 +122,6 @@ const handlerUpdatePlanning = async () => {
     const isValid = await validateForm()
     if (!isValid) return
 
-    console.log('repeat', repeat.value)
-
     await updatePlanning({
       planningId: Number(planning.id),
       planningData: {
@@ -124,13 +137,25 @@ const handlerUpdatePlanning = async () => {
       },
     })
     clearForm()
-    toastStore.success('Success')
+    toastStore.success(t(`planning.form.messages.update_success`))
     emit('closeForm')
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error('Error')
+    try {
+      const errorCodes = e.cause.extensions.originalError.errorCodes
+      if (errorCodes) {
+        errors.value = errorCodes
+      }
+      if (errorCodes.form) {
+        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      toastStore.error(t('common_errors.server_error'))
+    }
   }
 }
+
 const handleCloseForm = () => {
   clearForm()
   emit('closeForm')
