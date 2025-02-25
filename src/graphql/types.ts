@@ -157,8 +157,7 @@ export type Planning = {
   repeatedPlanning?: Maybe<Planning>;
   repeatedPlanningId?: Maybe<Scalars['Int']['output']>;
   repeatedPlannings?: Maybe<Array<Planning>>;
-  transaction?: Maybe<Transaction>;
-  transactionId?: Maybe<Scalars['Int']['output']>;
+  transactions?: Maybe<Array<Transaction>>;
   type: PlanningType;
   updatedAt: Scalars['DateTime']['output'];
   user: User;
@@ -170,6 +169,7 @@ export type PlanningCount = {
   __typename?: 'PlanningCount';
   parentPlannings: Scalars['Int']['output'];
   repeatedPlannings: Scalars['Int']['output'];
+  transactions: Scalars['Int']['output'];
 };
 
 export type PlanningInput = {
@@ -237,8 +237,6 @@ export type SignUpInput = {
 
 export type Transaction = {
   __typename?: 'Transaction';
-  Planning?: Maybe<Array<Planning>>;
-  _count: TransactionCount;
   amount: Scalars['Float']['output'];
   categoryId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
@@ -248,14 +246,11 @@ export type Transaction = {
   exchangeRate: ExchangeRate;
   exchangeRateId: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  planning?: Maybe<Planning>;
+  planningId?: Maybe<Scalars['Int']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   user: User;
   userId: Scalars['Int']['output'];
-};
-
-export type TransactionCount = {
-  __typename?: 'TransactionCount';
-  Planning: Scalars['Int']['output'];
 };
 
 export type TransactionInput = {
@@ -264,6 +259,7 @@ export type TransactionInput = {
   currency: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
   description: Scalars['String']['input'];
+  planningId?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type UpdateProfileInput = {
@@ -323,7 +319,7 @@ export type CreatePlanningMutationVariables = Exact<{
 }>;
 
 
-export type CreatePlanningMutation = { __typename?: 'Mutation', createPlanning: { __typename?: 'Planning', id: string, amount: number, categoryId: string, currency: string, date?: any | null, description?: string | null, monthIndex: number, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number } };
+export type CreatePlanningMutation = { __typename?: 'Mutation', createPlanning: { __typename?: 'Planning', id: string } };
 
 export type CreateTransactionMutationVariables = Exact<{
   transactionData: TransactionInput;
@@ -337,7 +333,7 @@ export type DeletePlanningMutationVariables = Exact<{
 }>;
 
 
-export type DeletePlanningMutation = { __typename?: 'Mutation', deletePlanning: { __typename?: 'Planning', id: string, amount: number, categoryId: string, currency: string, date?: any | null, description?: string | null, monthIndex: number, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number } };
+export type DeletePlanningMutation = { __typename?: 'Mutation', deletePlanning: { __typename?: 'Planning', id: string } };
 
 export type DeleteTransactionMutationVariables = Exact<{
   transactionId: Scalars['Float']['input'];
@@ -380,7 +376,7 @@ export type PlanningQueryVariables = Exact<{
 }>;
 
 
-export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }> };
+export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string }> | null }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }> };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
@@ -432,7 +428,7 @@ export type TransactionsQueryVariables = Exact<{
 }>;
 
 
-export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } }> };
+export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, planning?: { __typename?: 'Planning', id: string } | null }> };
 
 export type UpdatePlanningMutationVariables = Exact<{
   planningData: PlanningInput;
@@ -440,7 +436,7 @@ export type UpdatePlanningMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanningMutation = { __typename?: 'Mutation', updatePlanning: { __typename?: 'Planning', id: string, amount: number, categoryId: string, currency: string, date?: any | null, description?: string | null, monthIndex: number, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number } };
+export type UpdatePlanningMutation = { __typename?: 'Mutation', updatePlanning: { __typename?: 'Planning', id: string } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   transactionId: Scalars['Float']['input'];

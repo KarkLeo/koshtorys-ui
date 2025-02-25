@@ -17,6 +17,9 @@ import KitButton from '@/components/kit/KitButton.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
+import KitIconButton from '@/components/kit/KitIconButton.vue'
+import IconLink from '@/components/icons/IconLink.vue'
+import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
 
 // ===== Types =====
 
@@ -54,6 +57,10 @@ const description = ref(transaction?.description || '')
 const date = ref<Date>(new Date(transaction.date))
 const categoryId = ref<string>(transaction?.categoryId || '')
 
+const selectPlanningModal = ref<HTMLElement | null>(null)
+const selectedPlanning = ref<string | null>(transaction?.planning?.id || null)
+const isOpenSelectPlanningModal = ref(false)
+
 // ===== Watchers =====
 
 watch(
@@ -68,6 +75,7 @@ watch(
     description.value = newTransaction?.description || ''
     date.value = new Date(newTransaction.date)
     categoryId.value = newTransaction?.categoryId || ''
+    selectedPlanning.value = newTransaction?.planning?.id || null
   },
 )
 
@@ -108,6 +116,8 @@ const clearForm = () => {
   date.value = nowDateUTC()
   currency.value = me.value?.me.currency || CURRENCIES[0]
   errors.value = {}
+  isOpenSelectPlanningModal.value = false
+  selectedPlanning.value = null
 }
 
 const handlerUpdateTransaction = async () => {
@@ -122,6 +132,7 @@ const handlerUpdateTransaction = async () => {
         description: description.value,
         categoryId: categoryId.value,
         date: date.value.toISOString(),
+        planningId: selectedPlanning.value ? Number(selectedPlanning.value) : undefined,
       },
       transactionId: Number(transaction.id),
     })
@@ -151,6 +162,18 @@ const handleCloseForm = () => {
   clearForm()
   emit('closeForm')
 }
+
+const openSelectPlanningModal = () => {
+  isOpenSelectPlanningModal.value = true
+}
+
+const closeSelectPlanningModal = () => {
+  isOpenSelectPlanningModal.value = false
+}
+
+const submitSelectPlanningModal = () => {
+  closeSelectPlanningModal()
+}
 </script>
 
 <template>
@@ -167,17 +190,22 @@ const handleCloseForm = () => {
         :error="Boolean(errors?.amount)"
       />
     </kit-simple-field-wrapper>
-    <kit-simple-field-wrapper
-      :error="Boolean(errors?.description)"
-      :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
-    >
-      <kit-input
-        v-model="description"
-        type="text"
-        :placeholder="$t('transaction.form.fields.description.placeholder')"
+    <div class="form-fields-row-elastic">
+      <kit-simple-field-wrapper
         :error="Boolean(errors?.description)"
-      />
-    </kit-simple-field-wrapper>
+        :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
+      >
+        <kit-input
+          v-model="description"
+          type="text"
+          :placeholder="$t('transaction.form.fields.description.placeholder')"
+          :error="Boolean(errors?.description)"
+        />
+      </kit-simple-field-wrapper>
+      <kit-icon-button @click="openSelectPlanningModal" size="md">
+        <icon-link :class="{ 'active-planning': Boolean(selectedPlanning) }" />
+      </kit-icon-button>
+    </div>
     <div class="form-fields-row">
       <kit-simple-field-wrapper
         :error="Boolean(errors?.date)"
@@ -207,6 +235,15 @@ const handleCloseForm = () => {
       }}</kit-button>
     </div>
   </div>
+  <select-planning-modal
+    @click.stop
+    :old-planning-id="transaction.planning?.id || null"
+    ref="selectPlanningModal"
+    v-if="isOpenSelectPlanningModal"
+    v-model="selectedPlanning"
+    @close="closeSelectPlanningModal"
+    @submit="submitSelectPlanningModal"
+  />
 </template>
 
 <style scoped>
@@ -229,11 +266,22 @@ const handleCloseForm = () => {
   gap: var(--spacing-xl);
 }
 
+.form-fields-row-elastic {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  gap: var(--spacing-xl);
+}
+
+.active-planning {
+  color: var(--fg-brand-primary) !important;
+}
+
 .form-buttons-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xl);
 }
+
 @media screen and (min-width: 768px) {
   .form-fields-row {
     grid-template-columns: 1fr 1fr;

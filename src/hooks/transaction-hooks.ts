@@ -1,6 +1,10 @@
 import { watch } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 
+import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { getExchangeDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+
 import type {
   CreateTransactionMutation,
   CreateTransactionMutationVariables,
@@ -15,9 +19,10 @@ import CREATE_TRANSACTION from '@/graphql/create-transaction.graphql'
 import DELETE_TRANSACTION from '@/graphql/delete-transaction.graphql'
 import UPDATE_TRANSACTION from '@/graphql/update-transaction.graphql'
 import TRANSACTIONS from '@/graphql/transactions.graphql'
-import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
+import PLANNING from '@/graphql/planning.graphql'
 
 export function useCreateTransaction() {
+  const { me } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate } = useMutation<CreateTransactionMutation, CreateTransactionMutationVariables>(
@@ -25,9 +30,14 @@ export function useCreateTransaction() {
   )
   const createTransaction = async (variables: CreateTransactionMutationVariables) => {
     try {
+      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
+
       const result = await mutate(variables, {
         refetchQueries: [
           { query: TRANSACTIONS, variables: { date: statisticDate.value.toISOString() } },
+          { query: PLANNING, variables: { monthIndex, year, exchangeDate } },
         ],
       })
       return result?.data?.createTransaction || null
@@ -40,6 +50,7 @@ export function useCreateTransaction() {
 }
 
 export function useDeleteTransaction() {
+  const { me } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate } = useMutation<DeleteTransactionMutation, DeleteTransactionMutationVariables>(
@@ -47,9 +58,14 @@ export function useDeleteTransaction() {
   )
   const deleteTransaction = async (variables: DeleteTransactionMutationVariables) => {
     try {
+      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
+
       const result = await mutate(variables, {
         refetchQueries: [
           { query: TRANSACTIONS, variables: { date: statisticDate.value.toISOString() } },
+          { query: PLANNING, variables: { monthIndex, year, exchangeDate } },
         ],
       })
       return result?.data?.deleteTransaction || null
@@ -62,6 +78,7 @@ export function useDeleteTransaction() {
 }
 
 export function useUpdateTransaction() {
+  const { me } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate } = useMutation<UpdateTransactionMutation, UpdateTransactionMutationVariables>(
@@ -69,9 +86,14 @@ export function useUpdateTransaction() {
   )
   const updateTransaction = async (variables: UpdateTransactionMutationVariables) => {
     try {
+      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
+
       const result = await mutate(variables, {
         refetchQueries: [
           { query: TRANSACTIONS, variables: { date: statisticDate.value.toISOString() } },
+          { query: PLANNING, variables: { monthIndex, year, exchangeDate } },
         ],
       })
       return result?.data?.updateTransaction || null

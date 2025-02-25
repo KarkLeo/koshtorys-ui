@@ -362,6 +362,14 @@
         "update_success": "Transaction successfully updated",
         "delete_success": "Transaction successfully deleted"
       }
+    },
+    "selectPlanning": {
+      "title": "Add Transaction",
+      "subtitle": "Select a planning to add a transaction",
+      "buttons": {
+        "submit": "Save",
+        "cancel": "Remove"
+      }
     }
   },
   "planning": {

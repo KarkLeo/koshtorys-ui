@@ -16,6 +16,9 @@ import KitButton from '@/components/kit/KitButton.vue'
 import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
+import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
+import KitIconButton from '@/components/kit/KitIconButton.vue'
+import IconLink from '@/components/icons/IconLink.vue'
 
 // ===== Hooks =====
 
@@ -35,6 +38,10 @@ const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
 const date = ref<Date>(nowDateUTC())
 const categoryId = ref<string>('')
+
+const selectPlanningModal = ref<HTMLElement | null>(null)
+const selectedPlanning = ref<string | null>(null)
+const isOpenSelectPlanningModal = ref(false)
 
 // ===== Handlers ans utils =====
 
@@ -74,6 +81,8 @@ const clearForm = () => {
   currency.value = me.value?.me.currency || CURRENCIES[0]
   isOpen.value = false
   errors.value = {}
+  isOpenSelectPlanningModal.value = false
+  selectedPlanning.value = null
 }
 
 const handlerCreateTransaction = async () => {
@@ -88,6 +97,7 @@ const handlerCreateTransaction = async () => {
         description: description.value,
         categoryId: categoryId.value,
         date: date.value.toISOString(),
+        planningId: selectedPlanning.value ? Number(selectedPlanning.value) : undefined,
       },
     })
 
@@ -110,10 +120,25 @@ const handlerCreateTransaction = async () => {
   }
 }
 
+const openSelectPlanningModal = () => {
+  isOpenSelectPlanningModal.value = true
+}
+
+const closeSelectPlanningModal = () => {
+  isOpenSelectPlanningModal.value = false
+}
+
+const submitSelectPlanningModal = () => {
+  closeSelectPlanningModal()
+}
+
 const handleClickOutside = (event: MouseEvent) => {
   if (!formRef.value) return
 
-  if (!formRef.value.contains(event.target as Node)) {
+  if (
+    !formRef.value.contains(event.target as Node) &&
+    !selectPlanningModal.value?.contains(event.target as Node)
+  ) {
     clearForm()
   }
 }
@@ -145,17 +170,22 @@ onBeforeUnmount(() => {
         :error="Boolean(errors?.amount)"
       />
     </kit-simple-field-wrapper>
-    <kit-simple-field-wrapper
-      :error="Boolean(errors?.description)"
-      :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
-    >
-      <kit-input
-        v-model="description"
-        type="text"
-        :placeholder="$t('transaction.form.fields.description.placeholder')"
+    <div class="form-fields-row-elastic">
+      <kit-simple-field-wrapper
         :error="Boolean(errors?.description)"
-      />
-    </kit-simple-field-wrapper>
+        :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
+      >
+        <kit-input
+          v-model="description"
+          type="text"
+          :placeholder="$t('transaction.form.fields.description.placeholder')"
+          :error="Boolean(errors?.description)"
+        />
+      </kit-simple-field-wrapper>
+      <kit-icon-button @click="openSelectPlanningModal" size="md">
+        <icon-link :class="{ 'active-planning': Boolean(selectedPlanning) }" />
+      </kit-icon-button>
+    </div>
     <div class="form-fields-row">
       <kit-simple-field-wrapper
         :error="Boolean(errors?.date)"
@@ -176,10 +206,18 @@ onBeforeUnmount(() => {
         <kit-categories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
       </kit-simple-field-wrapper>
     </div>
-    <kit-button size="xl" @click="handlerCreateTransaction"
-      >{{ $t('transaction.form.buttons.add') }}
+    <kit-button size="xl" @click="handlerCreateTransaction">
+      {{ $t('transaction.form.buttons.add') }}
     </kit-button>
   </div>
+  <select-planning-modal
+    @click.stop
+    ref="selectPlanningModal"
+    v-if="isOpenSelectPlanningModal"
+    v-model="selectedPlanning"
+    @close="closeSelectPlanningModal"
+    @submit="submitSelectPlanningModal"
+  />
 </template>
 
 <style scoped>
@@ -225,6 +263,16 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--spacing-xl);
+}
+
+.form-fields-row-elastic {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  gap: var(--spacing-xl);
+}
+
+.active-planning {
+  color: var(--fg-brand-primary) !important;
 }
 
 @media screen and (min-width: 768px) {

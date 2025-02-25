@@ -8,11 +8,15 @@ import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitCategories from '@/components/kit/KitCategories.vue'
 import KitToggle from '@/components/kit/KitToggle.vue'
 import KitToggleBar from '@/components/kit/KitToggleBar.vue'
+import KitRadio from '@/components/kit/KitRadio.vue'
+import KitModal from '@/components/kit/KitModal.vue'
 
 const input = ref<string>('')
 const toastStore = useToastStore()
 
 const menu = ref('')
+
+const modal = ref(false)
 </script>
 
 <template>
@@ -39,6 +43,19 @@ const menu = ref('')
     </div>
     <div class="row">
       <kit-toggle />
+      <kit-radio />
+
+      <KitButton @click="modal = true">Modal</KitButton>
+      <kit-modal
+        v-if="modal"
+        @close="modal = false"
+        title="Title"
+        subtitle="Subtitle"
+        canselText="Cansel"
+        submitText="Submit"
+      >
+        afsadfasdf sd dsaf asd
+      </kit-modal>
     </div>
     <div class="row">
       <KitButton>Primary</KitButton>

@@ -17,6 +17,7 @@ import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import EditTransactionForm from '@/components/transaction/EditTransactionForm.vue'
+import IconLink from '@/components/icons/IconLink.vue'
 
 // ===== Types =====
 
@@ -141,6 +142,7 @@ const getCategoryColor = (categoryId: string) => {
             >
               {{ $t(`transaction.categories.${transaction.categoryId}`) }}
             </p>
+            <p class="transaction-planning" v-if="transaction.planning"><icon-link /></p>
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
 
             <kit-context-menu class="transaction-menu">
@@ -272,6 +274,18 @@ const getCategoryColor = (categoryId: string) => {
 
   border: 1px solid var(--color);
   border-radius: var(--radius-full);
+}
+
+.transaction-planning {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.transaction-planning :deep(svg) {
+  width: var(--font-size-text-md);
+  height: var(--font-size-text-md);
+
+  color: var(--fg-brand-primary);
 }
 @media screen and (min-width: 768px) {
   .transaction-container {

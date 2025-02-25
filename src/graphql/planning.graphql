@@ -7,12 +7,14 @@ query Planning($monthIndex: Float!, $year: Float!, $exchangeDate: DateTime!) {
     description
     categoryId
     repeat
-    transactionId
     type
     year
     monthIndex
     repeatedPlanningId
     parentPlanningId
+    transactions {
+      id
+    }
   }
   exchangeRate(date: $exchangeDate) {
     id

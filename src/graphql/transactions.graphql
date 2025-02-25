@@ -12,5 +12,8 @@ query Transactions($date: DateTime) {
       date
       rates
     }
+    planning {
+      id
+    }
   }
 }

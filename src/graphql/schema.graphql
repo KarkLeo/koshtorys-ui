@@ -68,8 +68,7 @@ type Planning {
   repeatedPlanning: Planning
   repeatedPlanningId: Int
   repeatedPlannings: [Planning!]
-  transaction: Transaction
-  transactionId: Int
+  transactions: [Transaction!]
   type: PlanningType!
   updatedAt: DateTime!
   user: User!
@@ -80,6 +79,7 @@ type Planning {
 type PlanningCount {
   parentPlannings: Int!
   repeatedPlannings: Int!
+  transactions: Int!
 }
 
 input PlanningInput {
@@ -123,8 +123,6 @@ input SignUpInput {
 }
 
 type Transaction {
-  Planning: [Planning!]
-  _count: TransactionCount!
   amount: Float!
   categoryId: String
   createdAt: DateTime!
@@ -134,13 +132,11 @@ type Transaction {
   exchangeRate: ExchangeRate!
   exchangeRateId: Int!
   id: ID!
+  planning: Planning
+  planningId: Int
   updatedAt: DateTime!
   user: User!
   userId: Int!
-}
-
-type TransactionCount {
-  Planning: Int!
 }
 
 input TransactionInput {
@@ -149,6 +145,7 @@ input TransactionInput {
   currency: String!
   date: DateTime!
   description: String!
+  planningId: Float
 }
 
 input UpdateProfileInput {
