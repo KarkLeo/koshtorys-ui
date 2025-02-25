@@ -1,12 +1,11 @@
+import { watch } from 'vue'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import {
-  getChangedDateByMonthIndex,
-  getExchangeDate,
-  getIndexedYear,
-  getMonthIndex,
-} from '@/helpers/date.ts'
+import { useMe } from '@/hooks/auth-hooks.ts'
+import { getExchangeDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import type {
+  CanselRepeatingPlanningMutation,
+  CanselRepeatingPlanningMutationVariables,
   CreatePlanningMutation,
   CreatePlanningMutationVariables,
   DeletePlanningMutation,
@@ -14,6 +13,8 @@ import type {
   Planning,
   PlanningQuery,
   PlanningQueryVariables,
+  RepeatPlanningMutation,
+  RepeatPlanningMutationVariables,
   UpdatePlanningMutation,
   UpdatePlanningMutationVariables,
 } from '@/graphql/types.ts'
@@ -21,8 +22,8 @@ import CREATE_PLANNING from '@/graphql/create-planning.graphql'
 import UPDATE_PLANNING from '@/graphql/update-planning.graphql'
 import DELETE_PLANNING from '@/graphql/delete-planning.graphql'
 import PLANNING from '@/graphql/planning.graphql'
-import { watch } from 'vue'
-import { useMe } from '@/hooks/auth-hooks.ts'
+import REPEAT_PLANNING from '@/graphql/repeat-planning.graphql'
+import CANSEL_REPEATING_PLANNING from '@/graphql/cansel-repeating-planning.graphql'
 
 export const useCreatePlanning = () => {
   const { me } = useMe()
@@ -137,51 +138,29 @@ export const useRepeatPlanning = () => {
   const { me } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
-  const { createPlanning } = useCreatePlanning()
-  const { updatePlanning } = useUpdatePlanning()
+  const { mutate } = useMutation<RepeatPlanningMutation, RepeatPlanningMutationVariables>(
+    REPEAT_PLANNING,
+  )
 
   const repeatPlanning = async (planning: Planning) => {
-    const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-    const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
-    const newDate =
-      planning.date &&
-      getChangedDateByMonthIndex(
-        new Date(planning.date),
-        year,
-        monthIndex,
-        me.value?.me.monthStartDay,
-      ).toISOString()
+    try {
+      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
 
-    const newPlanning = await createPlanning({
-      planningData: {
-        type: planning.type,
-        amount: planning.amount,
-        currency: planning.currency,
-        description: planning.description,
-        categoryId: planning.categoryId,
-        date: newDate,
-        monthIndex: monthIndex,
-        year: year,
-        repeat: planning.repeat,
-      },
-    })
-
-    if (newPlanning) {
-      return await updatePlanning({
-        planningId: Number(planning.id),
-        planningData: {
-          type: planning.type,
-          amount: planning.amount,
-          currency: planning.currency,
-          description: planning.description,
-          categoryId: planning.categoryId,
-          date: planning.date,
-          monthIndex: planning.monthIndex,
-          year: planning.year,
-          repeat: planning.repeat,
-          repeatedPlanningId: Number(newPlanning.id),
+      const result = await mutate(
+        {
+          planningId: Number(planning.id),
+          monthIndex,
+          year,
         },
-      })
+        {
+          refetchQueries: [{ query: PLANNING, variables: { monthIndex, year, exchangeDate } }],
+        },
+      )
+      return result?.data?.repeatPlanning || null
+    } catch (e) {
+      throw e
     }
   }
 
@@ -191,23 +170,29 @@ export const useRepeatPlanning = () => {
 }
 
 export const useCanselRepeatingPlanning = () => {
-  const { updatePlanning } = useUpdatePlanning()
+  const { me } = useMe()
+  const { statisticDate } = useStatisticDateStore()
+
+  const { mutate } = useMutation<
+    CanselRepeatingPlanningMutation,
+    CanselRepeatingPlanningMutationVariables
+  >(CANSEL_REPEATING_PLANNING)
 
   const canselRepeatingPlanning = async (planning: Planning) => {
-    return await updatePlanning({
-      planningId: Number(planning.id),
-      planningData: {
-        type: planning.type,
-        amount: planning.amount,
-        currency: planning.currency,
-        description: planning.description,
-        categoryId: planning.categoryId,
-        date: planning.date,
-        monthIndex: planning.monthIndex,
-        year: planning.year,
-        repeat: false,
+    const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
+    const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+    const exchangeDate = getExchangeDate(monthIndex, year, me.value?.me.monthStartDay)
+
+    const result = await mutate(
+      {
+        planningId: Number(planning.id),
       },
-    })
+      {
+        refetchQueries: [{ query: PLANNING, variables: { monthIndex, year, exchangeDate } }],
+      },
+    )
+
+    return result?.data?.canselRepeatingPlanning || null
   }
 
   return {

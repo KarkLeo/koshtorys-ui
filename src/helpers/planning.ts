@@ -29,6 +29,32 @@ export const reducePlanningByCategory = (
   }))
 }
 
+export const filterPlanning = (
+  repeatedPlannings: Planning[],
+  currentPlannings: Planning[],
+): Planning[] =>
+  repeatedPlannings.filter((repeatedPlanning) => {
+    if (
+      currentPlannings.some(
+        (planning) =>
+          (planning.repeatedPlanningId &&
+            String(planning.repeatedPlanningId) === String(repeatedPlanning.id)) ||
+          (repeatedPlanning.repeatedPlanningId &&
+            String(repeatedPlanning.repeatedPlanningId) === String(planning.id)) ||
+          (planning.parentPlanningId &&
+            String(planning.parentPlanningId) === String(repeatedPlanning.id)) ||
+          (repeatedPlanning.parentPlanningId &&
+            String(repeatedPlanning.parentPlanningId) === String(planning.id)) ||
+          (planning.parentPlanningId &&
+            repeatedPlanning.parentPlanningId &&
+            String(planning.parentPlanningId) === String(repeatedPlanning.parentPlanningId)),
+      )
+    )
+      return false
+
+    return true
+  })
+
 export const getExchangedAmount = (
   exchangeRate: ExchangeRate,
   amount: number,

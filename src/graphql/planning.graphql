@@ -11,6 +11,8 @@ query Planning($monthIndex: Float!, $year: Float!, $exchangeDate: DateTime!) {
     type
     year
     monthIndex
+    repeatedPlanningId
+    parentPlanningId
   }
   exchangeRate(date: $exchangeDate) {
     id
@@ -29,5 +31,7 @@ query Planning($monthIndex: Float!, $year: Float!, $exchangeDate: DateTime!) {
     type
     year
     monthIndex
+    repeatedPlanningId
+    parentPlanningId
   }
 }

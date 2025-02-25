@@ -1,0 +1,5 @@
+mutation RepeatPlanning($planningId: Float!, $monthIndex: Float!, $year: Float!,) {
+  repeatPlanning(planningId: $planningId, monthIndex: $monthIndex, year: $year) {
+    id
+  }
+}

@@ -15,7 +15,12 @@ import {
   useRepeatPlanning,
 } from '@/hooks/planning-hooks.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { getExchangedAmount, getTotalAmount, reducePlanningByCategory } from '@/helpers/planning.ts'
+import {
+  filterPlanning,
+  getExchangedAmount,
+  getTotalAmount,
+  reducePlanningByCategory,
+} from '@/helpers/planning.ts'
 import { getMainCategory } from '@/helpers/category.ts'
 
 import IconCalendar from '@/components/icons/IconCalendar.vue'
@@ -52,8 +57,13 @@ const planningTables = computed(() => {
 })
 
 const repeatingPlanningTables = computed(() => {
-  if (!planning?.value?.repeatingPlanning) return []
-  return reducePlanningByCategory(planning.value.repeatingPlanning as Planning[])
+  if (!planning?.value?.repeatingPlanning && !planning?.value?.planning) return []
+  return reducePlanningByCategory(
+    filterPlanning(
+      planning.value.repeatingPlanning as Planning[],
+      planning?.value?.planning as Planning[],
+    ),
+  )
 })
 
 // ===== Handlers =====

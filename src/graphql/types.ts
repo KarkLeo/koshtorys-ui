@@ -40,6 +40,7 @@ export type ExchangeRateCount = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  canselRepeatingPlanning: Planning;
   createPlanning: Planning;
   createTransaction: Transaction;
   createUser: UserWithoutPasswordModel;
@@ -47,12 +48,18 @@ export type Mutation = {
   deleteTransaction: Transaction;
   onboarding: UserWithoutPasswordModel;
   refreshTokens: AuthResponse;
+  repeatPlanning: Planning;
   signIn: AuthResponse;
   signOut: Scalars['Boolean']['output'];
   signUp: UserWithoutPasswordModel;
   updatePlanning: Planning;
   updateProfile: UserWithoutPasswordModel;
   updateTransaction: Transaction;
+};
+
+
+export type MutationCanselRepeatingPlanningArgs = {
+  planningId: Scalars['Float']['input'];
 };
 
 
@@ -90,6 +97,13 @@ export type MutationOnboardingArgs = {
 
 export type MutationRefreshTokensArgs = {
   refreshToken: Scalars['String']['input'];
+};
+
+
+export type MutationRepeatPlanningArgs = {
+  monthIndex: Scalars['Float']['input'];
+  planningId: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
 };
 
 
@@ -165,6 +179,7 @@ export type PlanningInput = {
   date?: InputMaybe<Scalars['DateTime']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   monthIndex: Scalars['Float']['input'];
+  parentPlanningId?: InputMaybe<Scalars['Float']['input']>;
   repeat?: InputMaybe<Scalars['Boolean']['input']>;
   repeatedPlanningId?: InputMaybe<Scalars['Float']['input']>;
   type: PlanningType;
@@ -296,6 +311,13 @@ export type UserWithoutPasswordModel = {
   onboardingAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
+export type CanselRepeatingPlanningMutationVariables = Exact<{
+  planningId: Scalars['Float']['input'];
+}>;
+
+
+export type CanselRepeatingPlanningMutation = { __typename?: 'Mutation', canselRepeatingPlanning: { __typename?: 'Planning', id: string } };
+
 export type CreatePlanningMutationVariables = Exact<{
   planningData: PlanningInput;
 }>;
@@ -358,7 +380,7 @@ export type PlanningQueryVariables = Exact<{
 }>;
 
 
-export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number, monthIndex: number }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number }> };
+export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, transactionId?: number | null, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }> };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
@@ -376,6 +398,15 @@ export type RegistrationMutationVariables = Exact<{
 
 
 export type RegistrationMutation = { __typename?: 'Mutation', signUp: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null } };
+
+export type RepeatPlanningMutationVariables = Exact<{
+  planningId: Scalars['Float']['input'];
+  monthIndex: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
+}>;
+
+
+export type RepeatPlanningMutation = { __typename?: 'Mutation', repeatPlanning: { __typename?: 'Planning', id: string } };
 
 export type SettingsGeneralMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
