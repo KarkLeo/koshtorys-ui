@@ -124,62 +124,62 @@ const isChanged = computed(() => {
 
 <template>
   <form @submit.prevent="update" class="form">
-    <kit-settings-field-wrapper
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.lang.label')"
       :description="$t('settings.fields.lang.description')"
       :error="Boolean(errors?.lang)"
       :message="errors?.lang ? $t(`settings.fields.lang.errors.${errors?.lang}`) : ''"
     >
-      <kit-dropdown v-model="lang" :options="availableLocales" :getOptionLabel="getLangLabel" />
-    </kit-settings-field-wrapper>
-    <kit-settings-field-wrapper
+      <KitDropdown v-model="lang" :options="availableLocales" :getOptionLabel="getLangLabel" />
+    </KitSettingsFieldWrapper>
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.name.label')"
       :description="$t('settings.fields.name.description')"
       :error="Boolean(errors?.name)"
       :message="errors?.name ? $t(`settings.fields.name.errors.${errors?.name}`) : ''"
     >
-      <kit-input
+      <KitInput
         v-model="name"
         type="text"
         :placeholder="$t('settings.fields.name.placeholder')"
         :error="Boolean(errors?.name)"
       />
-    </kit-settings-field-wrapper>
-    <kit-settings-field-wrapper
+    </KitSettingsFieldWrapper>
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.email.label')"
       :description="$t('settings.fields.email.description')"
     >
-      <kit-input v-model="email" type="email" disabled />
-    </kit-settings-field-wrapper>
-    <kit-settings-field-wrapper
+      <KitInput v-model="email" type="email" disabled />
+    </KitSettingsFieldWrapper>
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.newPassword.label')"
       :description="$t('settings.fields.newPassword.description')"
       :error="Boolean(errors?.newPassword || errors?.confirmNewPassword || errors?.oldPassword)"
       :message="passwordMessage"
     >
       <div class="inputs">
-        <kit-input
+        <KitInput
           v-model="newPassword"
           type="password"
           :placeholder="$t('settings.fields.newPassword.placeholder')"
           :error="Boolean(errors?.newPassword)"
         />
-        <kit-input
+        <KitInput
           v-model="confirmNewPassword"
           type="password"
           :placeholder="$t('settings.fields.confirmNewPassword.placeholder')"
           :error="Boolean(errors?.confirmNewPassword)"
         />
-        <kit-input
+        <KitInput
           v-model="oldPassword"
           type="password"
           :placeholder="$t('settings.fields.oldPassword.placeholder')"
           :error="Boolean(errors?.oldPassword)"
         />
       </div>
-    </kit-settings-field-wrapper>
+    </KitSettingsFieldWrapper>
     <div class="buttons">
-      <kit-button type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</kit-button>
+      <KitButton type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</KitButton>
     </div>
   </form>
 </template>

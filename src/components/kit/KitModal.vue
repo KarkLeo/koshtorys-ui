@@ -45,9 +45,9 @@ onUnmounted(() => enableScroll())
       <div class="kit-modal-header">
         <h2 class="kit-modal-title">{{ title }}</h2>
         <h3 class="kit-modal-subtitle">{{ subtitle }}</h3>
-        <kit-icon-button class="kit-modal-close" @click="closeHandler">
-          <icon-x-close />
-        </kit-icon-button>
+        <KitIconButton class="kit-modal-close" @click="closeHandler">
+          <IconXClose />
+        </KitIconButton>
       </div>
       <div class="kit-modal-body">
         <slot />

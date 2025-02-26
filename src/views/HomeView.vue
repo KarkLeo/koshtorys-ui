@@ -23,30 +23,30 @@ const modal = ref(false)
   <main>
     <div class="row">
       <router-link to="/login">
-        <kit-button>Login</kit-button>
+        <KitButton>Login</KitButton>
       </router-link>
       <router-link to="/register">
-        <kit-button variant="secondary-gray">Register</kit-button>
+        <KitButton variant="secondary-gray">Register</KitButton>
       </router-link>
     </div>
     <div class="row">
-      <kit-toggle-bar v-model="menu" :options="['one', 'two', 'three']" />
+      <KitToggleBar v-model="menu" :options="['one', 'two', 'three']" />
       <h1>
         {{ menu }}
       </h1>
     </div>
     <div class="row">
-      <kit-date-picker />
+      <KitDatePicker />
     </div>
     <div class="row">
-      <kit-categories />
+      <KitCategories />
     </div>
     <div class="row">
-      <kit-toggle />
-      <kit-radio />
+      <KitToggle />
+      <KitRadio />
 
       <KitButton @click="modal = true">Modal</KitButton>
-      <kit-modal
+      <KitModal
         v-if="modal"
         @close="modal = false"
         title="Title"
@@ -55,7 +55,7 @@ const modal = ref(false)
         submitText="Submit"
       >
         afsadfasdf sd dsaf asd
-      </kit-modal>
+      </KitModal>
     </div>
     <div class="row">
       <KitButton>Primary</KitButton>

@@ -8,6 +8,10 @@ import {
 import KitDropdownWithInput from '@/components/kit/KitDropdownWithInput.vue'
 import { getMainCategory } from '@/helpers/category.ts'
 
+const { filterOptions = (options) => options } = defineProps<{
+  filterOptions?: (options: string[]) => string[]
+}>()
+
 const { t } = useI18n()
 
 const category = ref<string>('')
@@ -19,9 +23,9 @@ const getCategoryStyle = (category: string) => ({
 </script>
 
 <template>
-  <kit-dropdown-with-input
+  <KitDropdownWithInput
     v-model="category"
-    :options="TRANSACTION_CATEGORIES"
+    :options="filterOptions(TRANSACTION_CATEGORIES)"
     :placeholder="t('transaction.form.fields.category.placeholder')"
     :getOptionLabel="getCategoriesLabel"
     :getOptionClass="() => 'category-item'"

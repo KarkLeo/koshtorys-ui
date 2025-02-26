@@ -27,13 +27,13 @@ const handleSignOut = async () => {
   <header class="header">
     <div class="header-inner">
       <div class="left-side">
-        <main-menu />
+        <MainMenu />
       </div>
       <div class="right-side">
-        <kit-icon-button v-if="me?.me" @click="handleSignOut">
-          <icon-logout />
-        </kit-icon-button>
-        <lang-switcher v-else />
+        <KitIconButton v-if="me?.me" @click="handleSignOut">
+          <IconLogout />
+        </KitIconButton>
+        <LangSwitcher v-else />
       </div>
     </div>
   </header>

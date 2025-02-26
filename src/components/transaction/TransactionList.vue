@@ -113,9 +113,9 @@ const getCategoryColor = (categoryId: string) => {
 
 <template>
   <div class="transaction-container">
-    <kit-month-switcher v-model="statisticDate" />
+    <KitMonthSwitcher v-model="statisticDate" />
 
-    <wave-chart
+    <WaveChart
       :current="sum"
       :max="me?.me.monthlyBudget || 0"
       :message="`${formatAmount(sum)} / ${formatAmount(me?.me.monthlyBudget || 0)} ${formatCurrency(me?.me.currency || '')}`"
@@ -142,21 +142,22 @@ const getCategoryColor = (categoryId: string) => {
             >
               {{ $t(`transaction.categories.${transaction.categoryId}`) }}
             </p>
-            <p class="transaction-planning" v-if="transaction.planning"><icon-link /></p>
+            <p class="transaction-planning" v-if="transaction.planning"><IconLink /></p>
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
 
-            <kit-context-menu class="transaction-menu">
-              <kit-icon-button @click="editingTransactionId = transaction.id" size="md">
-                <icon-edit />
-              </kit-icon-button>
-              <kit-icon-button @click="handleDeleteTransaction(transaction.id)" size="md">
-                <icon-trash />
-              </kit-icon-button>
-            </kit-context-menu>
+            <KitContextMenu class="transaction-menu">
+              <KitIconButton @click="editingTransactionId = transaction.id" size="md">
+                <IconEdit />
+              </KitIconButton>
+              <KitIconButton @click="handleDeleteTransaction(transaction.id)" size="md">
+                <IconTrash />
+              </KitIconButton>
+            </KitContextMenu>
           </div>
           <p class="transaction-description">{{ transaction.description }}</p>
         </div>
-        <edit-transaction-form
+
+        <EditTransactionForm
           v-else
           :transaction="transaction"
           @close-form="editingTransactionId = null"

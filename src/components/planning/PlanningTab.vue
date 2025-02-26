@@ -155,7 +155,7 @@ const prepareRepeatedDate = (date: string) => {
 </script>
 <template>
   <div class="planning-container">
-    <kit-month-switcher v-model="statisticDate" />
+    <KitMonthSwitcher v-model="statisticDate" />
 
     <div class="planning-header">
       <div class="planning-header-item">
@@ -207,7 +207,7 @@ const prepareRepeatedDate = (date: string) => {
                 {{ getCategoriesLabel(plan.categoryId as string) }}
               </div>
               <div class="planning-table-item-date" v-if="plan.date">
-                <icon-calendar /> {{ formatDate(plan.date) }}
+                <IconCalendar /> {{ formatDate(plan.date) }}
               </div>
               <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
                 {{ plan.amount }} {{ formatCurrency(plan.currency) }}
@@ -221,12 +221,12 @@ const prepareRepeatedDate = (date: string) => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="editingPlanningId = plan.id">
-                  <icon-edit />
-                </kit-icon-button>
-                <kit-icon-button size="sm" @click="handleDeletePlanning(plan.id)">
-                  <icon-trash />
-                </kit-icon-button>
+                <KitIconButton size="sm" @click="editingPlanningId = plan.id">
+                  <IconEdit />
+                </KitIconButton>
+                <KitIconButton size="sm" @click="handleDeletePlanning(plan.id)">
+                  <IconTrash />
+                </KitIconButton>
               </div>
             </template>
             <template v-else>
@@ -249,19 +249,19 @@ const prepareRepeatedDate = (date: string) => {
                 {{ formatCurrency(me?.me.currency || '') }}
               </div>
               <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="editingPlanningId = plan.id">
-                  <icon-edit />
-                </kit-icon-button>
-                <kit-icon-button size="sm" @click="handleDeletePlanning(plan.id)">
-                  <icon-trash />
-                </kit-icon-button>
+                <KitIconButton size="sm" @click="editingPlanningId = plan.id">
+                  <IconEdit />
+                </KitIconButton>
+                <KitIconButton size="sm" @click="handleDeletePlanning(plan.id)">
+                  <IconTrash />
+                </KitIconButton>
               </div>
             </template>
           </template>
         </div>
       </div>
     </div>
-    <planning-add-form />
+    <PlanningAddForm />
     <div
       class="planning-table repeating"
       v-for="table in repeatingPlanningTables"
@@ -275,70 +275,65 @@ const prepareRepeatedDate = (date: string) => {
       </div>
       <div class="planning-table-body">
         <div class="planning-table-item" v-for="plan in table.items" :key="plan.id">
-          <template v-if="plan.id === editingPlanningId">
-            <planning-edit-form :planning="plan" @closeForm="editingPlanningId = null" />
+          <template v-if="plan.type === 'TRANSACTION'">
+            <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
+            <div>{{ plan.description }}</div>
+            <div
+              class="planning-table-item-category"
+              :style="getCategoryStyle(plan.categoryId as string)"
+            >
+              {{ getCategoriesLabel(plan.categoryId as string) }}
+            </div>
+            <div class="planning-table-item-date" v-if="plan.date">
+              <IconCalendar /> {{ prepareRepeatedDate(plan.date) }}
+            </div>
+            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
+              {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+            </div>
+            <div class="planning-table-item-amount" v-else>
+              <span class="planning-table-item-amount-original">
+                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+              </span>
+              <span class="planning-table-item-amount-original"> / </span>
+              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+              {{ formatCurrency(me?.me.currency || '') }}
+            </div>
+            <div class="planning-table-item-buttons">
+              <KitIconButton size="sm" @click="canselRepeatingPlanningHandler(plan)">
+                <IconSlashCircle />
+              </KitIconButton>
+              <KitIconButton size="sm" @click="repeatPlanningHandler(plan)">
+                <IconCheck />
+              </KitIconButton>
+            </div>
           </template>
           <template v-else>
-            <template v-if="plan.type === 'TRANSACTION'">
-              <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
-              <div>{{ plan.description }}</div>
-              <div
-                class="planning-table-item-category"
-                :style="getCategoryStyle(plan.categoryId as string)"
-              >
-                {{ getCategoriesLabel(plan.categoryId as string) }}
-              </div>
-              <div class="planning-table-item-date" v-if="plan.date">
-                <icon-calendar /> {{ prepareRepeatedDate(plan.date) }}
-              </div>
-              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
+            <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
+            <div
+              class="planning-table-item-category"
+              :style="getCategoryStyle(plan.categoryId as string)"
+            >
+              {{ getCategoriesLabel(plan.categoryId as string) }}
+            </div>
+            <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
+              {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+            </div>
+            <div class="planning-table-item-amount" v-else>
+              <span class="planning-table-item-amount-original">
                 {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-              </div>
-              <div class="planning-table-item-amount" v-else>
-                <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-                </span>
-                <span class="planning-table-item-amount-original"> / </span>
-                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-                {{ formatCurrency(me?.me.currency || '') }}
-              </div>
-              <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="canselRepeatingPlanningHandler(plan)">
-                  <icon-slash-circle />
-                </kit-icon-button>
-                <kit-icon-button size="sm" @click="repeatPlanningHandler(plan)">
-                  <icon-check />
-                </kit-icon-button>
-              </div>
-            </template>
-            <template v-else>
-              <div v-if="plan.repeat" class="planning-table-item-repeat"><icon-repeat /></div>
-              <div
-                class="planning-table-item-category"
-                :style="getCategoryStyle(plan.categoryId as string)"
-              >
-                {{ getCategoriesLabel(plan.categoryId as string) }}
-              </div>
-              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-              </div>
-              <div class="planning-table-item-amount" v-else>
-                <span class="planning-table-item-amount-original">
-                  {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-                </span>
-                <span class="planning-table-item-amount-original"> / </span>
-                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-                {{ formatCurrency(me?.me.currency || '') }}
-              </div>
-              <div class="planning-table-item-buttons">
-                <kit-icon-button size="sm" @click="canselRepeatingPlanningHandler(plan)">
-                  <icon-slash-circle />
-                </kit-icon-button>
-                <kit-icon-button size="sm" @click="repeatPlanningHandler(plan)">
-                  <icon-check />
-                </kit-icon-button>
-              </div>
-            </template>
+              </span>
+              <span class="planning-table-item-amount-original"> / </span>
+              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+              {{ formatCurrency(me?.me.currency || '') }}
+            </div>
+            <div class="planning-table-item-buttons">
+              <KitIconButton size="sm" @click="canselRepeatingPlanningHandler(plan)">
+                <IconSlashCircle />
+              </KitIconButton>
+              <KitIconButton size="sm" @click="repeatPlanningHandler(plan)">
+                <IconCheck />
+              </KitIconButton>
+            </div>
           </template>
         </div>
       </div>

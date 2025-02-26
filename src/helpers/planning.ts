@@ -35,6 +35,13 @@ export const filterPlanning = (
 ): Planning[] =>
   repeatedPlannings.filter((repeatedPlanning) => {
     if (
+      repeatedPlanning.type === 'CATEGORY' &&
+      currentPlannings.some((planning) => planning.categoryId === repeatedPlanning.categoryId)
+    ) {
+      return false
+    }
+
+    if (
       currentPlannings.some(
         (planning) =>
           (planning.repeatedPlanningId &&

@@ -8,7 +8,7 @@ import { CURRENCIES } from '@/constants/currencies.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
-import { useCreatePlanning } from '@/hooks/planning-hooks.ts'
+import { useCreatePlanning, usePlanningList } from '@/hooks/planning-hooks.ts'
 import { getIndexedYear, getMonthIndex, getMonthPeriod } from '@/helpers/date.ts'
 import { planSchema } from '@/validations/plan.ts'
 
@@ -28,6 +28,7 @@ const { me } = useMe()
 const toastStore = useToastStore()
 const { createPlanning } = useCreatePlanning()
 const { statisticDate } = useStatisticDateStore()
+const { planning } = usePlanningList()
 
 // ===== Refs =====
 
@@ -128,82 +129,103 @@ const handlerCreatePlanning = async () => {
     }
   }
 }
+
+const filterCategories = (categories: string[]): string[] => {
+  if (type.value === 'CATEGORY') {
+    if (!planning.value?.planning) {
+      return categories
+    }
+
+    const usedCategories = planning.value.planning
+      .filter((plan) => plan.type === 'CATEGORY')
+      .map((plan) => plan.categoryId)
+
+    return categories.filter((category) => !usedCategories.includes(category))
+  } else {
+    return categories
+  }
+}
 </script>
 
 <template>
   <div class="planning-from">
     <div class="planning-form-header">
-      <kit-toggle-bar
+      <KitToggleBar
         v-model="type"
         :options="['TRANSACTION', 'CATEGORY']"
         :get-option-label="getPlanningLabel"
       />
       <div class="planning-form-buttons">
-        <kit-button size="md" variant="secondary-gray" @click="clearForm">
-          {{ $t('planning.form.buttons.cancel') }}</kit-button
+        <KitButton size="md" variant="secondary-gray" @click="clearForm">
+          {{ $t('planning.form.buttons.cancel') }}</KitButton
         >
-        <kit-button size="md" @click="handlerCreatePlanning">{{
+        <KitButton size="md" @click="handlerCreatePlanning">{{
           $t('planning.form.buttons.add')
-        }}</kit-button>
+        }}</KitButton>
       </div>
     </div>
     <div class="planning-from-fields" v-if="type === 'CATEGORY'">
-      <kit-simple-field-wrapper
+      <KitSimpleFieldWrapper
         :error="Boolean(errors?.categoryId)"
         :message="errors?.categoryId ? $t(`planning.form.errors.${errors.categoryId}`) : ''"
       >
-        <kit-categories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
-      </kit-simple-field-wrapper>
+        <KitCategories
+          v-model="categoryId"
+          @click.stop
+          :error="Boolean(errors?.categoryId)"
+          :filter-options="filterCategories"
+        />
+      </KitSimpleFieldWrapper>
       <label class="planing-form-toggle">
-        <kit-toggle v-model="repeat" label="Repeat" />
+        <KitToggle v-model="repeat" label="Repeat" />
         {{ $t('planning.form.fields.repeat.label') }}
       </label>
       <div class="planing-form-amount">
-        <kit-simple-field-wrapper
+        <KitSimpleFieldWrapper
           :error="Boolean(errors?.amount)"
           :message="errors?.amount ? $t(`planning.form.errors.${errors.amount}`) : ''"
         >
-          <kit-money-input
+          <KitMoneyInput
             v-model="amount"
             v-model:currency="currency"
             :placeholder="$t('planning.form.fields.amount.placeholder') + ': 0.00'"
             :min="0"
             :error="Boolean(errors?.amount)"
           />
-        </kit-simple-field-wrapper>
+        </KitSimpleFieldWrapper>
       </div>
     </div>
     <div class="planning-from-fields" v-else>
       <div class="planning-from-fields-group">
-        <kit-simple-field-wrapper
+        <KitSimpleFieldWrapper
           :error="Boolean(errors?.description)"
           :message="errors?.description ? $t(`planning.form.errors.${errors.description}`) : ''"
         >
-          <kit-input
+          <KitInput
             v-model="description"
             type="text"
             :placeholder="$t('planning.form.fields.description.placeholder')"
             :error="Boolean(errors?.description)"
           />
-        </kit-simple-field-wrapper>
-        <kit-simple-field-wrapper
+        </KitSimpleFieldWrapper>
+        <KitSimpleFieldWrapper
           :error="Boolean(errors?.categoryId)"
           :message="errors?.categoryId ? $t(`planning.form.errors.${errors.categoryId}`) : ''"
         >
-          <kit-categories
+          <KitCategories
             v-model="categoryId"
             @click.stop
             class="planing-form-category"
             :error="Boolean(errors?.categoryId)"
           />
-        </kit-simple-field-wrapper>
+        </KitSimpleFieldWrapper>
       </div>
       <div class="planning-from-fields-group">
-        <kit-simple-field-wrapper
+        <KitSimpleFieldWrapper
           :error="Boolean(errors?.date)"
           :message="errors?.date ? $t(`planning.form.errors.${errors.date}`) : ''"
         >
-          <kit-date-picker
+          <KitDatePicker
             class="planing-form-date"
             v-model="date"
             full-width
@@ -213,25 +235,25 @@ const handlerCreatePlanning = async () => {
             :max-date="currentPeriod[1]"
             :error="Boolean(errors?.date)"
           />
-        </kit-simple-field-wrapper>
+        </KitSimpleFieldWrapper>
         <label class="planing-form-toggle">
-          <kit-toggle v-model="repeat" label="Repeat" />
+          <KitToggle v-model="repeat" label="Repeat" />
           {{ $t('planning.form.fields.repeat.label') }}
         </label>
       </div>
       <div class="planing-form-amount">
-        <kit-simple-field-wrapper
+        <KitSimpleFieldWrapper
           :error="Boolean(errors?.amount)"
           :message="errors?.amount ? $t(`planning.form.errors.${errors.amount}`) : ''"
         >
-          <kit-money-input
+          <KitMoneyInput
             v-model="amount"
             v-model:currency="currency"
             :placeholder="$t('planning.form.fields.amount.placeholder') + ': 0.00'"
             :min="0"
             :error="Boolean(errors?.amount)"
           />
-        </kit-simple-field-wrapper>
+        </KitSimpleFieldWrapper>
       </div>
     </div>
   </div>

@@ -31,7 +31,7 @@ const toastStore = useToastStore()
           <p class="main-toasts-toast-message">{{ toast.message }}</p>
         </div>
         <button class="main-toasts-toast-close" @click="toastStore.removeToast(toast.id)">
-          <icon-x-close class="main-toasts-toast-close-icon" />
+          <IconXClose class="main-toasts-toast-close-icon" />
         </button>
       </div>
     </transition-group>

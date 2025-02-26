@@ -92,19 +92,19 @@ const isChanged = computed(() => {
 
 <template>
   <form @submit.prevent="update" class="form">
-    <kit-settings-field-wrapper
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.currency.label')"
       :description="$t('settings.fields.currency.description')"
       :error="Boolean(errors?.currency)"
       :message="errors?.currency ? $t(`settings.fields.currency.errors.${errors.currency}`) : ''"
     >
-      <kit-dropdown
+      <KitDropdown
         :options="CURRENCIES"
         :placeholder="$t('settings.fields.currency.placeholder')"
         v-model="currency"
       />
-    </kit-settings-field-wrapper>
-    <kit-settings-field-wrapper
+    </KitSettingsFieldWrapper>
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.monthStartDay.label')"
       :description="$t('settings.fields.monthStartDay.description')"
       :error="Boolean(errors?.monthStartDay)"
@@ -114,14 +114,14 @@ const isChanged = computed(() => {
           : ''
       "
     >
-      <kit-input
+      <KitInput
         v-model="monthStartDay"
         type="number"
         :placeholder="$t('settings.fields.monthStartDay.placeholder')"
         :error="Boolean(errors?.monthStartDay)"
       />
-    </kit-settings-field-wrapper>
-    <kit-settings-field-wrapper
+    </KitSettingsFieldWrapper>
+    <KitSettingsFieldWrapper
       :label="$t('settings.fields.monthlyBudget.label')"
       :description="$t('settings.fields.monthlyBudget.description')"
       :error="Boolean(errors?.monthlyBudget)"
@@ -131,15 +131,15 @@ const isChanged = computed(() => {
           : ''
       "
     >
-      <kit-input
+      <KitInput
         v-model="monthlyBudget"
         type="number"
         :placeholder="$t('settings.fields.monthlyBudget.placeholder')"
         :error="Boolean(errors?.monthlyBudget)"
       />
-    </kit-settings-field-wrapper>
+    </KitSettingsFieldWrapper>
     <div class="buttons">
-      <kit-button type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</kit-button>
+      <KitButton type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</KitButton>
     </div>
   </form>
 </template>

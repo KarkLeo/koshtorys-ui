@@ -113,7 +113,7 @@ const handleOnboarding = async () => {
       <h1 class="title">{{ $t('onboarding.title') }}</h1>
 
       <form @submit.prevent="handleOnboarding" class="form">
-        <kit-settings-field-wrapper
+        <KitSettingsFieldWrapper
           :label="$t('onboarding.fields.currency.label')"
           :description="$t('onboarding.fields.currency.description')"
           :error="Boolean(errors?.currency)"
@@ -121,13 +121,13 @@ const handleOnboarding = async () => {
             errors?.currency ? $t(`onboarding.fields.currency.errors.${errors.currency}`) : ''
           "
         >
-          <kit-dropdown
+          <KitDropdown
             :options="CURRENCIES"
             :placeholder="$t('onboarding.fields.currency.placeholder')"
             v-model="currency"
           />
-        </kit-settings-field-wrapper>
-        <kit-settings-field-wrapper
+        </KitSettingsFieldWrapper>
+        <KitSettingsFieldWrapper
           :label="$t('onboarding.fields.monthStartDay.label')"
           :description="$t('onboarding.fields.monthStartDay.description')"
           :error="Boolean(errors?.monthStartDay)"
@@ -137,15 +137,15 @@ const handleOnboarding = async () => {
               : ''
           "
         >
-          <kit-input
+          <KitInput
             v-model="monthStartDay"
             type="number"
             :placeholder="$t('onboarding.fields.monthStartDay.placeholder')"
             @blur="validateField('monthStartDay')"
             :error="Boolean(errors?.monthStartDay)"
           />
-        </kit-settings-field-wrapper>
-        <kit-settings-field-wrapper
+        </KitSettingsFieldWrapper>
+        <KitSettingsFieldWrapper
           :label="$t('onboarding.fields.monthlyBudget.label')"
           :description="$t('onboarding.fields.monthlyBudget.description')"
           :error="Boolean(errors?.monthlyBudget)"
@@ -155,16 +155,16 @@ const handleOnboarding = async () => {
               : ''
           "
         >
-          <kit-input
+          <KitInput
             v-model="monthlyBudget"
             type="number"
             :placeholder="$t('onboarding.fields.monthlyBudget.placeholder')"
             @blur="validateField('monthlyBudget')"
             :error="Boolean(errors?.monthlyBudget)"
           />
-        </kit-settings-field-wrapper>
+        </KitSettingsFieldWrapper>
         <div class="buttons">
-          <kit-button type="submit">{{ $t('onboarding.submit') }}</kit-button>
+          <KitButton type="submit">{{ $t('onboarding.submit') }}</KitButton>
         </div>
       </form>
     </div>

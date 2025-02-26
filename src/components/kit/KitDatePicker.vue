@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
     ]"
     ref="datePickerRef"
   >
-    <kit-button
+    <KitButton
       class="date-picker-button"
       :size
       variant="transparent"
@@ -134,30 +134,30 @@ onBeforeUnmount(() => {
       :fullwidth="fullWidth"
       :error="error"
     >
-      <icon-calendar class="date-picker-button-icon" />
+      <IconCalendar class="date-picker-button-icon" />
       <template v-if="model">
         <span class="date-picker-button-text">
           {{ model?.toLocaleDateString() }}
         </span>
-        <kit-icon-button class="date-picker-button-remove" @click.stop="model = null" size="sm">
-          <icon-x-close />
-        </kit-icon-button>
+        <KitIconButton class="date-picker-button-remove" @click.stop="model = null" size="sm">
+          <IconXClose />
+        </KitIconButton>
       </template>
       <span v-else class="date-picker-button-placeholder">
         {{ $t('calendar.placeholder') }}
       </span>
-    </kit-button>
+    </KitButton>
     <div v-if="isOpen" class="date-picker-calendar">
       <div class="date-picker-calendar-header">
-        <kit-icon-button @click="changeMonth(-1)" size="md">
-          <icon-chevron-left />
-        </kit-icon-button>
+        <KitIconButton @click="changeMonth(-1)" size="md">
+          <IconChevronLeft />
+        </KitIconButton>
         <span class="date-picker-calendar-header-title">
           {{ $t(`calendar.months.${displayedMonth + 1}`) }} {{ displayedYear }}
         </span>
-        <kit-icon-button @click="changeMonth(1)" size="md">
-          <icon-chevron-right />
-        </kit-icon-button>
+        <KitIconButton @click="changeMonth(1)" size="md">
+          <IconChevronRight />
+        </KitIconButton>
       </div>
 
       <div class="date-picker-calendar-grid">

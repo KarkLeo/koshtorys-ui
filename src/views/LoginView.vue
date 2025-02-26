@@ -106,7 +106,7 @@ const login = async () => {
         :error="Boolean(errors?.email)"
         :message="errors?.email ? $t(`login.fields.email.errors.${errors.email}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="email"
           type="email"
           :placeholder="$t('login.fields.email.placeholder')"
@@ -121,7 +121,7 @@ const login = async () => {
         :error="Boolean(errors?.password)"
         :message="errors?.password ? $t(`login.fields.password.errors.${errors.password}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="password"
           type="password"
           :placeholder="$t('login.fields.password.placeholder')"
@@ -131,7 +131,7 @@ const login = async () => {
         />
       </kit-field-wrapper>
       <div class="buttons">
-        <kit-button type="submit">{{ $t('login.submit') }}</kit-button>
+        <KitButton type="submit">{{ $t('login.submit') }}</KitButton>
       </div>
       <p class="sub-form">
         {{ $t('login.sub_form.title') }}{{ ' ' }}

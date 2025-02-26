@@ -21,7 +21,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <kit-dropdown
+  <KitDropdown
     v-model="locale"
     :options="availableLocales"
     :getOptionLabel="getLangLabel"

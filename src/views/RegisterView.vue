@@ -122,7 +122,7 @@ const register = async () => {
         :error="Boolean(errors?.name)"
         :message="errors?.name ? $t(`register.fields.name.errors.${errors.name}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="name"
           :placeholder="$t('register.fields.name.placeholder')"
           @blur="validateField('name')"
@@ -136,7 +136,7 @@ const register = async () => {
         :error="Boolean(errors?.email)"
         :message="errors?.email ? $t(`register.fields.email.errors.${errors.email}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="email"
           type="email"
           :placeholder="$t('register.fields.email.placeholder')"
@@ -151,7 +151,7 @@ const register = async () => {
         :error="Boolean(errors?.password)"
         :message="errors?.password ? $t(`register.fields.password.errors.${errors.password}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="password"
           type="password"
           :placeholder="$t('register.fields.password.placeholder')"
@@ -170,7 +170,7 @@ const register = async () => {
             : ''
         "
       >
-        <kit-input
+        <KitInput
           v-model="confirmPassword"
           type="password"
           :placeholder="$t('register.fields.confirmPassword.placeholder')"
@@ -181,7 +181,7 @@ const register = async () => {
       </kit-field-wrapper>
 
       <div class="buttons">
-        <kit-button type="submit">{{ $t('register.submit') }}</kit-button>
+        <KitButton type="submit">{{ $t('register.submit') }}</KitButton>
       </div>
     </form>
     <p class="sub-form">

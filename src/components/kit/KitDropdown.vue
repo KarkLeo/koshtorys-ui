@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
         getOptionLabel ? getOptionLabel(model) : model
       }}</span>
       <span v-else class="placeholder">{{ placeholder }}</span>
-      <icon-chevron-down class="chevron" />
+      <IconChevronDown class="chevron" />
       <span class="outline"></span>
     </button>
     <ul
@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
           @click.prevent="selectOption(option, index)"
         >
           <span class="option">{{ getOptionLabel ? getOptionLabel(option) : option }}</span>
-          <icon-check v-if="option === model" class="check" />
+          <IconCheck v-if="option === model" class="check" />
         </button>
       </li>
     </ul>

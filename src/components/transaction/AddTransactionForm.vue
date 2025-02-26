@@ -158,59 +158,59 @@ onBeforeUnmount(() => {
     ref="formRef"
     @click.stop="isOpen = true"
   >
-    <kit-simple-field-wrapper
+    <KitSimpleFieldWrapper
       :error="Boolean(errors?.amount)"
       :message="errors?.amount ? $t(`transaction.form.errors.${errors.amount}`) : ''"
     >
-      <kit-money-input
+      <KitMoneyInput
         v-model="amount"
         v-model:currency="currency"
         :placeholder="$t('transaction.form.fields.amount.placeholder') + ': 0.00'"
         :min="0"
         :error="Boolean(errors?.amount)"
       />
-    </kit-simple-field-wrapper>
+    </KitSimpleFieldWrapper>
     <div class="form-fields-row-elastic">
-      <kit-simple-field-wrapper
+      <KitSimpleFieldWrapper
         :error="Boolean(errors?.description)"
         :message="errors?.description ? $t(`transaction.form.errors.${errors.description}`) : ''"
       >
-        <kit-input
+        <KitInput
           v-model="description"
           type="text"
           :placeholder="$t('transaction.form.fields.description.placeholder')"
           :error="Boolean(errors?.description)"
         />
-      </kit-simple-field-wrapper>
-      <kit-icon-button @click="openSelectPlanningModal" size="md">
-        <icon-link :class="{ 'active-planning': Boolean(selectedPlanning) }" />
-      </kit-icon-button>
+      </KitSimpleFieldWrapper>
+      <KitIconButton @click="openSelectPlanningModal" size="md">
+        <IconLink :class="{ 'active-planning': Boolean(selectedPlanning) }" />
+      </KitIconButton>
     </div>
     <div class="form-fields-row">
-      <kit-simple-field-wrapper
+      <KitSimpleFieldWrapper
         :error="Boolean(errors?.date)"
         :message="errors?.date ? $t(`transaction.form.errors.${errors.date}`) : ''"
       >
-        <kit-date-picker
+        <KitDatePicker
           v-model="date"
           full-width
           @click.stop
           :max-date="nowDateUTC()"
           :error="Boolean(errors?.date)"
         />
-      </kit-simple-field-wrapper>
-      <kit-simple-field-wrapper
+      </KitSimpleFieldWrapper>
+      <KitSimpleFieldWrapper
         :error="Boolean(errors?.categoryId)"
         :message="errors?.categoryId ? $t(`transaction.form.errors.${errors.categoryId}`) : ''"
       >
-        <kit-categories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
-      </kit-simple-field-wrapper>
+        <KitCategories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
+      </KitSimpleFieldWrapper>
     </div>
-    <kit-button size="xl" @click="handlerCreateTransaction">
+    <KitButton size="xl" @click="handlerCreateTransaction">
       {{ $t('transaction.form.buttons.add') }}
-    </kit-button>
+    </KitButton>
   </div>
-  <select-planning-modal
+  <SelectPlanningModal
     @click.stop
     ref="selectPlanningModal"
     v-if="isOpenSelectPlanningModal"

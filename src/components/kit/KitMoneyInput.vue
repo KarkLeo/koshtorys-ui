@@ -29,7 +29,7 @@ const {
       :min="min"
       :max="max"
     />
-    <kit-dropdown :options="CURRENCIES" v-model="currencyModel" placeholder="Select currency" />
+    <KitDropdown :options="CURRENCIES" v-model="currencyModel" placeholder="Select currency" />
     <span class="outline" />
   </span>
 </template>

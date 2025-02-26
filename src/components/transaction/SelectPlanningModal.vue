@@ -75,7 +75,7 @@ const closeHandler = () => {
 </script>
 
 <template>
-  <kit-modal
+  <KitModal
     :title="$t('transaction.selectPlanning.title')"
     :subtitle="$t('transaction.selectPlanning.subtitle')"
     :cancelText="$t('transaction.selectPlanning.buttons.cancel')"
@@ -94,7 +94,7 @@ const closeHandler = () => {
             :class="{ disabled: plan?.transactions?.length > 0 && plan.id !== oldPlanningId }"
           >
             <span class="planning-table-item-radio">
-              <kit-radio v-model="model" name="planning" :value="plan.id" />
+              <KitRadio v-model="model" name="planning" :value="plan.id" />
             </span>
             <span class="planning-table-item-main">
               <span>{{ plan.description }}</span>
@@ -106,7 +106,7 @@ const closeHandler = () => {
               </span>
             </span>
             <span class="planning-table-item-date" v-if="plan.date">
-              <icon-calendar /> {{ formatDate(plan.date) }}
+              <IconCalendar /> {{ formatDate(plan.date) }}
             </span>
             <span class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
               {{ plan.amount }} {{ formatCurrency(plan.currency) }}
@@ -123,7 +123,7 @@ const closeHandler = () => {
         </div>
       </div>
     </div>
-  </kit-modal>
+  </KitModal>
 </template>
 
 <style scoped>

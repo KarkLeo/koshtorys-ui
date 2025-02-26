@@ -135,7 +135,7 @@ const handleInput = () => {
         ref="searchRef"
         @input="handleInput"
       />
-      <icon-chevron-down class="chevron" />
+      <IconChevronDown class="chevron" />
       <div class="outline" />
     </div>
     <ul v-if="isOpen" class="dropdown-menu" role="listbox" tabindex="0" @keydown="handleKeyDown">
@@ -156,7 +156,7 @@ const handleInput = () => {
         >
           <span v-if="withDot" class="dropdown-item-dot" />
           <span class="option">{{ getOptionLabel(option) }}</span>
-          <icon-check v-if="option === model" class="check" />
+          <IconCheck v-if="option === model" class="check" />
         </button>
       </li>
     </ul>

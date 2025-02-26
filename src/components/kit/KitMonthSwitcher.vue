@@ -40,9 +40,9 @@ const currentPeriod = computed(() => {
 
 <template>
   <div class="month-switcher">
-    <kit-icon-button @click="handlePrevMonth" class="month-switcher-button">
-      <icon-chevron-left />
-    </kit-icon-button>
+    <KitIconButton @click="handlePrevMonth" class="month-switcher-button">
+      <IconChevronLeft />
+    </KitIconButton>
     <div class="month-switcher-value">
       <div class="month-switcher-month">{{ $t(`calendar.months.${showedMonth}`) }}</div>
       <div class="month-switcher-range">
@@ -51,9 +51,9 @@ const currentPeriod = computed(() => {
         <span>{{ currentPeriod[1].toLocaleDateString() }}</span>
       </div>
     </div>
-    <kit-icon-button @click="handleNextMonth" class="month-switcher-button">
-      <icon-chevron-right />
-    </kit-icon-button>
+    <KitIconButton @click="handleNextMonth" class="month-switcher-button">
+      <IconChevronRight />
+    </KitIconButton>
   </div>
 </template>
 
