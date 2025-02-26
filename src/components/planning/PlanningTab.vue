@@ -19,9 +19,12 @@ import {
   filterPlanning,
   getExchangedAmount,
   getTotalAmount,
+  getTransactionsAmount,
+  getTransactionsAmountByCategory,
   reducePlanningByCategory,
 } from '@/helpers/planning.ts'
 import { getMainCategory } from '@/helpers/category.ts'
+import { useTransactionList } from '@/hooks/transaction-hooks.ts'
 
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 import IconTrash from '@/components/icons/IconTrash.vue'
@@ -42,6 +45,7 @@ const { statisticDate } = useStatisticDateStore()
 const { planning } = usePlanningList()
 const { deletePlanning } = useDeletePlanning()
 const { repeatPlanning } = useRepeatPlanning()
+const { transactions } = useTransactionList()
 const { canselRepeatingPlanning } = useCanselRepeatingPlanning()
 const { me } = useMe()
 
@@ -130,6 +134,39 @@ const preparePlaningTotal = (items: Planning[]) => {
   )
 }
 
+const preparePlaningRemainingTotal = (items: Planning[]) => {
+  if (!planning?.value || !me.value) return 0
+  return Math.round(
+    getTotalAmount(
+      items
+        .filter((plan) => !(plan.type === 'TRANSACTION' && plan.transactions?.length))
+        .map((plan) => {
+          if (plan.type === 'CATEGORY') {
+            const transactionAmount = getTransactionsAmountByCategory(
+              transactions?.transactions || [],
+              plan.categoryId,
+              me?.value.me.currency,
+            )
+            const amount =
+              plan.currency === me?.value.me.currency
+                ? plan.amount
+                : prepareExchangedAmount(plan.amount, plan.currency)
+
+            return {
+              ...plan,
+              amount: amount - (transactionAmount || 0),
+              currency: me?.value.me.currency,
+            }
+          }
+
+          return plan
+        }),
+      planning.value.exchangeRate as ExchangeRate,
+      me?.value.me.currency,
+    ),
+  )
+}
+
 const prepareExchangedAmount = (amount: number, currency: string): number => {
   if (!planning?.value || !me.value) return 0
   return Math.round(
@@ -177,8 +214,28 @@ const prepareRepeatedDate = (date: string) => {
         <div class="planning-header-item-value">
           {{
             (me?.me.monthlyBudget || 0) -
-            preparePlaningTotal((planning?.planning || []) as Planning[])
+            preparePlaningTotal(
+              (planning?.planning || []).map((plan) => {
+                if (plan.type === 'TRANSACTION' && plan.transactions?.length) {
+                  const transactionAmount = getTransactionsAmount(plan, me?.me.currency)
+                  return {
+                    ...plan,
+                    amount: transactionAmount || plan.amount,
+                    currency: transactionAmount ? me?.me.currency : plan.currency,
+                  }
+                }
+                return plan
+              }) as Planning[],
+            )
           }}
+          {{ formatCurrency(me?.me.currency || '') }}
+        </div>
+      </div>
+
+      <div class="planning-header-item">
+        <div class="planning-header-item-title">{{ t('planning.header.remaining_due') }}</div>
+        <div class="planning-header-item-value">
+          {{ preparePlaningRemainingTotal((planning?.planning || []) as Planning[]) }}
           {{ formatCurrency(me?.me.currency || '') }}
         </div>
       </div>
@@ -209,17 +266,43 @@ const prepareRepeatedDate = (date: string) => {
               <div class="planning-table-item-date" v-if="plan.date">
                 <IconCalendar /> {{ formatDate(plan.date) }}
               </div>
-              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-              </div>
-              <div class="planning-table-item-amount" v-else>
-                <span class="planning-table-item-amount-original">
+              <div class="planning-table-item-amount-wrapper">
+                <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
                   {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-                </span>
-                <span class="planning-table-item-amount-original"> / </span>
-                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-                {{ formatCurrency(me?.me.currency || '') }}
+                </div>
+                <div class="planning-table-item-amount" v-else>
+                  <span class="planning-table-item-amount-original">
+                    {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+                  </span>
+                  <span class="planning-table-item-amount-original"> / </span>
+                  {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+                  {{ formatCurrency(me?.me.currency || '') }}
+                </div>
+
+                <div
+                  :class="[
+                    'planning-table-item-amount-transactions',
+                    {
+                      negative:
+                        (getTransactionsAmount(plan, me?.me.currency) || 0) >
+                        (plan.currency === me?.me.currency
+                          ? plan.amount
+                          : prepareExchangedAmount(plan.amount, plan.currency)),
+                      positive:
+                        (getTransactionsAmount(plan, me?.me.currency) || 0) <
+                        (plan.currency === me?.me.currency
+                          ? plan.amount
+                          : prepareExchangedAmount(plan.amount, plan.currency)),
+                    },
+                  ]"
+                  v-if="getTransactionsAmount(plan, me?.me.currency) !== null"
+                >
+                  {{ $t('planning.table.paid') }}:
+                  {{ getTransactionsAmount(plan, me?.me.currency) }}
+                  {{ formatCurrency(me?.me.currency || '') }}
+                </div>
               </div>
+
               <div class="planning-table-item-buttons">
                 <KitIconButton size="sm" @click="editingPlanningId = plan.id">
                   <IconEdit />
@@ -237,16 +320,60 @@ const prepareRepeatedDate = (date: string) => {
               >
                 {{ getCategoriesLabel(plan.categoryId as string) }}
               </div>
-              <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-              </div>
-              <div class="planning-table-item-amount" v-else>
-                <span class="planning-table-item-amount-original">
+              <div class="planning-table-item-amount-wrapper">
+                <div class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
                   {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-                </span>
-                <span class="planning-table-item-amount-original"> / </span>
-                {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-                {{ formatCurrency(me?.me.currency || '') }}
+                </div>
+                <div class="planning-table-item-amount" v-else>
+                  <span class="planning-table-item-amount-original">
+                    {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+                  </span>
+                  <span class="planning-table-item-amount-original"> / </span>
+                  {{ prepareExchangedAmount(plan.amount, plan.currency) }}
+                  {{ formatCurrency(me?.me.currency || '') }}
+                </div>
+                <div
+                  :class="[
+                    'planning-table-item-amount-transactions',
+                    {
+                      negative:
+                        (getTransactionsAmountByCategory(
+                          transactions?.transactions || [],
+                          plan.categoryId,
+                          me?.me.currency,
+                        ) || 0) >
+                        (plan.currency === me?.me.currency
+                          ? plan.amount
+                          : prepareExchangedAmount(plan.amount, plan.currency)),
+                      positive:
+                        (getTransactionsAmountByCategory(
+                          transactions?.transactions || [],
+                          plan.categoryId,
+                          me?.me.currency,
+                        ) || 0) <
+                        (plan.currency === me?.me.currency
+                          ? plan.amount
+                          : prepareExchangedAmount(plan.amount, plan.currency)),
+                    },
+                  ]"
+                  v-if="
+                    getTransactionsAmountByCategory(
+                      transactions?.transactions || [],
+                      plan.categoryId,
+                      me?.me.currency,
+                    ) !== null
+                  "
+                >
+                  {{ $t('planning.table.paid') }}:
+                  {{
+                    getTransactionsAmountByCategory(
+                      transactions?.transactions || [],
+                      plan.categoryId,
+                      me?.me.currency,
+                    )
+                  }}
+                  {{ formatCurrency(me?.me.currency || '') }}
+                </div>
               </div>
               <div class="planning-table-item-buttons">
                 <KitIconButton size="sm" @click="editingPlanningId = plan.id">
@@ -446,9 +573,14 @@ const prepareRepeatedDate = (date: string) => {
   color: var(--text-primary);
 }
 
-.planning-table-item-amount {
+.planning-table-item-amount-wrapper {
   grid-column: 1/ 2;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.planning-table-item-amount {
   justify-content: flex-end;
   align-items: baseline;
   flex-direction: row-reverse;
@@ -460,6 +592,19 @@ const prepareRepeatedDate = (date: string) => {
   line-height: var(--line-height-text-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
+}
+
+.planning-table-item-amount-transactions {
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--border-brand);
+}
+.planning-table-item-amount-transactions.negative {
+  color: var(--text-error-primary);
+}
+.planning-table-item-amount-transactions.positive {
+  color: var(--text-success-primary);
 }
 
 .planning-table-item-date {
@@ -512,8 +657,8 @@ const prepareRepeatedDate = (date: string) => {
   .planning-table-item {
     display: flex;
   }
-  .planning-table-item-amount {
-    display: block;
+  .planning-table-item-amount-wrapper {
+    display: flex;
     margin-left: auto;
   }
 

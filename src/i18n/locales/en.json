@@ -376,7 +376,11 @@
     "header": {
       "monthlyBudget": "Monthly Budget",
       "remaining": "Remaining",
-      "total": "Total"
+      "total": "Total",
+      "remaining_due": "Remaining Due"
+    },
+    "table": {
+      "paid": "Paid"
     },
     "form": {
       "type": {

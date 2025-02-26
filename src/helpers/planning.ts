@@ -1,4 +1,4 @@
-import type { Planning, ExchangeRate } from '@/graphql/types.ts'
+import type { Planning, ExchangeRate, Transaction } from '@/graphql/types.ts'
 import { getMainCategory } from '@/helpers/category.ts'
 
 const sortPlanning = (plannings: Planning[]) => {
@@ -83,4 +83,56 @@ export const getTotalAmount = (
   return plannings.reduce((acc, planning) => {
     return acc + getExchangedAmount(exchangeRate, planning.amount, planning.currency, baseCurrency)
   }, 0)
+}
+
+export const getTransactionsAmount = (plannings: Planning, currency?: string): number | null => {
+  if (
+    !currency ||
+    plannings.type === 'CATEGORY' ||
+    !plannings.transactions ||
+    plannings.transactions.length === 0
+  ) {
+    return null
+  }
+
+  return plannings.transactions.reduce((acc, transaction) => {
+    if (transaction.currency !== currency) {
+      return (
+        acc +
+        (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
+          transaction.exchangeRate.rates[currency]
+      )
+    } else {
+      return acc + transaction.amount
+    }
+  }, 0)
+}
+
+export const getTransactionsAmountByCategory = (
+  transactions: Transaction,
+  category: string,
+  currency?: string,
+) => {
+  if (transactions.length === 0) {
+    return null
+  }
+
+  return transactions
+    .filter((transaction) => {
+      return transaction.categoryId === category && !transaction.planning
+    })
+    .reduce((acc, transaction) => {
+      if (transaction.categoryId === category) {
+        if (currency && transaction.currency !== currency) {
+          return (
+            acc +
+            (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
+              transaction.exchangeRate.rates[currency]
+          )
+        } else {
+          return acc + transaction.amount
+        }
+      }
+      return acc
+    }, 0)
 }

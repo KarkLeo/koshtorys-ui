@@ -376,7 +376,11 @@
     "header": {
       "monthlyBudget": "Місячний бюджет",
       "remaining": "Залишок",
-      "total": "Всього"
+      "total": "Всього",
+      "remaining_due": "Майбутні витрати"
+    },
+    "table": {
+      "paid": "Оплачено"
     },
     "form": {
       "type": {
