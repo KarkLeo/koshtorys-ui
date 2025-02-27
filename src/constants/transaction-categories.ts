@@ -132,10 +132,19 @@ const miscellaneous = [
   'miscellaneous--other-expenses',
 ]
 
+const communication = [
+  'communication',
+  'communication--internet',
+  'communication--mobile',
+  'communication--tv',
+  'communication--subscriptions',
+]
+
 export const TRANSACTION_CATEGORIES = [
   ...food,
   ...transportation,
   ...car,
+  ...communication,
   ...housing,
   ...health,
   ...work,
@@ -168,4 +177,5 @@ export const TRANSACTION_CATEGORIES_COLORS: { [key: string]: string } = {
   finance: '#2ED3B7',
   gifts: '#3CCB7F',
   miscellaneous: '#85E13A',
+  communication: '#86CB3C',
 }

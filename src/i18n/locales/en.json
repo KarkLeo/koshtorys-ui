@@ -322,7 +322,12 @@
     "gifts--donations": "Gifts:  Donations",
     "miscellaneous": "Miscellaneous",
     "miscellaneous--uncategorized": "Miscellaneous:  Uncategorized",
-    "miscellaneous--other-expenses": "Miscellaneous:  Other Expenses"
+    "miscellaneous--other-expenses": "Miscellaneous:  Other Expenses",
+    "communication": "Communication",
+    "communication--internet": "Communication:  Internet",
+    "communication--mobile": "Communication:  Mobile",
+    "communication--tv": "Communication:  TV",
+    "communication--subscriptions": "Communication:  Subscriptions"
   },
   "transaction": {
     "form": {

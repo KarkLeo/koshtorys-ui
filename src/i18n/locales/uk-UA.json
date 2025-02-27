@@ -322,7 +322,12 @@
     "gifts--donations": "Подарунки:  Пожертви",
     "miscellaneous": "Різне",
     "miscellaneous--uncategorized": "Різне:  Некатегоризовано",
-    "miscellaneous--other-expenses": "Різне:  Інші витрати"
+    "miscellaneous--other-expenses": "Різне:  Інші витрати",
+    "communication": "Комунікації",
+    "communication--internet": "Комунікації:  Інтернет",
+    "communication--mobile": "Комунікації:  Мобільний зв'язок",
+    "communication--tv": "Комунікації:  Телебачення",
+    "communication--subscriptions": "Комунікації:  Підписки"
   },
   "transaction": {
     "form": {
