@@ -109,7 +109,7 @@ export const getTransactionsAmount = (plannings: Planning, currency?: string): n
 }
 
 export const getTransactionsAmountByCategory = (
-  transactions: Transaction,
+  transactions: Transaction[],
   category: string,
   currency?: string,
 ) => {

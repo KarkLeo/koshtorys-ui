@@ -51,7 +51,7 @@ const modal = ref(false)
         @close="modal = false"
         title="Title"
         subtitle="Subtitle"
-        canselText="Cansel"
+        cancelText="Cansel"
         submitText="Submit"
       >
         afsadfasdf sd dsaf asd

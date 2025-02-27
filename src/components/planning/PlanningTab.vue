@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ExchangeRate, Planning } from '@/graphql/types.ts'
+import type { ExchangeRate, Planning, Transaction } from '@/graphql/types.ts'
 import { getChangedDateByMonthIndex, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
@@ -140,29 +140,29 @@ const preparePlaningRemainingTotal = (items: Planning[]) => {
     getTotalAmount(
       items
         .filter((plan) => !(plan.type === 'TRANSACTION' && plan.transactions?.length))
-        .map((plan) => {
+        .map((plan): Planning => {
           if (plan.type === 'CATEGORY') {
             const transactionAmount = getTransactionsAmountByCategory(
-              transactions?.transactions || [],
+              (transactions.value?.transactions || []) as Transaction[],
               plan.categoryId,
-              me?.value.me.currency,
+              me?.value?.me.currency,
             )
             const amount =
-              plan.currency === me?.value.me.currency
+              plan.currency === me?.value?.me.currency
                 ? plan.amount
                 : prepareExchangedAmount(plan.amount, plan.currency)
 
             return {
               ...plan,
               amount: amount - (transactionAmount || 0),
-              currency: me?.value.me.currency,
+              currency: me.value?.me.currency as string,
             }
           }
 
           return plan
         }),
-      planning.value.exchangeRate as ExchangeRate,
-      me?.value.me.currency,
+      planning.value?.exchangeRate as ExchangeRate,
+      me.value?.me.currency,
     ),
   )
 }
@@ -217,7 +217,7 @@ const prepareRepeatedDate = (date: string) => {
             preparePlaningTotal(
               (planning?.planning || []).map((plan) => {
                 if (plan.type === 'TRANSACTION' && plan.transactions?.length) {
-                  const transactionAmount = getTransactionsAmount(plan, me?.me.currency)
+                  const transactionAmount = getTransactionsAmount(plan as Planning, me?.me.currency)
                   return {
                     ...plan,
                     amount: transactionAmount || plan.amount,
@@ -338,7 +338,7 @@ const prepareRepeatedDate = (date: string) => {
                     {
                       negative:
                         (getTransactionsAmountByCategory(
-                          transactions?.transactions || [],
+                          (transactions?.transactions || []) as Transaction[],
                           plan.categoryId,
                           me?.me.currency,
                         ) || 0) >
@@ -347,7 +347,7 @@ const prepareRepeatedDate = (date: string) => {
                           : prepareExchangedAmount(plan.amount, plan.currency)),
                       positive:
                         (getTransactionsAmountByCategory(
-                          transactions?.transactions || [],
+                          (transactions?.transactions || []) as Transaction[],
                           plan.categoryId,
                           me?.me.currency,
                         ) || 0) <
@@ -358,7 +358,7 @@ const prepareRepeatedDate = (date: string) => {
                   ]"
                   v-if="
                     getTransactionsAmountByCategory(
-                      transactions?.transactions || [],
+                      (transactions?.transactions || []) as Transaction[],
                       plan.categoryId,
                       me?.me.currency,
                     ) !== null
@@ -367,7 +367,7 @@ const prepareRepeatedDate = (date: string) => {
                   {{ $t('planning.table.paid') }}:
                   {{
                     getTransactionsAmountByCategory(
-                      transactions?.transactions || [],
+                      (transactions?.transactions || []) as Transaction[],
                       plan.categoryId,
                       me?.me.currency,
                     )
