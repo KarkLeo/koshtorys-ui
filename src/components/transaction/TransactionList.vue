@@ -140,7 +140,7 @@ const getCategoryColor = (categoryId: string) => {
               class="transaction-category"
               :style="{ '--color': getCategoryColor(transaction.categoryId as string) }"
             >
-              {{ $t(`transaction.categories.${transaction.categoryId}`) }}
+              {{ $t(`categories.${transaction.categoryId}`) }}
             </p>
             <p class="transaction-planning" v-if="transaction.planning"><IconLink /></p>
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>

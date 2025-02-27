@@ -16,7 +16,7 @@ const { t } = useI18n()
 
 const category = ref<string>('')
 
-const getCategoriesLabel = (category: string) => t(`transaction.categories.${category}`)
+const getCategoriesLabel = (category: string) => t(`categories.${category}`)
 const getCategoryStyle = (category: string) => ({
   '--color': TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || '',
 })
