@@ -112,7 +112,7 @@ const handlerCreatePlanning = async () => {
       },
     })
     clearForm()
-    toastStore.success(t(`planning.form.messages.create_success`))
+    toastStore.success(t(`planning.form.messages.add_success`))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
