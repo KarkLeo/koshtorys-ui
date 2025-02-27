@@ -19,6 +19,7 @@ import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
 import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconLink from '@/components/icons/IconLink.vue'
+import type { Planning } from '@/graphql/types.ts'
 
 // ===== Hooks =====
 
@@ -128,7 +129,15 @@ const closeSelectPlanningModal = () => {
   isOpenSelectPlanningModal.value = false
 }
 
-const submitSelectPlanningModal = () => {
+const submitSelectPlanningModal = (planning?: Planning) => {
+  if (amount.value === '' && description.value === '') {
+    amount.value = String(planning?.amount || 0)
+    currency.value = planning?.currency || me.value?.me.currency || CURRENCIES[0]
+    description.value = planning?.description || ''
+    categoryId.value = planning?.categoryId || ''
+    date.value = planning?.date ? new Date(planning.date) : nowDateUTC()
+  }
+
   closeSelectPlanningModal()
 }
 

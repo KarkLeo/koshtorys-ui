@@ -66,7 +66,10 @@ const cancelHandler = () => {
 }
 
 const submitHandler = () => {
-  emit('submit', model.value)
+  emit(
+    'submit',
+    planning?.value?.planning.find((plan) => plan.id === model.value),
+  )
 }
 
 const closeHandler = () => {
@@ -91,7 +94,9 @@ const closeHandler = () => {
             class="planning-table-item"
             v-for="plan in table.items"
             :key="plan.id"
-            :class="{ disabled: plan?.transactions?.length > 0 && plan.id !== oldPlanningId }"
+            :class="{
+              disabled: (plan?.transactions?.length || 0) > 0 && plan.id !== oldPlanningId,
+            }"
           >
             <span class="planning-table-item-radio">
               <KitRadio v-model="model" name="planning" :value="plan.id" />
