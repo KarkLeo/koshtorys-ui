@@ -96,7 +96,7 @@ export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 })
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',
+  uri: import.meta.env.VITE_GRAPHQL_ENDPOINT,
   fetch,
 })
 

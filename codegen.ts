@@ -5,7 +5,7 @@ dotenv.config()
 const graphqlPath = './src/graphql/'
 
 const config: CodegenConfig = {
-  schema: process.env.GRAPHQL_ENDPOINT,
+  schema: process.env.VITE_GRAPHQL_ENDPOINT,
   documents: './src/**/*.graphql',
   generates: {
     [`${graphqlPath}types.ts`]: {
