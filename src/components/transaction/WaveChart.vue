@@ -256,11 +256,11 @@ onBeforeUnmount(() => {
 
 .wave-chart {
   display: block;
+  width: 100%;
+  min-height: 50px;
   margin: 0;
   box-sizing: border-box;
   aspect-ratio: 600/50;
-
-  object-fit: cover;
 
   border-radius: var(--radius-md);
 }
