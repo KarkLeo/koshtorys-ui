@@ -1,31 +1,31 @@
 import type { Planning, ExchangeRate, Transaction } from '@/graphql/types.ts'
-import { getMainCategory } from '@/helpers/category.ts'
+import type { PreparedPlanning } from '@/mappers/planning-mapper.ts'
 
-const sortPlanning = (plannings: Planning[]) => {
+const sortPlanning = (plannings: PreparedPlanning[]) => {
   return plannings.sort((a, b) => {
-    return a.amount - b.amount
+    return b.amount - a.amount
   })
 }
 
 export const reducePlanningByCategory = (
-  plannings: Planning[],
-): { category: string; items: Planning[] }[] => {
-  const result: Record<string, Planning[]> = plannings.reduce(
+  plannings: PreparedPlanning[],
+): { category: string; items: PreparedPlanning[]; total: number }[] => {
+  const result: Record<string, PreparedPlanning[]> = plannings.reduce(
     (acc, planning) => {
-      const mainCategory = getMainCategory(planning.categoryId || '')
-      if (!acc[mainCategory]) {
-        acc[mainCategory] = [planning]
+      if (!acc[planning.mainCategory]) {
+        acc[planning.mainCategory] = [planning]
       } else {
-        acc[mainCategory].push(planning)
+        acc[planning.mainCategory].push(planning)
       }
       return acc
     },
-    {} as Record<string, Planning[]>,
+    {} as Record<string, PreparedPlanning[]>,
   )
 
   return Object.entries(result).map(([category, items]) => ({
     category,
     items: sortPlanning(items),
+    total: items.reduce((acc, item) => acc + item.amount, 0),
   }))
 }
 
@@ -75,64 +75,41 @@ export const getExchangedAmount = (
   return (amount / exchangeRate.rates[currency]) * exchangeRate.rates[baseCurrency]
 }
 
-export const getTotalAmount = (
-  plannings: Planning[],
-  exchangeRate: ExchangeRate,
-  baseCurrency: string,
-): number => {
-  return plannings.reduce((acc, planning) => {
-    return acc + getExchangedAmount(exchangeRate, planning.amount, planning.currency, baseCurrency)
-  }, 0)
-}
-
-export const getTransactionsAmount = (plannings: Planning, currency?: string): number | null => {
-  if (
-    !currency ||
-    plannings.type === 'CATEGORY' ||
-    !plannings.transactions ||
-    plannings.transactions.length === 0
-  ) {
+export const getTransactionsAmount = (plannings: Planning, baseCurrency: string): number | null => {
+  if (!plannings.transactions || plannings.transactions.length === 0) {
     return null
   }
 
   return plannings.transactions.reduce((acc, transaction) => {
-    if (transaction.currency !== currency) {
-      return (
-        acc +
-        (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
-          transaction.exchangeRate.rates[currency]
+    return (
+      acc +
+      getExchangedAmount(
+        transaction.exchangeRate,
+        transaction.amount,
+        transaction.currency,
+        baseCurrency,
       )
-    } else {
-      return acc + transaction.amount
-    }
+    )
   }, 0)
 }
 
 export const getTransactionsAmountByCategory = (
   transactions: Transaction[],
   category: string,
-  currency?: string,
-) => {
-  if (transactions.length === 0) {
-    return null
-  }
-
-  return transactions
+  baseCurrency: string,
+) =>
+  transactions
     .filter((transaction) => {
       return transaction.categoryId === category && !transaction.planning
     })
     .reduce((acc, transaction) => {
-      if (transaction.categoryId === category) {
-        if (currency && transaction.currency !== currency) {
-          return (
-            acc +
-            (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
-              transaction.exchangeRate.rates[currency]
-          )
-        } else {
-          return acc + transaction.amount
-        }
-      }
-      return acc
+      return (
+        acc +
+        getExchangedAmount(
+          transaction.exchangeRate,
+          transaction.amount,
+          transaction.currency,
+          baseCurrency,
+        )
+      )
     }, 0)
-}

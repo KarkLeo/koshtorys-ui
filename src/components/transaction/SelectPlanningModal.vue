@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { ExchangeRate, Planning } from '@/graphql/types.ts'
 import { usePlanningList } from '@/hooks/planning-hooks.ts'
-import { getExchangedAmount, reducePlanningByCategory } from '@/helpers/planning.ts'
-import { getMainCategory } from '@/helpers/category.ts'
 
-import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
-import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
-import { useMe } from '@/hooks/auth-hooks.ts'
 import KitModal from '@/components/kit/KitModal.vue'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 import KitRadio from '@/components/kit/KitRadio.vue'
+import { usePlanningMapper } from '@/mappers/planning-mapper.ts'
 
 const emit = defineEmits(['close', 'submit'])
 const model = defineModel<string | null>()
@@ -21,43 +14,11 @@ defineProps<{
 
 // ===== Hooks =====
 
-const { t } = useI18n()
 const { planning } = usePlanningList()
-const { me } = useMe()
 
 // ===== Computed =====
 
-const planningTables = computed(() => {
-  if (!planning?.value?.planning) return []
-  return reducePlanningByCategory(
-    planning.value.planning.filter((planning) => planning.type === 'TRANSACTION') as Planning[],
-  )
-})
-
-// ===== Render Helpers =====
-const getCategoriesLabel = (category: string) => t(`categories.${category}`)
-const getCategoryStyle = (category: string) => ({
-  '--color': TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || '',
-})
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString()
-}
-
-const formatCurrency = (value: string) => {
-  return CURRENCIES_SYMBOL[value] || value
-}
-const prepareExchangedAmount = (amount: number, currency: string): number => {
-  if (!planning?.value || !me.value) return 0
-  return Math.round(
-    getExchangedAmount(
-      planning.value.exchangeRate as ExchangeRate,
-      amount,
-      currency,
-      me?.value.me.currency,
-    ),
-  )
-}
+const { planningTables } = usePlanningMapper()
 
 // ===== Handlers =====
 
@@ -92,10 +53,10 @@ const closeHandler = () => {
         <div class="planning-table-body">
           <label
             class="planning-table-item"
-            v-for="plan in table.items"
+            v-for="plan in table.items.filter((plan) => plan.type === 'TRANSACTION')"
             :key="plan.id"
             :class="{
-              disabled: (plan?.transactions?.length || 0) > 0 && plan.id !== oldPlanningId,
+              disabled: (plan?.original.transactions?.length || 0) > 0 && plan.id !== oldPlanningId,
             }"
           >
             <span class="planning-table-item-radio">
@@ -105,24 +66,24 @@ const closeHandler = () => {
               <span>{{ plan.description }}</span>
               <span
                 class="planning-table-item-category"
-                :style="getCategoryStyle(plan.categoryId as string)"
+                :style="{
+                  '--color': plan.categoryColor,
+                }"
               >
-                {{ getCategoriesLabel(plan.categoryId as string) }}
+                {{ plan.categoryName }}
               </span>
             </span>
             <span class="planning-table-item-date" v-if="plan.date">
-              <IconCalendar /> {{ formatDate(plan.date) }}
+              <IconCalendar /> {{ plan.date }}
             </span>
-            <span class="planning-table-item-amount" v-if="plan.currency === me?.me.currency">
-              {{ plan.amount }} {{ formatCurrency(plan.currency) }}
-            </span>
-            <span class="planning-table-item-amount" v-else>
-              <span class="planning-table-item-amount-original">
-                {{ plan.amount }} {{ formatCurrency(plan.currency) }}
+            <span class="planning-table-item-amount">
+              <span
+                class="planning-table-item-amount-original"
+                v-if="plan.originalAmount && plan.originalCurrency"
+              >
+                {{ plan.originalAmount }} {{ plan.originalCurrency }} /
               </span>
-              <span class="planning-table-item-amount-original"> / </span>
-              {{ prepareExchangedAmount(plan.amount, plan.currency) }}
-              {{ formatCurrency(me?.me.currency || '') }}
+              {{ plan.amount }} {{ plan.currency }}
             </span>
           </label>
         </div>

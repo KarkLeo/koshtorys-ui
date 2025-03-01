@@ -140,33 +140,10 @@ const submitSelectPlanningModal = (planning?: Planning) => {
 
   closeSelectPlanningModal()
 }
-
-const handleClickOutside = (event: MouseEvent) => {
-  if (!formRef.value) return
-
-  if (
-    !formRef.value.contains(event.target as Node) &&
-    !selectPlanningModal.value?.contains(event.target as Node)
-  ) {
-    clearForm()
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 </script>
 
 <template>
-  <div
-    :class="['add-transaction-form', { active: isOpen }]"
-    ref="formRef"
-    @click.stop="isOpen = true"
-  >
+  <div :class="['add-transaction-form', { active: isOpen }]" ref="formRef" @click="isOpen = true">
     <KitSimpleFieldWrapper
       :error="Boolean(errors?.amount)"
       :message="errors?.amount ? $t(`transaction.form.errors.${errors.amount}`) : ''"
@@ -203,7 +180,6 @@ onBeforeUnmount(() => {
         <KitDatePicker
           v-model="date"
           full-width
-          @click.stop
           :max-date="nowDateUTC()"
           :error="Boolean(errors?.date)"
         />
@@ -212,13 +188,14 @@ onBeforeUnmount(() => {
         :error="Boolean(errors?.categoryId)"
         :message="errors?.categoryId ? $t(`transaction.form.errors.${errors.categoryId}`) : ''"
       >
-        <KitCategories v-model="categoryId" @click.stop :error="Boolean(errors?.categoryId)" />
+        <KitCategories v-model="categoryId" :error="Boolean(errors?.categoryId)" />
       </KitSimpleFieldWrapper>
     </div>
     <KitButton size="xl" @click="handlerCreateTransaction">
       {{ $t('transaction.form.buttons.add') }}
     </KitButton>
   </div>
+  <div class="add-transaction-form-overlay" @click="clearForm" />
   <SelectPlanningModal
     @click.stop
     ref="selectPlanningModal"
@@ -266,6 +243,26 @@ onBeforeUnmount(() => {
     0 2px 2px -1px #0a0d120a,
     0 4px 6px -2px #0a0d1208,
     0 12px 16px -4px #0a0d1214;
+}
+
+.add-transaction-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.active + .add-transaction-form-overlay {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .form-fields-row {

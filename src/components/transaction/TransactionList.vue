@@ -136,13 +136,15 @@ const getCategoryColor = (categoryId: string) => {
               </p>
             </div>
 
-            <p
-              class="transaction-category"
-              :style="{ '--color': getCategoryColor(transaction.categoryId as string) }"
-            >
-              {{ $t(`categories.${transaction.categoryId}`) }}
-            </p>
-            <p class="transaction-planning" v-if="transaction.planning"><IconLink /></p>
+            <div class="transaction-category-wrapper">
+              <p
+                class="transaction-category"
+                :style="{ '--color': getCategoryColor(transaction.categoryId as string) }"
+              >
+                {{ $t(`categories.${transaction.categoryId}`) }}
+              </p>
+              <p class="transaction-planning" v-if="transaction.planning"><IconLink /></p>
+            </div>
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
 
             <KitContextMenu class="transaction-menu">
@@ -256,9 +258,15 @@ const getCategoryColor = (categoryId: string) => {
   color: var(--text-tertiary);
 }
 
-.transaction-category {
+.transaction-category-wrapper {
   grid-column: 1 / 3;
   grid-row: 2 / 3;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.transaction-category {
   margin: 0;
   padding: var(--spacing-xxs) 10px;
   box-sizing: border-box;

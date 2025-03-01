@@ -28,6 +28,8 @@ const {
 <style scoped>
 .field {
   position: relative;
+
+  display: block;
 }
 
 .input {
@@ -40,7 +42,7 @@ const {
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 
-  background-color: var(--bg-primary);
+  background-color: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-xs);
@@ -74,7 +76,9 @@ const {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
 
   display: block;
   width: 100%;

@@ -72,11 +72,13 @@ const toastStore = useToastStore()
   right: 0;
   z-index: 1000;
 
-  width: min-content;
+  width: 100%;
+  max-width: 100vw;
   padding: var(--spacing-3xl);
   box-sizing: border-box;
 
   transition: background 0.5s ease;
+  pointer-events: none;
 }
 .main-toasts.active {
   background: linear-gradient(216.43deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 51.68%);
@@ -90,7 +92,8 @@ const toastStore = useToastStore()
 }
 
 .main-toasts-toast {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
@@ -105,6 +108,7 @@ const toastStore = useToastStore()
     0 2px 2px -1px #0a0d120a,
     0 4px 6px -2px #0a0d1208,
     0 12px 16px -4px #0a0d1214;
+  pointer-events: auto;
 }
 
 .main-toasts-toast-icon-wrapper {

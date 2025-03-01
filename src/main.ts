@@ -1,14 +1,13 @@
-import './assets/main.css'
-
-import { createPinia } from 'pinia'
 import { createApp, h, provide } from 'vue'
+import { createPinia } from 'pinia'
+import { i18n } from '@/i18n'
 import { DefaultApolloClient } from '@vue/apollo-composable'
+
+import apolloClient from '@/apolloClient.ts'
 
 import App from './App.vue'
 import router from './router'
-
-import { i18n } from '@/i18n'
-import apolloClient from '@/apolloClient.ts'
+import './assets/main.css'
 
 const pinia = createPinia()
 const app = createApp({
