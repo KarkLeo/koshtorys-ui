@@ -72,7 +72,8 @@ const toastStore = useToastStore()
   right: 0;
   z-index: 1000;
 
-  width: min-content;
+  width: 100%;
+  max-width: 100vw;
   padding: var(--spacing-3xl);
   box-sizing: border-box;
 
@@ -90,7 +91,8 @@ const toastStore = useToastStore()
 }
 
 .main-toasts-toast {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
