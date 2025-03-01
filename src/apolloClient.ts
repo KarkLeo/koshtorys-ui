@@ -1,10 +1,10 @@
+import fetch from 'cross-fetch'
 import { ApolloClient, Observable } from '@apollo/client/core'
 import { InMemoryCache } from '@apollo/client/cache'
 import { createHttpLink } from '@apollo/client/link/http'
 import { onError } from '@apollo/client/link/error'
 import { setContext } from '@apollo/client/link/context'
 import { ApolloLink } from '@apollo/client/link/core'
-import fetch from 'cross-fetch'
 
 import TokensService from '@/services/tokens-service'
 import type { RefreshTokensMutation, RefreshTokensMutationVariables } from '@/graphql/types'

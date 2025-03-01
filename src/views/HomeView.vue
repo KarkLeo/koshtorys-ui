@@ -1,115 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useToastStore } from '@/stores/toastStore.ts'
-
 import KitButton from '@/components/kit/KitButton.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitDatePicker from '@/components/kit/KitDatePicker.vue'
-import KitCategories from '@/components/kit/KitCategories.vue'
-import KitToggle from '@/components/kit/KitToggle.vue'
-import KitToggleBar from '@/components/kit/KitToggleBar.vue'
-import KitRadio from '@/components/kit/KitRadio.vue'
-import KitModal from '@/components/kit/KitModal.vue'
-
-const input = ref<string>('')
-const toastStore = useToastStore()
-
-const menu = ref('')
-
-const modal = ref(false)
 </script>
 
 <template>
   <main>
+    <h1 class="title">🤑Koshtorys</h1>
+    <h2 class="sub-title">Development test: v 0.1.1</h2>
+
     <div class="row">
       <router-link to="/login">
-        <KitButton>Login</KitButton>
+        <KitButton>{{ $t('login.title') }}</KitButton>
       </router-link>
       <router-link to="/register">
-        <KitButton variant="secondary-gray">Register</KitButton>
+        <KitButton variant="secondary-gray">{{ $t('register.title') }}</KitButton>
       </router-link>
-    </div>
-    <div class="row">
-      <KitToggleBar v-model="menu" :options="['one', 'two', 'three']" />
-      <h1>
-        {{ menu }}
-      </h1>
-    </div>
-    <div class="row">
-      <KitDatePicker />
-    </div>
-    <div class="row">
-      <KitCategories />
-    </div>
-    <div class="row">
-      <KitToggle />
-      <KitRadio />
-
-      <KitButton @click="modal = true">Modal</KitButton>
-      <KitModal
-        v-if="modal"
-        @close="modal = false"
-        title="Title"
-        subtitle="Subtitle"
-        cancelText="Cansel"
-        submitText="Submit"
-      >
-        afsadfasdf sd dsaf asd
-      </KitModal>
-    </div>
-    <div class="row">
-      <KitButton>Primary</KitButton>
-      <KitButton variant="secondary-gray">Primary</KitButton>
-
-      <KitButton class="custom">Primary</KitButton>
-    </div>
-    <div class="row">
-      <KitButton size="sm" @click="toastStore.success('Small button')">Small Button</KitButton>
-      <KitButton @click="toastStore.warning('Primary button')">Primary</KitButton>
-      <KitButton size="lg" @click="toastStore.error('LG Large button')">LG Large Button</KitButton>
-      <KitButton size="xl" @click="toastStore.info('XL Large button')">XL Large Button</KitButton>
-      <KitButton size="xxl">XXL Large Button</KitButton>
-      <KitButton disabled>Disabled Button</KitButton>
-    </div>
-    <div class="row">
-      <KitButton variant="secondary-gray" size="sm">Small Button</KitButton>
-      <KitButton variant="secondary-gray">Primary</KitButton>
-      <KitButton variant="secondary-gray" size="lg">LG Large Button</KitButton>
-      <KitButton variant="secondary-gray" size="xl">XL Large Button</KitButton>
-      <KitButton variant="secondary-gray" size="xxl">XXL Large Button</KitButton>
-      <KitButton variant="secondary-gray" disabled>Disabled Button</KitButton>
-    </div>
-
-    <div class="row">
-      {{ input }}
-      <KitInput
-        v-model="input"
-        type="text"
-        placeholder="Enter your email"
-        :class="'custom-class'"
-      />
-    </div>
-    <div class="row">
-      <KitInput v-model="input" type="email" placeholder="Enter your email" />
-      <KitInput v-model="input" type="email" placeholder="Enter your email" />
-      <KitInput v-model="input" type="email" placeholder="Enter your email" disabled />
-      <KitInput v-model="input" size="sm" type="email" placeholder="Enter your email" />
-    </div>
-    <div class="row">
-      <KitInput v-model="input" type="password" error placeholder="Enter your email" />
-      <KitInput v-model="input" error type="email" placeholder="Enter your email" />
-      <KitInput v-model="input" error type="email" placeholder="Enter your email" disabled />
-      <KitInput v-model="input" error size="sm" type="email" placeholder="Enter your email" />
     </div>
   </main>
 </template>
 
 <style scoped>
+.title {
+  margin: var(--spacing-xl) auto 0;
+
+  font-size: var(--font-size-display-lg);
+  line-height: var(--line-height-display-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+.sub-title {
+  margin: 0 auto var(--spacing-xl);
+
+  font-size: var(--font-size-text-md);
+  line-height: var(--line-height-text-md);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
 .row {
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-4xl) auto;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: var(--spacing-md);
+  justify-content: center;
+  gap: var(--spacing-xl);
 }
 </style>

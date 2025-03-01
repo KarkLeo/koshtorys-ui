@@ -380,12 +380,13 @@
   "planning": {
     "header": {
       "monthlyBudget": "Monthly Budget",
-      "remaining": "Remaining",
-      "total": "Total",
-      "remaining_due": "Remaining Due"
+      "plannedExpenses": "Planned Expenses",
+      "freeMoney": "Free Money",
+      "remainingToPay": "Remaining to pay"
     },
     "table": {
-      "paid": "Paid"
+      "paid": "Paid",
+      "repeat": "Repeat"
     },
     "form": {
       "type": {

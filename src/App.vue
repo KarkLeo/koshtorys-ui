@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { useMe } from '@/hooks/auth-hooks.ts'
 import { watch } from 'vue'
+import { RouterView } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+
+import { useMe } from '@/hooks/auth-hooks.ts'
 import MainHeader from '@/components/MainHeader.vue'
 import MainToasts from '@/components/MainToasts.vue'
 

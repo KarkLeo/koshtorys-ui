@@ -380,12 +380,13 @@
   "planning": {
     "header": {
       "monthlyBudget": "Місячний бюджет",
-      "remaining": "Залишок",
-      "total": "Всього",
-      "remaining_due": "Майбутні витрати"
+      "plannedExpenses": "Заплановані витрати",
+      "freeMoney": "Вільні кошти",
+      "remainingToPay": "Залишилося оплатити"
     },
     "table": {
-      "paid": "Оплачено"
+      "paid": "Оплачено",
+      "repeat": "Повторювається"
     },
     "form": {
       "type": {

@@ -78,7 +78,6 @@ const toastStore = useToastStore()
   box-sizing: border-box;
 
   transition: background 0.5s ease;
-
   pointer-events: none;
 }
 .main-toasts.active {
@@ -90,8 +89,6 @@ const toastStore = useToastStore()
   justify-content: flex-start;
   align-items: flex-end;
   gap: var(--spacing-xl);
-
-  pointer-events: auto;
 }
 
 .main-toasts-toast {
@@ -111,6 +108,7 @@ const toastStore = useToastStore()
     0 2px 2px -1px #0a0d120a,
     0 4px 6px -2px #0a0d1208,
     0 12px 16px -4px #0a0d1214;
+  pointer-events: auto;
 }
 
 .main-toasts-toast-icon-wrapper {
