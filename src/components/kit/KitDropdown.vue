@@ -123,7 +123,7 @@ onBeforeUnmount(() => {
           tabindex="-1"
           :class="{ selected: selectedIndex === index }"
           class="dropdown-item-handler"
-          @click.prevent="selectOption(option, index)"
+          @click="selectOption(option, index)"
         >
           <span class="option">{{ getOptionLabel ? getOptionLabel(option) : option }}</span>
           <IconCheck v-if="option === model" class="check" />
