@@ -78,6 +78,8 @@ const toastStore = useToastStore()
   box-sizing: border-box;
 
   transition: background 0.5s ease;
+
+  pointer-events: none;
 }
 .main-toasts.active {
   background: linear-gradient(216.43deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 51.68%);
@@ -88,6 +90,8 @@ const toastStore = useToastStore()
   justify-content: flex-start;
   align-items: flex-end;
   gap: var(--spacing-xl);
+
+  pointer-events: auto;
 }
 
 .main-toasts-toast {
