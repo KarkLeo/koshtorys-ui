@@ -5,7 +5,7 @@ import KitButton from '@/components/kit/KitButton.vue'
 <template>
   <main>
     <h1 class="title">🤑Koshtorys</h1>
-    <h2 class="sub-title">Development test: v 0.1.1</h2>
+    <h2 class="sub-title">Development test: v 0.1.2</h2>
 
     <div class="row">
       <router-link to="/login">

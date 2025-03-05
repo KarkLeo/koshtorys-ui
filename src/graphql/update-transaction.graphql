@@ -2,14 +2,16 @@ mutation UpdateTransaction ($transactionId: Float!, $transactionData: Transactio
   updateTransaction(transactionData: $transactionData, id: $transactionId) {
     id
     amount
-    categoryId
+    currency
     date
     description
+    categoryId
     exchangeRate {
       id
       base
       date
       rates
     }
+    planningId
   }
 }

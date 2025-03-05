@@ -107,7 +107,7 @@ type Query {
   me: UserWithoutPasswordModel!
   planning(monthIndex: Float!, year: Float!): [Planning!]!
   repeatingPlanning(monthIndex: Float!, year: Float!): [Planning!]!
-  transactions(date: DateTime): [Transaction!]!
+  transactions(endDate: DateTime!, startDate: DateTime!): [Transaction!]!
 }
 
 input SignInInput {

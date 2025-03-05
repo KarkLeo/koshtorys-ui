@@ -1,5 +1,24 @@
 mutation CreatePlanning($planningData: PlanningInput!) {
   createPlanning(planningData: $planningData) {
     id
+    amount
+    currency
+    date
+    description
+    categoryId
+    repeat
+    type
+    year
+    monthIndex
+    repeatedPlanningId
+    parentPlanningId
+    transactions {
+      id
+      amount
+      currency
+      exchangeRate {
+        rates
+      }
+    }
   }
 }

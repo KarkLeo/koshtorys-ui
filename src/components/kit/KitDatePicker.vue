@@ -28,11 +28,11 @@ const isPositionLeftOfPage = ref<boolean>(true)
 
 const selectDate = (day: number) => {
   isOpen.value = false
-  model.value = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+  model.value = new Date(displayedYear.value, displayedMonth.value, day)
 }
 
 const validateDate = (day: number): boolean => {
-  const date = new Date(Date.UTC(displayedYear.value, displayedMonth.value, day))
+  const date = new Date(displayedYear.value, displayedMonth.value, day)
   if (minDate && date < minDate) {
     return false
   }

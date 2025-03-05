@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
 import type { TransactionsQuery } from '@/graphql/types.ts'
-import { nowDateUTC } from '@/helpers/date.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
@@ -20,6 +19,7 @@ import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
 import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconLink from '@/components/icons/IconLink.vue'
 import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
+import KitPreloader from '@/components/kit/KitPreloader.vue'
 
 // ===== Types =====
 
@@ -42,7 +42,7 @@ const { transaction } = defineProps<{
 const toastStore = useToastStore()
 const { t } = useI18n()
 const { me } = useMe()
-const { updateTransaction } = useUpdateTransaction()
+const { updateTransaction, loading } = useUpdateTransaction()
 
 // ===== Refs =====
 
@@ -58,7 +58,9 @@ const date = ref<Date>(new Date(transaction.date))
 const categoryId = ref<string>(transaction?.categoryId || '')
 
 const selectPlanningModal = ref<HTMLElement | null>(null)
-const selectedPlanning = ref<string | null>(transaction?.planning?.id || null)
+const selectedPlanning = ref<string | null>(
+  transaction.planningId ? String(transaction.planningId) : null,
+)
 const isOpenSelectPlanningModal = ref(false)
 
 // ===== Watchers =====
@@ -75,7 +77,7 @@ watch(
     description.value = newTransaction?.description || ''
     date.value = new Date(newTransaction.date)
     categoryId.value = newTransaction?.categoryId || ''
-    selectedPlanning.value = newTransaction?.planning?.id || null
+    selectedPlanning.value = newTransaction?.planningId ? String(newTransaction.planningId) : null
   },
 )
 
@@ -113,7 +115,7 @@ const clearForm = () => {
   amount.value = ''
   description.value = ''
   categoryId.value = ''
-  date.value = nowDateUTC()
+  date.value = new Date()
   currency.value = me.value?.me.currency || CURRENCIES[0]
   errors.value = {}
   isOpenSelectPlanningModal.value = false
@@ -138,8 +140,8 @@ const handlerUpdateTransaction = async () => {
     })
 
     clearForm()
-    toastStore.success(t('transaction.form.messages.update_success'))
     emit('closeForm')
+    toastStore.success(t('transaction.form.messages.update_success'))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -178,6 +180,9 @@ const submitSelectPlanningModal = () => {
 
 <template>
   <div class="edit-transaction-form" ref="formRef">
+    <div :class="['edit-transaction-form-preloader', { loading: loading }]">
+      <KitPreloader size="md" />
+    </div>
     <KitSimpleFieldWrapper
       :error="Boolean(errors?.amount)"
       :message="errors?.amount ? $t(`transaction.form.errors.${errors.amount}`) : ''"
@@ -215,7 +220,7 @@ const submitSelectPlanningModal = () => {
           v-model="date"
           full-width
           @click.stop
-          :max-date="nowDateUTC()"
+          :max-date="new Date()"
           :error="Boolean(errors?.date)"
         />
       </KitSimpleFieldWrapper>
@@ -237,7 +242,7 @@ const submitSelectPlanningModal = () => {
   </div>
   <SelectPlanningModal
     @click.stop
-    :old-planning-id="transaction.planning?.id || null"
+    :old-planning-id="transaction.planningId ? String(transaction.planningId) : null"
     ref="selectPlanningModal"
     v-if="isOpenSelectPlanningModal"
     v-model="selectedPlanning"
@@ -248,6 +253,8 @@ const submitSelectPlanningModal = () => {
 
 <style scoped>
 .edit-transaction-form {
+  position: relative;
+
   width: 100%;
   padding: var(--spacing-3xl);
   box-sizing: border-box;
@@ -258,6 +265,30 @@ const submitSelectPlanningModal = () => {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-xl);
+}
+
+.edit-transaction-form-preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #0c111dcc;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.loading {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .form-fields-row {

@@ -3,7 +3,6 @@ import {
   getMonthIndex,
   getIndexedYear,
   getExchangeDate,
-  nowDateUTC,
   getMonthPeriod,
   getStartMonthDate,
   getChangedDateByMonthIndex,
@@ -57,128 +56,128 @@ describe('getIndexedYear', () => {
 
 describe('getExchangeDate', () => {
   it('should return the current date for the current month', () => {
-    const result = getExchangeDate(1, 2025, 5)
-    expect(result).toEqual(nowDateUTC())
+    const result = getExchangeDate(1, 2030, 5)
+    expect(result).toEqual(new Date())
   })
 
   it('should return the current date for the next month', () => {
     const result = getExchangeDate(2, 2025, 5)
-    expect(result).toEqual(nowDateUTC())
+    expect(result).toEqual(new Date())
   })
 
   it('should return the last day of the previous month', () => {
     const result = getExchangeDate(0, 2025, 5)
-    expect(result).toEqual(new Date(Date.UTC(2025, 1, 4)))
+    expect(result).toEqual(new Date(2025, 1, 4))
   })
 
   it('should return the current date for the next month, monthStartDay > 15', () => {
     const result = getExchangeDate(2, 2025, 20)
-    expect(result).toEqual(nowDateUTC())
+    expect(result).toEqual(new Date())
   })
 
   it('should return the last day of the previous month, monthStartDay > 15', () => {
     const result = getExchangeDate(0, 2025, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 0, 19)))
+    expect(result).toEqual(new Date(2025, 0, 19))
   })
 
   it('should return the last day of the previous year for December', () => {
     const result = getExchangeDate(11, 2024, 5)
-    expect(result).toEqual(new Date(Date.UTC(2025, 0, 4)))
+    expect(result).toEqual(new Date(2025, 0, 4))
   })
 
   it('should return the last day of the previous year for December, monthStartDay > 15', () => {
     const result = getExchangeDate(11, 2024, 20)
-    expect(result).toEqual(new Date(Date.UTC(2024, 11, 19)))
+    expect(result).toEqual(new Date(2024, 11, 19))
   })
 })
 
 describe('getMonthPeriod', () => {
   it('should return correct period for a date before monthStartDay', () => {
-    const date = new Date(Date.UTC(2024, 1, 5))
+    const date = new Date(2024, 1, 5)
     const monthStartDay = 10
     const [start, end] = getMonthPeriod(monthStartDay, date)
 
-    expect(start).toEqual(new Date(Date.UTC(2024, 0, 10)))
-    expect(end).toEqual(new Date(Date.UTC(2024, 1, 9)))
+    expect(start).toEqual(new Date(2024, 0, 10))
+    expect(end).toEqual(new Date(2024, 1, 9))
   })
 
   it('should return correct period for a date on or after monthStartDay', () => {
-    const date = new Date(Date.UTC(2024, 1, 15))
+    const date = new Date(2024, 1, 15)
     const monthStartDay = 10
     const [start, end] = getMonthPeriod(monthStartDay, date)
 
-    expect(start).toEqual(new Date(Date.UTC(2024, 1, 10)))
-    expect(end).toEqual(new Date(Date.UTC(2024, 2, 9)))
+    expect(start).toEqual(new Date(2024, 1, 10))
+    expect(end).toEqual(new Date(2024, 2, 9))
   })
 
   it('should handle default monthStartDay correctly', () => {
-    const date = new Date(Date.UTC(2024, 1, 5))
+    const date = new Date(2024, 1, 5)
     const [start, end] = getMonthPeriod(undefined, date)
 
-    expect(start).toEqual(new Date(Date.UTC(2024, 1, 1)))
-    expect(end).toEqual(new Date(Date.UTC(2024, 1, 29)))
+    expect(start).toEqual(new Date(2024, 1, 1))
+    expect(end).toEqual(new Date(2024, 1, 29))
   })
 
   it('should handle edge case when date is exactly on monthStartDay', () => {
-    const date = new Date(Date.UTC(2024, 1, 10))
+    const date = new Date(2024, 1, 10)
     const monthStartDay = 10
     const [start, end] = getMonthPeriod(monthStartDay, date)
 
-    expect(start).toEqual(new Date(Date.UTC(2024, 1, 10)))
-    expect(end).toEqual(new Date(Date.UTC(2024, 2, 9)))
+    expect(start).toEqual(new Date(2024, 1, 10))
+    expect(end).toEqual(new Date(2024, 2, 9))
   })
 })
 
 describe('getStartMonthDate', () => {
   it('should return the correct date without monthStartDay', () => {
     const result = getStartMonthDate(2025, 5)
-    expect(result).toEqual(new Date(Date.UTC(2025, 5, 1)))
+    expect(result).toEqual(new Date(2025, 5, 1))
   })
 
   it('should return the correct date with monthStartDay < 15', () => {
     const result = getStartMonthDate(2025, 5, 5)
-    expect(result).toEqual(new Date(Date.UTC(2025, 5, 5)))
+    expect(result).toEqual(new Date(2025, 5, 5))
   })
 
   it('should return the correct date for the next month, monthStartDay > 15', () => {
     const result = getStartMonthDate(2025, 5, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 4, 20)))
+    expect(result).toEqual(new Date(2025, 4, 20))
   })
 
   it('should return the correct date for December', () => {
     const result = getStartMonthDate(2024, 11, 10)
-    expect(result).toEqual(new Date(Date.UTC(2024, 11, 10)))
+    expect(result).toEqual(new Date(2024, 11, 10))
   })
 
   it('should return the correct date for December, monthStartDay > 15', () => {
     const result = getStartMonthDate(2025, 0, 20)
-    expect(result).toEqual(new Date(Date.UTC(2024, 11, 20)))
+    expect(result).toEqual(new Date(2024, 11, 20))
   })
 })
 
 describe('getChangedDateByMonthIndex', () => {
   it('should return the correct date without monthStartDay', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5)
-    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+    expect(result).toEqual(new Date(2025, 5, 15))
   })
 
   it('should return the correct date with monthStartDay', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5, 10)
-    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+    expect(result).toEqual(new Date(2025, 5, 15))
   })
 
   it('should return the correct date with monthStartDay, date < monthStartDay', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-05T00:00:00.000Z'), 2025, 5, 10)
-    expect(result).toEqual(new Date(Date.UTC(2025, 6, 5)))
+    expect(result).toEqual(new Date(2025, 6, 5))
   })
 
   it('should return the correct date with monthStartDay, monthStartDay > 15', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-15T00:00:00.000Z'), 2025, 5, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 5, 15)))
+    expect(result).toEqual(new Date(2025, 5, 15))
   })
 
   it('should return the correct date with monthStartDay, monthStartDay > 15, date > monthStartDay', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-25T00:00:00.000Z'), 2025, 5, 20)
-    expect(result).toEqual(new Date(Date.UTC(2025, 4, 25)))
+    expect(result).toEqual(new Date(2025, 4, 25))
   })
 })

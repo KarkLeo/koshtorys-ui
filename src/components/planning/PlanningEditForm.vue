@@ -20,6 +20,7 @@ import KitDatePicker from '@/components/kit/KitDatePicker.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 import KitToggle from '@/components/kit/KitToggle.vue'
 import KitSimpleFieldWrapper from '@/components/kit/KitSimpleFieldWrapper.vue'
+import KitPreloader from '@/components/kit/KitPreloader.vue'
 
 // ===== Types =====
 
@@ -37,7 +38,7 @@ const { planning } = defineProps<{
 const { t } = useI18n()
 const { me } = useMe()
 const toastStore = useToastStore()
-const { updatePlanning } = useUpdatePlanning()
+const { updatePlanning, loading } = useUpdatePlanning()
 const { statisticDate } = useStatisticDateStore()
 const { planning: planningList } = usePlanningList()
 
@@ -183,6 +184,10 @@ const filterCategories = (categories: string[]): string[] => {
 
 <template>
   <div class="planning-from">
+    <div :class="['planning-from-preloader', { loading: loading }]">
+      <KitPreloader size="md" />
+    </div>
+
     <div class="planning-form-header">
       <KitToggleBar
         v-model="type"
@@ -298,6 +303,30 @@ const filterCategories = (categories: string[]): string[] => {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-3xl);
+}
+
+.planning-from-preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgba(12, 17, 29, 0.6);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.loading {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .planning-form-header {

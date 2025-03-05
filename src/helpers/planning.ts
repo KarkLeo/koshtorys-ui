@@ -22,11 +22,13 @@ export const reducePlanningByCategory = (
     {} as Record<string, PreparedPlanning[]>,
   )
 
-  return Object.entries(result).map(([category, items]) => ({
-    category,
-    items: sortPlanning(items),
-    total: items.reduce((acc, item) => acc + item.amount, 0),
-  }))
+  return Object.entries(result)
+    .map(([category, items]) => ({
+      category,
+      items: sortPlanning(items),
+      total: items.reduce((acc, item) => acc + item.amount, 0),
+    }))
+    .sort((a, b) => b.total - a.total)
 }
 
 export const filterPlanning = (

@@ -4,6 +4,9 @@
     "server_error": "Server error. Please try again later.",
     "network_error": "Network error. Please check your connection."
   },
+  "common": {
+    "loading": "Loading..."
+  },
   "calendar": {
     "placeholder": "Select date",
     "months": {
@@ -375,6 +378,9 @@
         "submit": "Save",
         "cancel": "Remove"
       }
+    },
+    "table": {
+      "empty": "No transactions found"
     }
   },
   "planning": {
@@ -386,7 +392,8 @@
     },
     "table": {
       "paid": "Paid",
-      "repeat": "Repeat"
+      "repeat": "Repeat",
+      "empty": "No plannings found"
     },
     "form": {
       "type": {
