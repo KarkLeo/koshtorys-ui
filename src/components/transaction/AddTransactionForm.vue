@@ -20,12 +20,13 @@ import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vu
 import KitIconButton from '@/components/kit/KitIconButton.vue'
 import IconLink from '@/components/icons/IconLink.vue'
 import type { Planning } from '@/graphql/types.ts'
+import KitPreloader from '@/components/kit/KitPreloader.vue'
 
 // ===== Hooks =====
 
 const { me } = useMe()
 const toastStore = useToastStore()
-const { createTransaction } = useCreateTransaction()
+const { createTransaction, loading } = useCreateTransaction()
 const { t } = useI18n()
 
 // ===== Refs =====
@@ -144,6 +145,9 @@ const submitSelectPlanningModal = (planning?: Planning) => {
 
 <template>
   <div :class="['add-transaction-form', { active: isOpen }]" ref="formRef" @click="isOpen = true">
+    <div :class="['add-transaction-form-preloader', { loading: loading }]">
+      <KitPreloader size="md" />
+    </div>
     <KitSimpleFieldWrapper
       :error="Boolean(errors?.amount)"
       :message="errors?.amount ? $t(`transaction.form.errors.${errors.amount}`) : ''"
@@ -243,6 +247,30 @@ const submitSelectPlanningModal = (planning?: Planning) => {
     0 2px 2px -1px #0a0d120a,
     0 4px 6px -2px #0a0d1208,
     0 12px 16px -4px #0a0d1214;
+}
+
+.add-transaction-form-preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #0c111dcc;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.loading {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .add-transaction-form-overlay {

@@ -2,7 +2,11 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTransactionList } from '@/hooks/transaction-hooks.ts'
-import { usePlanningList } from '@/hooks/planning-hooks.ts'
+import {
+  usePlanningExchangeRage,
+  usePlanningList,
+  useRepeatingPlanningList,
+} from '@/hooks/planning-hooks.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import {
   type ExchangeRate,
@@ -107,7 +111,9 @@ const mapPlanning = (
 
 export const usePlanningMapper = () => {
   const { t } = useI18n()
-  const { planning } = usePlanningList()
+  const { planning, loading: planningLoading } = usePlanningList()
+  const { planningExchangeRage, loading: planningExchangeRageLoading } = usePlanningExchangeRage()
+  const { repeatingPlanning } = useRepeatingPlanningList()
   const { transactions } = useTransactionList()
   const { me } = useMe()
 
@@ -115,7 +121,7 @@ export const usePlanningMapper = () => {
     if (
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
-      !planning?.value?.exchangeRate ||
+      !planningExchangeRage?.value?.exchangeRate ||
       !me.value
     )
       return []
@@ -125,7 +131,7 @@ export const usePlanningMapper = () => {
         mapPlanning(
           planningItem,
           (transactions.value?.transactions || []) as Transaction[],
-          planning.value?.exchangeRate as ExchangeRate,
+          planningExchangeRage.value?.exchangeRate as ExchangeRate,
           me.value?.me.currency as string,
           t,
         ),
@@ -135,22 +141,22 @@ export const usePlanningMapper = () => {
 
   const repeatingPlanningTables = computed(() => {
     if (
-      !planning?.value?.repeatingPlanning ||
+      !repeatingPlanning?.value?.repeatingPlanning ||
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
-      !planning?.value?.exchangeRate ||
+      !planningExchangeRage?.value?.exchangeRate ||
       !me.value
     )
       return []
     return reducePlanningByCategory(
       filterPlanning(
-        planning.value?.repeatingPlanning as Planning[],
+        repeatingPlanning.value?.repeatingPlanning as Planning[],
         planning?.value?.planning as Planning[],
       )?.map((planningItem) =>
         mapPlanning(
           planningItem,
           (transactions.value?.transactions || []) as Transaction[],
-          planning.value?.exchangeRate as ExchangeRate,
+          planningExchangeRage.value?.exchangeRate as ExchangeRate,
           me.value?.me.currency as string,
           t,
         ),
@@ -162,7 +168,7 @@ export const usePlanningMapper = () => {
     if (
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
-      !planning?.value?.exchangeRate ||
+      !planningExchangeRage?.value?.exchangeRate ||
       !me.value
     )
       return null
@@ -171,7 +177,7 @@ export const usePlanningMapper = () => {
       mapPlanning(
         planningItem,
         (transactions.value?.transactions || []) as Transaction[],
-        planning.value?.exchangeRate as ExchangeRate,
+        planningExchangeRage.value?.exchangeRate as ExchangeRate,
         me.value?.me.currency as string,
         t,
       ),
@@ -211,5 +217,10 @@ export const usePlanningMapper = () => {
     }
   })
 
-  return { planningTables, repeatingPlanningTables, planningStatistics }
+  const loading = computed(() => {
+    // Show preloader with loading main data
+    return planningLoading.value || planningExchangeRageLoading.value
+  })
+
+  return { planningTables, repeatingPlanningTables, planningStatistics, loading }
 }

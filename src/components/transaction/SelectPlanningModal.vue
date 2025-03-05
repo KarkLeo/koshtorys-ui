@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { usePlanningList } from '@/hooks/planning-hooks.ts'
+import { usePlanningMapper } from '@/mappers/planning-mapper.ts'
 
 import KitModal from '@/components/kit/KitModal.vue'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 import KitRadio from '@/components/kit/KitRadio.vue'
-import { usePlanningMapper } from '@/mappers/planning-mapper.ts'
+import KitPreloaderWithText from '@/components/kit/KitPreloaderWithText.vue'
 
 const emit = defineEmits(['close', 'submit'])
 const model = defineModel<string | null>()
@@ -18,7 +21,18 @@ const { planning } = usePlanningList()
 
 // ===== Computed =====
 
-const { planningTables } = usePlanningMapper()
+const { planningTables, loading } = usePlanningMapper()
+
+const planningTransactionTable = computed(() => {
+  return planningTables?.value
+    ?.map((planningTable) => {
+      return {
+        ...planningTable,
+        items: planningTable.items.filter((plan) => plan.type === 'TRANSACTION'),
+      }
+    })
+    .filter((planningTable) => planningTable.items.length > 0)
+})
 
 // ===== Handlers =====
 
@@ -49,45 +63,53 @@ const closeHandler = () => {
     @close="closeHandler"
   >
     <div class="planning-content">
-      <div class="planning-table" v-for="table in planningTables" :key="table.category">
-        <div class="planning-table-body">
-          <label
-            class="planning-table-item"
-            v-for="plan in table.items.filter((plan) => plan.type === 'TRANSACTION')"
-            :key="plan.id"
-            :class="{
-              disabled: (plan?.original.transactions?.length || 0) > 0 && plan.id !== oldPlanningId,
-            }"
-          >
-            <span class="planning-table-item-radio">
-              <KitRadio v-model="model" name="planning" :value="plan.id" />
-            </span>
-            <span class="planning-table-item-main">
-              <span>{{ plan.description }}</span>
-              <span
-                class="planning-table-item-category"
-                :style="{
-                  '--color': plan.categoryColor,
-                }"
-              >
-                {{ plan.categoryName }}
+      <KitPreloaderWithText v-if="loading" class="planning-loader" size="md" />
+
+      <h4 v-if="!loading && planningTransactionTable.length === 0" class="planning-empty">
+        {{ $t('planning.table.empty') }}
+      </h4>
+      <template v-if="!loading && planningTransactionTable.length > 0">
+        <div class="planning-table" v-for="table in planningTransactionTable" :key="table.category">
+          <div class="planning-table-body">
+            <label
+              class="planning-table-item"
+              v-for="plan in table.items"
+              :key="plan.id"
+              :class="{
+                disabled:
+                  plan.id !== oldPlanningId && (plan?.original.transactions?.length || 0) > 0,
+              }"
+            >
+              <span class="planning-table-item-radio">
+                <KitRadio v-model="model" name="planning" :value="plan.id" />
               </span>
-            </span>
-            <span class="planning-table-item-date" v-if="plan.date">
-              <IconCalendar /> {{ plan.date }}
-            </span>
-            <span class="planning-table-item-amount">
-              <span
-                class="planning-table-item-amount-original"
-                v-if="plan.originalAmount && plan.originalCurrency"
-              >
-                {{ plan.originalAmount }} {{ plan.originalCurrency }} /
+              <span class="planning-table-item-main">
+                <span>{{ plan.description }}</span>
+                <span
+                  class="planning-table-item-category"
+                  :style="{
+                    '--color': plan.categoryColor,
+                  }"
+                >
+                  {{ plan.categoryName }}
+                </span>
               </span>
-              {{ plan.amount }} {{ plan.currency }}
-            </span>
-          </label>
+              <span class="planning-table-item-date" v-if="plan.date">
+                <IconCalendar /> {{ plan.date }}
+              </span>
+              <span class="planning-table-item-amount">
+                <span
+                  class="planning-table-item-amount-original"
+                  v-if="plan.originalAmount && plan.originalCurrency"
+                >
+                  {{ plan.originalAmount }} {{ plan.originalCurrency }} /
+                </span>
+                {{ plan.amount }} {{ plan.currency }}
+              </span>
+            </label>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
   </KitModal>
 </template>
@@ -97,6 +119,22 @@ const closeHandler = () => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
+}
+
+.planning-loader {
+  margin: var(--spacing-xl) auto;
+}
+
+.planning-empty {
+  margin: var(--spacing-xl) 0;
+  padding: 0;
+
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  color: var(--text-tertiary);
+  text-align: center;
 }
 
 .planning-table {

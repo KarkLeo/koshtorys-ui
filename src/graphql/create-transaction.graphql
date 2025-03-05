@@ -2,14 +2,16 @@ mutation CreateTransaction ($transactionData: TransactionInput!) {
   createTransaction(transactionData: $transactionData) {
     id
     amount
-    categoryId
+    currency
     date
     description
+    categoryId
     exchangeRate {
       id
       base
       date
       rates
     }
+    planningId
   }
 }

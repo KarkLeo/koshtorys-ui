@@ -1,5 +1,24 @@
 mutation RepeatPlanning($planningId: Float!, $monthIndex: Float!, $year: Float!,) {
   repeatPlanning(planningId: $planningId, monthIndex: $monthIndex, year: $year) {
     id
+    amount
+    currency
+    date
+    description
+    categoryId
+    repeat
+    type
+    year
+    monthIndex
+    repeatedPlanningId
+    parentPlanningId
+    transactions {
+      id
+      amount
+      currency
+      exchangeRate {
+        rates
+      }
+    }
   }
 }

@@ -1,5 +1,7 @@
 mutation DeletePlanning($planningId: Float!) {
   deletePlanning(planningId: $planningId) {
     id
+    monthIndex
+    year
   }
 }

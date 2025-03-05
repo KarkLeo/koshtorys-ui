@@ -82,3 +82,16 @@ export const getChangedDateByMonthIndex = (
     ),
   )
 }
+
+export const getDateRangeByDate = (date: Date, monthStartDay: number) => {
+  return {
+    startDate:
+      date.getDate() < monthStartDay
+        ? new Date(date.getFullYear(), date.getMonth() - 1, monthStartDay)
+        : new Date(date.getFullYear(), date.getMonth(), monthStartDay),
+    endDate:
+      date.getDate() < monthStartDay
+        ? new Date(date.getFullYear(), date.getMonth(), monthStartDay)
+        : new Date(date.getFullYear(), date.getMonth() + 1, monthStartDay),
+  }
+}

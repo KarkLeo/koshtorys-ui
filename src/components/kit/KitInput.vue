@@ -28,6 +28,7 @@ const {
 <style scoped>
 .field {
   position: relative;
+  z-index: 1;
 
   display: block;
 }

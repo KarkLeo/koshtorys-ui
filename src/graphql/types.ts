@@ -220,7 +220,8 @@ export type QueryRepeatingPlanningArgs = {
 
 
 export type QueryTransactionsArgs = {
-  date?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate: Scalars['DateTime']['input'];
+  startDate: Scalars['DateTime']['input'];
 };
 
 export type SignInInput = {
@@ -312,35 +313,35 @@ export type CanselRepeatingPlanningMutationVariables = Exact<{
 }>;
 
 
-export type CanselRepeatingPlanningMutation = { __typename?: 'Mutation', canselRepeatingPlanning: { __typename?: 'Planning', id: string } };
+export type CanselRepeatingPlanningMutation = { __typename?: 'Mutation', canselRepeatingPlanning: { __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null } };
 
 export type CreatePlanningMutationVariables = Exact<{
   planningData: PlanningInput;
 }>;
 
 
-export type CreatePlanningMutation = { __typename?: 'Mutation', createPlanning: { __typename?: 'Planning', id: string } };
+export type CreatePlanningMutation = { __typename?: 'Mutation', createPlanning: { __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null } };
 
 export type CreateTransactionMutationVariables = Exact<{
   transactionData: TransactionInput;
 }>;
 
 
-export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, amount: number, categoryId?: string | null, date: any, description?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, planningId?: number | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };
 
 export type DeletePlanningMutationVariables = Exact<{
   planningId: Scalars['Float']['input'];
 }>;
 
 
-export type DeletePlanningMutation = { __typename?: 'Mutation', deletePlanning: { __typename?: 'Planning', id: string } };
+export type DeletePlanningMutation = { __typename?: 'Mutation', deletePlanning: { __typename?: 'Planning', id: string, monthIndex: number, year: number } };
 
 export type DeleteTransactionMutationVariables = Exact<{
   transactionId: Scalars['Float']['input'];
 }>;
 
 
-export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string } };
+export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string, date: any, planningId?: number | null } };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -369,14 +370,20 @@ export type OnboardingMutationVariables = Exact<{
 
 export type OnboardingMutation = { __typename?: 'Mutation', onboarding: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
 
-export type PlanningQueryVariables = Exact<{
-  monthIndex: Scalars['Float']['input'];
-  year: Scalars['Float']['input'];
+export type PlanningExchangeRateQueryVariables = Exact<{
   exchangeDate: Scalars['DateTime']['input'];
 }>;
 
 
-export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null }>, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }> };
+export type PlanningExchangeRateQuery = { __typename?: 'Query', exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } };
+
+export type PlanningQueryVariables = Exact<{
+  monthIndex: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
+}>;
+
+
+export type PlanningQuery = { __typename?: 'Query', planning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null }> };
 
 export type RefreshTokensMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
@@ -402,7 +409,15 @@ export type RepeatPlanningMutationVariables = Exact<{
 }>;
 
 
-export type RepeatPlanningMutation = { __typename?: 'Mutation', repeatPlanning: { __typename?: 'Planning', id: string } };
+export type RepeatPlanningMutation = { __typename?: 'Mutation', repeatPlanning: { __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null } };
+
+export type RepeatingPlanningQueryVariables = Exact<{
+  monthIndex: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
+}>;
+
+
+export type RepeatingPlanningQuery = { __typename?: 'Query', repeatingPlanning: Array<{ __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null }> };
 
 export type SettingsGeneralMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
@@ -424,11 +439,12 @@ export type SettingsStatisticsMutationVariables = Exact<{
 export type SettingsStatisticsMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
 
 export type TransactionsQueryVariables = Exact<{
-  date?: InputMaybe<Scalars['DateTime']['input']>;
+  startDate: Scalars['DateTime']['input'];
+  endDate: Scalars['DateTime']['input'];
 }>;
 
 
-export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any }, planning?: { __typename?: 'Planning', id: string } | null }> };
+export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, planningId?: number | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } }> };
 
 export type UpdatePlanningMutationVariables = Exact<{
   planningData: PlanningInput;
@@ -436,7 +452,7 @@ export type UpdatePlanningMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanningMutation = { __typename?: 'Mutation', updatePlanning: { __typename?: 'Planning', id: string } };
+export type UpdatePlanningMutation = { __typename?: 'Mutation', updatePlanning: { __typename?: 'Planning', id: string, amount: number, currency: string, date?: any | null, description?: string | null, categoryId: string, repeat: boolean, type: PlanningType, year: number, monthIndex: number, repeatedPlanningId?: number | null, parentPlanningId?: number | null, transactions?: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, exchangeRate: { __typename?: 'ExchangeRate', rates: any } }> | null } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   transactionId: Scalars['Float']['input'];
@@ -444,4 +460,4 @@ export type UpdateTransactionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, amount: number, categoryId?: string | null, date: any, description?: string | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };
+export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, planningId?: number | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } } };

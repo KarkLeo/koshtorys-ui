@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { TransactionsQuery } from '@/graphql/types.ts'
@@ -18,6 +18,8 @@ import IconTrash from '@/components/icons/IconTrash.vue'
 import IconEdit from '@/components/icons/IconEdit.vue'
 import EditTransactionForm from '@/components/transaction/EditTransactionForm.vue'
 import IconLink from '@/components/icons/IconLink.vue'
+import KitPreloaderWithText from '@/components/kit/KitPreloaderWithText.vue'
+import KitPreloader from '@/components/kit/KitPreloader.vue'
 
 // ===== Types =====
 
@@ -35,12 +37,13 @@ const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
 const { me } = useMe()
 
-const { transactions } = useTransactionList()
-const { deleteTransaction } = useDeleteTransaction()
+const { transactions, loading } = useTransactionList()
+const { deleteTransaction, loading: deleteLoading } = useDeleteTransaction()
 
 // ===== Refs =====
 
 const editingTransactionId = ref<string | null>(null)
+const deletingTransactionId = ref<string | null>(null)
 
 // ===== Computed =====
 
@@ -48,22 +51,25 @@ const list = computed<ExtendedTransaction[]>(() => {
   const meCurrency = me.value?.me.currency
   if (!meCurrency || !transactions.value?.transactions) return []
 
-  return transactions.value.transactions.map((transaction: BaseTransaction) => {
-    if (meCurrency !== transaction.currency) {
-      const amount =
-        (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
-        transaction.exchangeRate.rates[meCurrency]
+  return transactions.value.transactions
+    .map((transaction: BaseTransaction) => {
+      if (meCurrency !== transaction.currency) {
+        const amount =
+          (transaction.amount / transaction.exchangeRate.rates[transaction.currency]) *
+          transaction.exchangeRate.rates[meCurrency]
 
-      return {
-        ...transaction,
-        amount,
-        currency: meCurrency,
-        originalAmount: transaction.amount,
-        originalCurrency: transaction.currency,
+        return {
+          ...transaction,
+          amount,
+          currency: meCurrency,
+          originalAmount: transaction.amount,
+          originalCurrency: transaction.currency,
+          date: new Date(transaction.date),
+        }
       }
-    }
-    return transaction
-  })
+      return { ...transaction, date: new Date(transaction.date) }
+    })
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
 })
 
 const sum = computed(() => {
@@ -74,10 +80,12 @@ const sum = computed(() => {
 
 const handleDeleteTransaction = async (id: string) => {
   try {
+    deletingTransactionId.value = id
     await deleteTransaction({
       transactionId: Number(id),
     })
     toastStore.success(t('transaction.form.messages.delete_success'))
+    deletingTransactionId.value = null
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -98,8 +106,8 @@ const formatAmount = (value: number) => {
   // return value.toFixed(2) || ''
   return Math.round(value)
 }
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString()
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString()
 }
 
 const formatCurrency = (value: string) => {
@@ -109,6 +117,13 @@ const formatCurrency = (value: string) => {
 const getCategoryColor = (categoryId: string) => {
   return TRANSACTION_CATEGORIES_COLORS[categoryId.replace(/--.*$/, '')] || ''
 }
+
+// ===== Watchers =====
+
+watch(statisticDate, () => {
+  editingTransactionId.value = null
+  deletingTransactionId.value = null
+})
 </script>
 
 <template>
@@ -121,7 +136,13 @@ const getCategoryColor = (categoryId: string) => {
       :message="`${formatAmount(sum)} / ${formatAmount(me?.me.monthlyBudget || 0)} ${formatCurrency(me?.me.currency || '')}`"
     />
 
-    <ul class="transaction-list">
+    <KitPreloaderWithText class="transition-loader" size="md" v-if="loading" />
+
+    <h4 class="transition-empty" v-if="!loading && list.length === 0">
+      {{ $t('transaction.table.empty') }}
+    </h4>
+
+    <ul class="transaction-list" v-if="!loading && list.length > 0">
       <li v-for="transaction in list" :key="transaction.id" class="transaction">
         <div class="transaction-wrapper" v-if="transaction.id !== editingTransactionId">
           <div class="transaction-header">
@@ -143,11 +164,15 @@ const getCategoryColor = (categoryId: string) => {
               >
                 {{ $t(`categories.${transaction.categoryId}`) }}
               </p>
-              <p class="transaction-planning" v-if="transaction.planning"><IconLink /></p>
+              <p class="transaction-planning" v-if="transaction.planningId"><IconLink /></p>
             </div>
             <p class="transaction-date">{{ formatDate(transaction.date) }}</p>
-
-            <KitContextMenu class="transaction-menu">
+            <KitPreloader
+              v-if="deletingTransactionId === transaction.id && deleteLoading"
+              class="transaction-menu"
+              size="sm"
+            />
+            <KitContextMenu v-else class="transaction-menu">
               <KitIconButton @click="editingTransactionId = transaction.id" size="md">
                 <IconEdit />
               </KitIconButton>
@@ -177,6 +202,22 @@ const getCategoryColor = (categoryId: string) => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+}
+
+.transition-loader {
+  margin: var(--spacing-xl) auto 0;
+}
+
+.transition-empty {
+  margin: var(--spacing-xl) 0 0;
+  padding: 0;
+
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  color: var(--text-tertiary);
+  text-align: center;
 }
 
 .transaction-list {

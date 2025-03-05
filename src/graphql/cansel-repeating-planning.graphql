@@ -1,5 +1,24 @@
 mutation CanselRepeatingPlanning($planningId: Float!,) {
   canselRepeatingPlanning(planningId: $planningId,) {
     id
+    amount
+    currency
+    date
+    description
+    categoryId
+    repeat
+    type
+    year
+    monthIndex
+    repeatedPlanningId
+    parentPlanningId
+    transactions {
+      id
+      amount
+      currency
+      exchangeRate {
+        rates
+      }
+    }
   }
 }
