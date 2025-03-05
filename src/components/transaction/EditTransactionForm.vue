@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
 import type { TransactionsQuery } from '@/graphql/types.ts'
-import { nowDateUTC } from '@/helpers/date.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
@@ -116,7 +115,7 @@ const clearForm = () => {
   amount.value = ''
   description.value = ''
   categoryId.value = ''
-  date.value = nowDateUTC()
+  date.value = new Date()
   currency.value = me.value?.me.currency || CURRENCIES[0]
   errors.value = {}
   isOpenSelectPlanningModal.value = false
@@ -221,7 +220,7 @@ const submitSelectPlanningModal = () => {
           v-model="date"
           full-width
           @click.stop
-          :max-date="nowDateUTC()"
+          :max-date="new Date()"
           :error="Boolean(errors?.date)"
         />
       </KitSimpleFieldWrapper>

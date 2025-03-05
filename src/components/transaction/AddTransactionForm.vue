@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
-import { nowDateUTC } from '@/helpers/date.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
@@ -38,7 +37,7 @@ const errors = ref<Record<string, string>>({})
 const amount = ref('')
 const currency = ref(me.value?.me.currency || CURRENCIES[0])
 const description = ref('')
-const date = ref<Date>(nowDateUTC())
+const date = ref<Date>(new Date())
 const categoryId = ref<string>('')
 
 const selectPlanningModal = ref<HTMLElement | null>(null)
@@ -79,7 +78,7 @@ const clearForm = () => {
   amount.value = ''
   description.value = ''
   categoryId.value = ''
-  date.value = nowDateUTC()
+  date.value = new Date()
   currency.value = me.value?.me.currency || CURRENCIES[0]
   isOpen.value = false
   errors.value = {}
@@ -136,7 +135,7 @@ const submitSelectPlanningModal = (planning?: Planning) => {
     currency.value = planning?.currency || me.value?.me.currency || CURRENCIES[0]
     description.value = planning?.description || ''
     categoryId.value = planning?.categoryId || ''
-    date.value = planning?.date ? new Date(planning.date) : nowDateUTC()
+    date.value = planning?.date ? new Date(planning.date) : new Date()
   }
 
   closeSelectPlanningModal()
@@ -184,7 +183,7 @@ const submitSelectPlanningModal = (planning?: Planning) => {
         <KitDatePicker
           v-model="date"
           full-width
-          :max-date="nowDateUTC()"
+          :max-date="new Date()"
           :error="Boolean(errors?.date)"
         />
       </KitSimpleFieldWrapper>
