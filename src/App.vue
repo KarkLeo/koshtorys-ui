@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import MainHeader from '@/components/MainHeader.vue'
 import MainToasts from '@/components/MainToasts.vue'
+import MainFooter from '@/components/MainFooter.vue'
 
 const { me } = useMe()
 const { locale } = useI18n()
@@ -18,9 +19,10 @@ watch(me, (newVal) => {
 </script>
 
 <template>
-  <main-header />
+  <MainHeader />
   <router-view />
-  <main-toasts />
+  <MainFooter />
+  <MainToasts />
 </template>
 
 <style scoped></style>
