@@ -30,11 +30,11 @@ const toggleDropdown = async () => {
 }
 
 const checkPositionOnPage = () => {
-  if (dropdownRef.value) {
+  if (dropdownRef.value && window.visualViewport) {
     const { top, bottom } = dropdownRef.value.getBoundingClientRect()
-    const bottomSpace = document.documentElement.clientHeight - bottom
+    const bottomSpace = window.visualViewport.height - bottom
     isPositionTopOfPage.value = top < bottomSpace
-    maxVisibleHeight.value = Math.min(Math.max(top, bottomSpace), 320)
+    maxVisibleHeight.value = Math.min(Math.max(top, bottomSpace), 320, window.visualViewport.height)
   }
 }
 
@@ -79,10 +79,16 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   checkPositionOnPage()
   document.addEventListener('click', handleClickOutside)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', checkPositionOnPage)
+  }
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', checkPositionOnPage)
+  }
 })
 </script>
 
