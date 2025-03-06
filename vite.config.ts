@@ -50,31 +50,31 @@ export default defineConfig({
         background_color: '#0C111D',
         theme_color: '#0C111D',
       },
-      // workbox: {
-      //   globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-      //   cleanupOutdatedCaches: true,
-      //   clientsClaim: true,
-      //   skipWaiting: true,
-      //   runtimeCaching: [
-      //     {
-      //       urlPattern: ({ request }) =>
-      //         request.destination === 'script' || request.destination === 'style',
-      //       handler: 'NetworkFirst',
-      //       options: {
-      //         cacheName: 'bundles-cache',
-      //         expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
-      //       },
-      //     },
-      //     {
-      //       urlPattern: ({ request }) => request.destination === 'image',
-      //       handler: 'CacheFirst',
-      //       options: {
-      //         cacheName: 'images-cache',
-      //         expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
-      //       },
-      //     },
-      //   ],
-      // },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) =>
+              request.destination === 'script' || request.destination === 'style',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'bundles-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+        ],
+      },
     }),
   ],
   resolve: {
