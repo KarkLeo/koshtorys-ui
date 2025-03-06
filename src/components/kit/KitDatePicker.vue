@@ -43,10 +43,10 @@ const validateDate = (day: number): boolean => {
 }
 
 const checkPositionOnPage = () => {
-  if (datePickerRef.value) {
+  if (datePickerRef.value && window.visualViewport) {
     const { top, bottom, left, right } = datePickerRef.value.getBoundingClientRect()
-    const bottomSpace = document.documentElement.clientHeight - bottom
-    const rightSpace = document.documentElement.clientWidth - right
+    const bottomSpace = window.visualViewport.height - bottom
+    const rightSpace = window.visualViewport.width - right
     isPositionTopOfPage.value = top < bottomSpace
     isPositionLeftOfPage.value = left < rightSpace
   }
@@ -104,10 +104,16 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   checkPositionOnPage()
   document.addEventListener('click', handleClickOutside)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', checkPositionOnPage)
+  }
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', checkPositionOnPage)
+  }
 })
 </script>
 
