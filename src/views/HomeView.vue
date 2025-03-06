@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import KitButton from '@/components/kit/KitButton.vue'
+
+const version = __APP_VERSION__
 </script>
 
 <template>
   <main>
     <h1 class="title">🤑Koshtorys</h1>
-    <h2 class="sub-title">Development test: v 0.1.2 - hotfix</h2>
+    <h2 class="sub-title">Development test: v{{ version }}</h2>
 
     <div class="row">
       <router-link to="/login">

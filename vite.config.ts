@@ -1,11 +1,13 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { readFileSync } from 'fs'
 import { VitePWA } from 'vite-plugin-pwa'
-
 import vueDevTools from 'vite-plugin-vue-devtools'
+import vue from '@vitejs/plugin-vue'
 import graphql from '@rollup/plugin-graphql'
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
+const buildDate = new Date().toISOString()
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -77,6 +79,10 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __BUILD_DATE__: JSON.stringify(buildDate),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
