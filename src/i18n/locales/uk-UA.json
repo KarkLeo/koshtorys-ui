@@ -450,7 +450,14 @@
   "dashboard": {
     "tabs": {
       "transactions": "Витрати",
-      "planning": "Планування"
+      "planning": "Планування",
+      "statistics": "Статистика"
+    }
+  },
+  "statistics": {
+    "chart": {
+      "amount": "Поточні витрати",
+      "average": "Середні витрати"
     }
   }
 }

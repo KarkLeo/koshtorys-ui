@@ -71,7 +71,6 @@ const validateForm = async () => {
     return true
     // eslint-disable-next-line
   } catch (validationErrors: any) {
-    console.log('validationErrors', validationErrors)
     errors.value = (validationErrors as ValidationError).inner.reduce(
       // eslint-disable-next-line
       (acc: Record<string, string>, error: any) => {

@@ -199,6 +199,8 @@ export type Query = {
   planning: Array<Planning>;
   repeatingPlanning: Array<Planning>;
   transactions: Array<Transaction>;
+  transactionsByCategory: Array<TransactionsByCategoriesOutput>;
+  transactionsByMonthDay: Array<TransactionsByMonthDayOutput>;
 };
 
 
@@ -261,6 +263,20 @@ export type TransactionInput = {
   date: Scalars['DateTime']['input'];
   description: Scalars['String']['input'];
   planningId?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type TransactionsByCategoriesOutput = {
+  __typename?: 'TransactionsByCategoriesOutput';
+  average: Scalars['Float']['output'];
+  categoryId: Scalars['String']['output'];
+};
+
+export type TransactionsByMonthDayOutput = {
+  __typename?: 'TransactionsByMonthDayOutput';
+  average: Scalars['Float']['output'];
+  count_of_month: Scalars['Int']['output'];
+  period_index: Scalars['Int']['output'];
+  total: Scalars['Float']['output'];
 };
 
 export type UpdateProfileInput = {
@@ -437,6 +453,11 @@ export type SettingsStatisticsMutationVariables = Exact<{
 
 
 export type SettingsStatisticsMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserWithoutPasswordModel', id: string, name: string, email: string, lang?: string | null, currency: string, onboardingAt?: any | null, monthlyBudget: number, monthStartDay: number } };
+
+export type TransactionStatisticQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TransactionStatisticQuery = { __typename?: 'Query', transactionsByCategory: Array<{ __typename?: 'TransactionsByCategoriesOutput', categoryId: string, average: number }>, transactionsByMonthDay: Array<{ __typename?: 'TransactionsByMonthDayOutput', period_index: number, count_of_month: number, total: number, average: number }> };
 
 export type TransactionsQueryVariables = Exact<{
   startDate: Scalars['DateTime']['input'];

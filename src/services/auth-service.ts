@@ -97,7 +97,7 @@ const AuthService = {
       }
       return null
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   },
 

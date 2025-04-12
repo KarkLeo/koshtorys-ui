@@ -14,6 +14,8 @@ import type {
   Transaction,
   TransactionsQuery,
   TransactionsQueryVariables,
+  TransactionStatisticQuery,
+  TransactionStatisticQueryVariables,
   UpdateTransactionMutation,
   UpdateTransactionMutationVariables,
 } from '@/graphql/types.ts'
@@ -22,6 +24,7 @@ import DELETE_TRANSACTION from '@/graphql/delete-transaction.graphql'
 import UPDATE_TRANSACTION from '@/graphql/update-transaction.graphql'
 import TRANSACTIONS from '@/graphql/transactions.graphql'
 import PLANNING from '@/graphql/planning.graphql'
+import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
 
 export function useCreateTransaction() {
   const { me } = useMe()
@@ -216,7 +219,6 @@ export function useUpdateTransaction() {
       )
       const statisticDateRange = getDateRangeByDate(statisticDate.value, me.value?.me.monthStartDay)
       const isDifferentLists = startDate.getTime() !== statisticDateRange.startDate.getTime()
-      console.log('isDifferentLists', isDifferentLists)
 
       // ===== Update transactions =====
       try {
@@ -368,6 +370,24 @@ export function useTransactionList() {
 
   return {
     transactions: result,
+    loading,
+  }
+}
+
+export function useTransactionsStatistic() {
+  const { result, loading } = useQuery<
+    TransactionStatisticQuery,
+    TransactionStatisticQueryVariables
+  >(
+    TRANSACTIONS_STATISTIC,
+    {},
+    {
+      fetchPolicy: 'cache-first',
+    },
+  )
+
+  return {
+    transactionsStatistic: result,
     loading,
   }
 }

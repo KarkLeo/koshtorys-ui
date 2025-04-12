@@ -48,7 +48,6 @@ const removeOtherRepeatingPlanning = (
         const year = parseInt(match[2], 10)
 
         if (monthIndex !== currentMonthIndex || year !== currentYear) {
-          console.log('evict', monthIndex, year)
           cache.evict({
             id: 'ROOT_QUERY',
             fieldName: 'repeatingPlanning',
