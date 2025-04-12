@@ -51,7 +51,6 @@ const validateForm = async () => {
 }
 
 const update = async () => {
-  console.log('update')
   try {
     const isValid = await validateForm()
     if (!isValid) return

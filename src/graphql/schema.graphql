@@ -108,6 +108,8 @@ type Query {
   planning(monthIndex: Float!, year: Float!): [Planning!]!
   repeatingPlanning(monthIndex: Float!, year: Float!): [Planning!]!
   transactions(endDate: DateTime!, startDate: DateTime!): [Transaction!]!
+  transactionsByCategory: [TransactionsByCategoriesOutput!]!
+  transactionsByMonthDay: [TransactionsByMonthDayOutput!]!
 }
 
 input SignInInput {
@@ -146,6 +148,18 @@ input TransactionInput {
   date: DateTime!
   description: String!
   planningId: Float
+}
+
+type TransactionsByCategoriesOutput {
+  average: Float!
+  categoryId: String!
+}
+
+type TransactionsByMonthDayOutput {
+  average: Float!
+  count_of_month: Int!
+  period_index: Int!
+  total: Float!
 }
 
 input UpdateProfileInput {

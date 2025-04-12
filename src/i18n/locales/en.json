@@ -446,9 +446,16 @@
     }
   },
   "dashboard": {
-    "tabs":{
+    "tabs": {
       "transactions": "Transactions",
-      "planning": "Planning"
+      "planning": "Planning",
+      "statistics": "Statistics"
+    }
+  },
+  "statistics": {
+    "chart": {
+      "amount": "Current amount",
+      "average": "Average"
     }
   }
 }

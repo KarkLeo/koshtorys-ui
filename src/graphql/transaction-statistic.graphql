@@ -1,0 +1,12 @@
+query TransactionStatistic {
+  transactionsByCategory {
+    categoryId
+    average
+  }
+  transactionsByMonthDay {
+    period_index
+    count_of_month
+    total
+    average
+  }
+}
