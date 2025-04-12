@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import KitTabs from '@/components/kit/KitTabs.vue'
-import { DASHBOARD_TABS } from '@/constants/dashbord.ts'
+import { DASHBOARD_TABS } from '@/constants/dashboard.ts'
 </script>
 
 <template>

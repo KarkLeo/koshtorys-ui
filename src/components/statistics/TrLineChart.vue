@@ -11,7 +11,7 @@ import {
   DatasetComponent,
   GridComponent,
 } from 'echarts/components'
-import { useTransactionStatisticsMapper } from '@/mappers/transaciton-statistics-mapper.ts'
+import { useTransactionStatisticsMapper } from '@/mappers/transaction-statistics-mapper.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useI18n } from 'vue-i18n'
