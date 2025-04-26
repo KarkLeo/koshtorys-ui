@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import IconChevronDown from '@/components/icons/IconChevronDown.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 
@@ -18,6 +18,12 @@ const listRef = ref<HTMLElement | null>(null)
 const selectedIndex = ref<number>(-1)
 const isPositionTopOfPage = ref<boolean>(true)
 const maxVisibleHeight = ref<number>(320)
+const dropdownMenuPosition = ref<{ top: number; left: number; width: number; height: number }>({
+  top: 0,
+  left: 0,
+  width: 0,
+  height: 0,
+})
 
 const toggleDropdown = async () => {
   isOpen.value = !isOpen.value
@@ -76,12 +82,35 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+const updateDropdownMenuPosition = () => {
+  const buttonEl = buttonRef.value
+  if (buttonEl) {
+    const rect = buttonEl.getBoundingClientRect()
+    dropdownMenuPosition.value = {
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+      height: rect.height,
+    }
+  }
+}
+
+watch(isOpen, (open) => {
+  if (open) {
+    nextTick(() => {
+      updateDropdownMenuPosition()
+    })
+  }
+})
+
 onMounted(() => {
   checkPositionOnPage()
   document.addEventListener('click', handleClickOutside)
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', checkPositionOnPage)
   }
+  window.addEventListener('resize', updateDropdownMenuPosition)
+  window.addEventListener('scroll', updateDropdownMenuPosition, true)
 })
 
 onBeforeUnmount(() => {
@@ -89,6 +118,8 @@ onBeforeUnmount(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', checkPositionOnPage)
   }
+  window.removeEventListener('resize', updateDropdownMenuPosition)
+  window.removeEventListener('scroll', updateDropdownMenuPosition, true)
 })
 </script>
 
@@ -113,29 +144,44 @@ onBeforeUnmount(() => {
       <IconChevronDown class="chevron" />
       <span class="outline"></span>
     </button>
-    <ul
-      v-if="isOpen"
-      class="dropdown-menu"
-      role="listbox"
-      tabindex="0"
-      @keydown="handleKeyDown"
-      ref="listRef"
-    >
-      <li v-for="(option, index) in options" :key="index" class="dropdown-item">
-        <button
-          type="button"
-          role="option"
-          :aria-selected="selectedIndex === index"
-          tabindex="-1"
-          :class="{ selected: selectedIndex === index }"
-          class="dropdown-item-handler"
-          @click="selectOption(option, index)"
+    <teleport to="body">
+      <div
+        class="dropdown-menu-wrapper"
+        v-if="isOpen"
+        :style="{
+          position: 'absolute',
+          zIndex: 9999,
+          top: dropdownMenuPosition.top + 'px',
+          left: dropdownMenuPosition.left + 'px',
+          width: dropdownMenuPosition.width + 'px',
+          height: dropdownMenuPosition.height + 'px',
+        }"
+        :class="[{ 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage }]"
+      >
+        <ul
+          class="dropdown-menu"
+          role="listbox"
+          tabindex="0"
+          @keydown="handleKeyDown"
+          ref="listRef"
         >
-          <span class="option">{{ getOptionLabel ? getOptionLabel(option) : option }}</span>
-          <IconCheck v-if="option === model" class="check" />
-        </button>
-      </li>
-    </ul>
+          <li v-for="(option, index) in options" :key="index" class="dropdown-item">
+            <button
+              type="button"
+              role="option"
+              :aria-selected="selectedIndex === index"
+              tabindex="-1"
+              :class="{ selected: selectedIndex === index }"
+              class="dropdown-item-handler"
+              @click="selectOption(option, index)"
+            >
+              <span class="option">{{ getOptionLabel ? getOptionLabel(option) : option }}</span>
+              <IconCheck v-if="option === model" class="check" />
+            </button>
+          </li>
+        </ul>
+      </div>
+    </teleport>
   </div>
 </template>
 
