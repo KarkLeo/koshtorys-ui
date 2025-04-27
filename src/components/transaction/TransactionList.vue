@@ -65,11 +65,24 @@ const list = computed<ExtendedTransaction[]>(() => {
           originalAmount: transaction.amount,
           originalCurrency: transaction.currency,
           date: new Date(transaction.date),
+          createdAt: new Date(transaction.createdAt),
         }
       }
-      return { ...transaction, date: new Date(transaction.date) }
+      return {
+        ...transaction,
+        date: new Date(transaction.date),
+        createdAt: new Date(transaction.createdAt),
+      }
     })
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .sort((a, b) => {
+      const aTime = new Date(a.date).setHours(0, 0, 0, 0)
+      const bTime = new Date(b.date).setHours(0, 0, 0, 0)
+
+      if (aTime === bTime) {
+        return b.createdAt.getTime() - a.createdAt.getTime()
+      }
+      return bTime - aTime
+    })
 })
 
 const sum = computed(() => {

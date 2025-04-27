@@ -465,7 +465,7 @@ export type TransactionsQueryVariables = Exact<{
 }>;
 
 
-export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, planningId?: number | null, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } }> };
+export type TransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, amount: number, currency: string, date: any, description?: string | null, categoryId?: string | null, planningId?: number | null, createdAt: any, exchangeRate: { __typename?: 'ExchangeRate', id: string, base: string, date: any, rates: any } }> };
 
 export type UpdatePlanningMutationVariables = Exact<{
   planningData: PlanningInput;
