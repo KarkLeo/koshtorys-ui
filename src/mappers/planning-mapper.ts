@@ -206,7 +206,7 @@ export const usePlanningMapper = () => {
       .filter(
         (transaction) =>
           !transaction?.planning ||
-          !planningCategories?.[transaction?.categoryId],
+          (transaction.categoryId && !planningCategories[transaction.categoryId]),
       )
       .reduce((acc, transaction) => {
         return (
