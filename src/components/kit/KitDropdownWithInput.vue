@@ -209,8 +209,8 @@ const handleInput = () => {
             class="dropdown-item-handler"
             @click.prevent="selectOption(option, index)"
           >
+            <span v-if="withDot" class="dropdown-item-dot" :style="getOptionStyle(option)" />
             <span class="option">
-              <span v-if="withDot" class="dot" :style="getOptionStyle(option)" />
               {{ getOptionLabel(option) }}
             </span>
             <IconCheck v-if="option === model" class="check" />
