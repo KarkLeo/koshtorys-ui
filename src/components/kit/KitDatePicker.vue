@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue'
 
 import KitButton from '@/components/kit/KitButton.vue'
 import KitIconButton from '@/components/kit/KitIconButton.vue'
@@ -25,6 +25,12 @@ const isOpen = ref<boolean>(false)
 const datePickerRef = ref<HTMLElement | null>(null)
 const isPositionTopOfPage = ref<boolean>(true)
 const isPositionLeftOfPage = ref<boolean>(true)
+const calendarPosition = ref<{ top: number; left: number; width: number; height: number }>({
+  top: 0,
+  left: 0,
+  width: 0,
+  height: 0,
+})
 
 const selectDate = (day: number) => {
   isOpen.value = false
@@ -101,12 +107,35 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+const updateCalendarPosition = () => {
+  const buttonEl = datePickerRef.value
+  if (buttonEl) {
+    const rect = buttonEl.getBoundingClientRect()
+    calendarPosition.value = {
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+      height: rect.height,
+    }
+  }
+}
+
+watch(isOpen, (open) => {
+  if (open) {
+    nextTick(() => {
+      updateCalendarPosition()
+    })
+  }
+})
+
 onMounted(() => {
   checkPositionOnPage()
   document.addEventListener('click', handleClickOutside)
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', checkPositionOnPage)
   }
+  window.addEventListener('resize', updateCalendarPosition)
+  window.addEventListener('scroll', updateCalendarPosition, true)
 })
 
 onBeforeUnmount(() => {
@@ -114,6 +143,8 @@ onBeforeUnmount(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', checkPositionOnPage)
   }
+  window.removeEventListener('resize', updateCalendarPosition)
+  window.removeEventListener('scroll', updateCalendarPosition, true)
 })
 </script>
 
@@ -153,35 +184,58 @@ onBeforeUnmount(() => {
         {{ $t('calendar.placeholder') }}
       </span>
     </KitButton>
-    <div v-if="isOpen" class="date-picker-calendar">
-      <div class="date-picker-calendar-header">
-        <KitIconButton @click="changeMonth(-1)" size="md">
-          <IconChevronLeft />
-        </KitIconButton>
-        <span class="date-picker-calendar-header-title">
-          {{ $t(`calendar.months.${displayedMonth + 1}`) }} {{ displayedYear }}
-        </span>
-        <KitIconButton @click="changeMonth(1)" size="md">
-          <IconChevronRight />
-        </KitIconButton>
-      </div>
+    <teleport to="body">
+      <div
+        v-if="isOpen"
+        class="date-picker-calendar-wrapper"
+        :style="{
+          position: 'absolute',
+          zIndex: 9999,
+          top: calendarPosition.top + 'px',
+          left: calendarPosition.left + 'px',
+          width: calendarPosition.width + 'px',
+          height: calendarPosition.height + 'px',
+        }"
+        :class="[
+          {
+            'on-top': isPositionTopOfPage,
+            'on-bottom': !isPositionTopOfPage,
+            'on-left': isPositionLeftOfPage,
+            'on-right': !isPositionLeftOfPage,
+          },
+        ]"
+      >
+        <div class="date-picker-calendar">
+          <div class="date-picker-calendar-header">
+            <KitIconButton @click="changeMonth(-1)" size="md">
+              <IconChevronLeft />
+            </KitIconButton>
+            <span class="date-picker-calendar-header-title">
+              {{ $t(`calendar.months.${displayedMonth + 1}`) }} {{ displayedYear }}
+            </span>
+            <KitIconButton @click="changeMonth(1)" size="md">
+              <IconChevronRight />
+            </KitIconButton>
+          </div>
 
-      <div class="date-picker-calendar-grid">
-        <div v-for="weekday in 7" :key="weekday" class="date-picker-calendar-weekday">
-          {{ $t(`calendar.days.${weekday}`) }}
+          <div class="date-picker-calendar-grid">
+            <div v-for="weekday in 7" :key="weekday" class="date-picker-calendar-weekday">
+              {{ $t(`calendar.days.${weekday}`) }}
+            </div>
+            <div v-for="empty in firstDayOfMonth - 1" :key="'empty-' + empty" class="empty" />
+            <button
+              v-for="day in daysInMonth"
+              :class="['date-picker-calendar-day', { selected: isSelected(day) }]"
+              :key="day"
+              @click="selectDate(day)"
+              :disabled="!validateDate(day)"
+            >
+              {{ day }}
+            </button>
+          </div>
         </div>
-        <div v-for="empty in firstDayOfMonth - 1" :key="'empty-' + empty" class="empty" />
-        <button
-          v-for="day in daysInMonth"
-          :class="['date-picker-calendar-day', { selected: isSelected(day) }]"
-          :key="day"
-          @click="selectDate(day)"
-          :disabled="!validateDate(day)"
-        >
-          {{ day }}
-        </button>
       </div>
-    </div>
+    </teleport>
   </div>
 </template>
 

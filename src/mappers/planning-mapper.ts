@@ -11,8 +11,8 @@ import { useMe } from '@/hooks/auth-hooks.ts'
 import {
   type ExchangeRate,
   type Planning,
-  type Transaction,
   PlanningType,
+  type Transaction,
 } from '@/graphql/types.ts'
 
 import {
@@ -25,7 +25,7 @@ import {
 import { getMainCategory } from '@/helpers/category.ts'
 
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
-import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
+import { CURRENCIES_SYMBOL, CURRENCIES } from '@/constants/currencies.ts'
 
 // ===== Types =====
 
@@ -190,6 +190,36 @@ export const usePlanningMapper = () => {
       0,
     )
 
+    const planningCategories = (planning?.value?.planning as Planning[])
+      .filter((planning) => planning.type === PlanningType.Category)
+      .reduce(
+        (acc, planning) => {
+          if (planning.categoryId && !acc[planning.categoryId]) {
+            acc[planning.categoryId] = planning
+          }
+          return acc
+        },
+        {} as Record<string, Planning>,
+      )
+
+    const freeTransactionsAmount = (transactions.value.transactions as Transaction[])
+      .filter(
+        (transaction) =>
+          !transaction?.planning ||
+          !planningCategories?.[transaction?.categoryId],
+      )
+      .reduce((acc, transaction) => {
+        return (
+          acc +
+          getExchangedAmount(
+            transaction.exchangeRate,
+            transaction.amount,
+            transaction.currency,
+            me.value?.me.currency || CURRENCIES[0],
+          )
+        )
+      }, 0)
+
     const freeMoney =
       monthlyBudget -
       preparedPlannings.reduce(
@@ -199,7 +229,8 @@ export const usePlanningMapper = () => {
             ? planningItem.transactionsAmount
             : planningItem.amount),
         0,
-      )
+      ) -
+      freeTransactionsAmount
 
     const remainingToPay = preparedPlannings.reduce((acc, planningItem) => {
       if (planningItem.type === 'TRANSACTION' && planningItem.transactionsAmount) return acc

@@ -13,5 +13,6 @@ query Transactions($startDate: DateTime!, $endDate: DateTime!) {
       rates
     }
     planningId
+    createdAt
   }
 }

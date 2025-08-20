@@ -29,6 +29,26 @@ const isFiltered = ref(false)
 const isPositionTopOfPage = ref<boolean>(true)
 const maxVisibleHeight = ref<number>(360)
 
+const dropdownMenuPosition = ref<{ top: number; left: number; width: number; height: number }>({
+  top: 0,
+  left: 0,
+  width: 0,
+  height: 0,
+})
+
+const updateDropdownMenuPosition = () => {
+  const inputEl = dropdownRef.value as HTMLElement | null
+  if (inputEl) {
+    const rect = inputEl.getBoundingClientRect()
+    dropdownMenuPosition.value = {
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+      height: rect.height,
+    }
+  }
+}
+
 const toggleDropdown = async () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
@@ -36,6 +56,7 @@ const toggleDropdown = async () => {
     await nextTick()
     searchRef.value?.focus()
     selectedIndex.value = options.indexOf(model.value ?? '')
+    updateDropdownMenuPosition()
   } else {
     search.value = model?.value ? getOptionLabel(model.value) : ''
     isFiltered.value = false
@@ -90,12 +111,22 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+watch(isOpen, (open) => {
+  if (open) {
+    nextTick(() => {
+      updateDropdownMenuPosition()
+    })
+  }
+})
+
 onMounted(() => {
   checkPositionOnPage()
   document.addEventListener('click', handleClickOutside)
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', checkPositionOnPage)
   }
+  window.addEventListener('resize', updateDropdownMenuPosition)
+  window.addEventListener('scroll', updateDropdownMenuPosition, true)
 })
 
 onBeforeUnmount(() => {
@@ -103,6 +134,8 @@ onBeforeUnmount(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', checkPositionOnPage)
   }
+  window.removeEventListener('resize', updateDropdownMenuPosition)
+  window.removeEventListener('scroll', updateDropdownMenuPosition, true)
 })
 
 watch(model, () => {
@@ -144,29 +177,48 @@ const handleInput = () => {
       <IconChevronDown class="chevron" />
       <div class="outline" />
     </div>
-    <ul v-if="isOpen" class="dropdown-menu" role="listbox" tabindex="0" @keydown="handleKeyDown">
-      <li
-        v-for="(option, index) in filteredOptions"
-        :key="index"
-        :class="['dropdown-item', getOptionClass(option)]"
-        :style="getOptionStyle(option)"
-      >
-        <button
-          type="button"
-          role="option"
-          :aria-selected="selectedIndex === index"
-          tabindex="-1"
-          :class="{ selected: selectedIndex === index }"
-          class="dropdown-item-handler"
-          @click.prevent="selectOption(option, index)"
-        >
-          <span v-if="withDot" class="dropdown-item-dot" />
-          <span class="option">{{ getOptionLabel(option) }}</span>
-          <IconCheck v-if="option === model" class="check" />
-        </button>
-      </li>
-    </ul>
   </div>
+  <teleport to="body">
+    <div
+      v-if="isOpen"
+      class="dropdown-menu-wrapper"
+      :style="{
+        position: 'absolute',
+        zIndex: 9999,
+        top: dropdownMenuPosition.top + 'px',
+        left: dropdownMenuPosition.left + 'px',
+        width: dropdownMenuPosition.width + 'px',
+        height: dropdownMenuPosition.height + 'px',
+        '--max-height': `${maxVisibleHeight}px`,
+      }"
+      :class="[{ 'on-top': isPositionTopOfPage, 'on-bottom': !isPositionTopOfPage }]"
+    >
+      <ul class="dropdown-menu" role="listbox" tabindex="0" @keydown="handleKeyDown">
+        <li
+          v-for="(option, index) in filteredOptions"
+          :key="index"
+          :class="['dropdown-item', getOptionClass(option)]"
+          :style="getOptionStyle(option)"
+        >
+          <button
+            type="button"
+            role="option"
+            :aria-selected="selectedIndex === index"
+            tabindex="-1"
+            :class="{ selected: selectedIndex === index }"
+            class="dropdown-item-handler"
+            @click.prevent="selectOption(option, index)"
+          >
+            <span class="option">
+              <span v-if="withDot" class="dot" :style="getOptionStyle(option)" />
+              {{ getOptionLabel(option) }}
+            </span>
+            <IconCheck v-if="option === model" class="check" />
+          </button>
+        </li>
+      </ul>
+    </div>
+  </teleport>
 </template>
 
 <style scoped>
