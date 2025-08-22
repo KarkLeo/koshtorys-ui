@@ -23,6 +23,7 @@ const displayedMonth = ref<number>(currentDate.value.getMonth())
 const displayedYear = ref<number>(currentDate.value.getFullYear())
 const isOpen = ref<boolean>(false)
 const datePickerRef = ref<HTMLElement | null>(null)
+const datePickerModalRef = ref<HTMLElement | null>(null)
 const isPositionTopOfPage = ref<boolean>(true)
 const isPositionLeftOfPage = ref<boolean>(true)
 const calendarPosition = ref<{ top: number; left: number; width: number; height: number }>({
@@ -102,7 +103,12 @@ const handleOpen = () => {
 }
 
 const handleClickOutside = (event: MouseEvent) => {
-  if (datePickerRef.value && !datePickerRef?.value.contains(event.target as Node)) {
+  if (
+    datePickerRef.value &&
+    !datePickerRef?.value.contains(event.target as Node) &&
+    datePickerModalRef.value &&
+    !datePickerModalRef?.value.contains(event.target as Node)
+  ) {
     isOpen.value = false
   }
 }
@@ -186,6 +192,7 @@ onBeforeUnmount(() => {
     </KitButton>
     <teleport to="body">
       <div
+        ref="datePickerModalRef"
         v-if="isOpen"
         class="date-picker-calendar-wrapper"
         :style="{
