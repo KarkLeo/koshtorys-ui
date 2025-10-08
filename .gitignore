@@ -31,4 +31,4 @@ coverage
 
 .env
 
-./keys
+keys/
