@@ -4,6 +4,10 @@ WORKDIR /app
 
 RUN apk add --no-cache libc6-compat
 
+ARG VITE_GRAPHQL_ENDPOINT
+ENV VITE_GRAPHQL_ENDPOINT=$VITE_GRAPHQL_ENDPOINT
+
+
 COPY package*.json ./
 RUN npm ci
 
