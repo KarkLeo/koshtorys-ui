@@ -233,7 +233,12 @@ export const usePlanningMapper = () => {
       freeTransactionsAmount
 
     const remainingToPay = preparedPlannings.reduce((acc, planningItem) => {
-      if (planningItem.type === 'TRANSACTION' && planningItem.transactionsAmount) return acc
+      if (planningItem.type === 'TRANSACTION' && planningItem.transactionsAmount) {
+        // Only exclude fully paid transactions from remainingToPay
+        if (planningItem.transactionsAmount >= planningItem.amount) return acc
+        // For partially paid transactions, add the remaining amount
+        return acc + planningItem.amount - planningItem.transactionsAmount
+      }
 
       if (planningItem.type === 'CATEGORY' && planningItem.transactionsAmount)
         return acc + planningItem.amount - planningItem.transactionsAmount
