@@ -5,6 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import vue from '@vitejs/plugin-vue'
 import graphql from '@rollup/plugin-graphql'
+import tailwindcss from '@tailwindcss/vite'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 const buildDate = new Date().toISOString()
@@ -14,6 +15,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    tailwindcss(),
     graphql(),
     VitePWA({
       registerType: 'autoUpdate',

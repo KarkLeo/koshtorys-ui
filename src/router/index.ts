@@ -6,6 +6,7 @@ import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 
 import apolloClient from '@/apolloClient.ts'
 import type { MeQuery } from '@/graphql/types.ts'
@@ -50,6 +51,11 @@ const router = createRouter({
       name: 'settings',
       component: SettingsView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/shadcn-demo',
+      name: 'shadcn-demo',
+      component: ShadcnDemoView,
     },
     // {
     //   path: '/about',
