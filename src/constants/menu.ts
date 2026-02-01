@@ -1,14 +1,13 @@
-import IconHome from '@/components/icons/IconHome.vue'
-import IconSettings from '@/components/icons/IconSettings.vue'
+import { House, Settings } from 'lucide-vue-next'
 
 export const MENU = [
   {
-    icon: IconHome,
+    icon: House,
     name: 'dashboard',
     path: '/dashboard',
   },
   {
-    icon: IconSettings,
+    icon: Settings,
     name: 'settings',
     path: '/settings',
   },

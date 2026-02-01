@@ -6,11 +6,11 @@ import { useRouter } from 'vue-router'
 
 import { loginSchema } from '@/validations/login.ts'
 import { useMe, useSignIn } from '@/hooks/auth-hooks.ts'
-
-import KitFieldWrapper from '@/components/kit/KitFieldWrapper.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitButton from '@/components/kit/KitButton.vue'
 import { useToastStore } from '@/stores/toastStore.ts'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const { signIn } = useSignIn()
 const { refreshMe } = useMe()
@@ -93,115 +93,57 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="form-wrapper">
-    <h1 class="title">{{ $t('login.title') }}</h1>
-    <p class="description">
+  <div class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-6 md:px-8">
+    <h1 class="mb-3 text-3xl font-semibold text-foreground">{{ $t('login.title') }}</h1>
+    <p class="mb-8 text-base text-muted-foreground">
       {{ $t('login.description') }}
     </p>
 
-    <form @submit.prevent="login" class="form">
-      <kit-field-wrapper
-        required
-        :label="$t('login.fields.email.label')"
-        :error="Boolean(errors?.email)"
-        :message="errors?.email ? $t(`login.fields.email.errors.${errors.email}`) : ''"
-      >
-        <KitInput
+    <form @submit.prevent="login" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <Label :class="{ 'text-destructive': Boolean(errors?.email) }">
+          {{ $t('login.fields.email.label') }} <span class="text-destructive">*</span>
+        </Label>
+        <Input
           v-model="email"
           type="email"
           :placeholder="$t('login.fields.email.placeholder')"
           @blur="validateField('email')"
-          :error="Boolean(errors?.email)"
+          :aria-invalid="Boolean(errors?.email)"
           autocomplete="email"
         />
-      </kit-field-wrapper>
-      <kit-field-wrapper
-        required
-        :label="$t('login.fields.password.label')"
-        :error="Boolean(errors?.password)"
-        :message="errors?.password ? $t(`login.fields.password.errors.${errors.password}`) : ''"
-      >
-        <KitInput
+        <p v-if="errors?.email" class="text-sm text-destructive">
+          {{ $t(`login.fields.email.errors.${errors.email}`) }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <Label :class="{ 'text-destructive': Boolean(errors?.password) }">
+          {{ $t('login.fields.password.label') }} <span class="text-destructive">*</span>
+        </Label>
+        <Input
           v-model="password"
           type="password"
           :placeholder="$t('login.fields.password.placeholder')"
           @blur="validateField('password')"
-          :error="Boolean(errors?.password)"
+          :aria-invalid="Boolean(errors?.password)"
           autocomplete="current-password"
         />
-      </kit-field-wrapper>
-      <div class="buttons">
-        <KitButton type="submit">{{ $t('login.submit') }}</KitButton>
+        <p v-if="errors?.password" class="text-sm text-destructive">
+          {{ $t(`login.fields.password.errors.${errors.password}`) }}
+        </p>
       </div>
-      <p class="sub-form">
+
+      <div class="mt-2 flex flex-col">
+        <Button type="submit" class="w-full">{{ $t('login.submit') }}</Button>
+      </div>
+
+      <p class="mt-6 text-center text-sm text-muted-foreground">
         {{ $t('login.sub_form.title') }}{{ ' ' }}
-        <router-link to="/register" class="link"> {{ $t('login.sub_form.link') }} </router-link>
+        <router-link to="/register" class="font-medium text-primary underline-offset-4 hover:underline">
+          {{ $t('login.sub_form.link') }}
+        </router-link>
       </p>
     </form>
   </div>
 </template>
-
-<style scoped>
-.form-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: calc(var(--width-xs) + 2 * var(--spacing-xl));
-  width: 100%;
-  margin: 0 auto;
-  flex-grow: 1;
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-}
-
-.title {
-  margin: 0 0 var(--spacing-lg);
-
-  font-size: var(--font-size-display-sm);
-  line-height: var(--line-height-display-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-}
-
-.description {
-  margin: 0 0 var(--spacing-4xl);
-
-  font-size: var(--font-size-text-md);
-  line-height: var(--line-height-text-md);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-tertiary);
-}
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.buttons {
-  margin-top: var(--spacing-xs);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xl);
-}
-
-.sub-form {
-  margin: var(--spacing-4xl) 0 0;
-
-  font-size: var(--font-size-text-sm);
-  line-height: var(--line-height-text-sm);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-tertiary);
-  text-align: center;
-}
-.sub-form a {
-  color: var(--fg-brand-primary_alt);
-  text-decoration: none;
-}
-
-@media screen and (min-width: 768px) {
-  .form-wrapper {
-    max-width: calc(var(--width-xs) + 2 * var(--spacing-4xl));
-    padding: var(--spacing-4xl);
-  }
-}
-</style>

@@ -19,10 +19,10 @@ watch(me, (newVal) => {
 </script>
 
 <template>
-  <MainHeader />
-  <router-view />
-  <MainFooter />
-  <MainToasts />
+  <div class="flex min-h-screen flex-col bg-background text-foreground">
+    <MainHeader />
+    <router-view class="flex-1" />
+    <MainFooter />
+    <MainToasts />
+  </div>
 </template>
-
-<style scoped></style>

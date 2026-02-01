@@ -1,48 +1,25 @@
 <script setup lang="ts">
-import KitButton from '@/components/kit/KitButton.vue'
+import { Button } from '@/components/ui/button'
 
 const version = __APP_VERSION__
 </script>
 
 <template>
-  <main>
-    <h1 class="title">🤑Koshtorys</h1>
-    <h2 class="sub-title">Development test: v{{ version }}</h2>
+  <main class="flex flex-1 flex-col items-center justify-center px-4">
+    <h1 class="mt-6 text-center text-5xl font-semibold">
+      <span class="mr-1">&#x1F911;</span>Koshtorys
+    </h1>
+    <h2 class="mb-6 mt-0 text-center text-base font-semibold text-foreground">
+      Development test: v{{ version }}
+    </h2>
 
-    <div class="row">
+    <div class="mt-8 flex items-center justify-center gap-4">
       <router-link to="/login">
-        <KitButton>{{ $t('login.title') }}</KitButton>
+        <Button>{{ $t('login.title') }}</Button>
       </router-link>
       <router-link to="/register">
-        <KitButton variant="secondary-gray">{{ $t('register.title') }}</KitButton>
+        <Button variant="outline">{{ $t('register.title') }}</Button>
       </router-link>
     </div>
   </main>
 </template>
-
-<style scoped>
-.title {
-  margin: var(--spacing-xl) auto 0;
-
-  font-size: var(--font-size-display-lg);
-  line-height: var(--line-height-display-lg);
-  font-weight: var(--font-weight-semibold);
-  text-align: center;
-}
-.sub-title {
-  margin: 0 auto var(--spacing-xl);
-
-  font-size: var(--font-size-text-md);
-  line-height: var(--line-height-text-md);
-  font-weight: var(--font-weight-semibold);
-  text-align: center;
-}
-
-.row {
-  margin: var(--spacing-4xl) auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xl);
-}
-</style>
