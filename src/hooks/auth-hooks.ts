@@ -1,45 +1,33 @@
+import { ref } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 
 import type {
-  LoginMutation,
-  LoginMutationVariables,
-  LogoutMutation,
-  LogoutMutationVariables,
   MeQuery,
   OnboardingMutation,
   OnboardingMutationVariables,
-  RefreshTokensMutation,
-  RefreshTokensMutationVariables,
-  RegistrationMutation,
-  RegistrationMutationVariables,
   SettingsGeneralMutation,
   SettingsGeneralMutationVariables,
   SettingsStatisticsMutation,
   SettingsStatisticsMutationVariables,
 } from '@/graphql/types'
 
-import REGISTRATION from '@/graphql/registration.graphql'
-import LOGIN from '@/graphql/login.graphql'
 import ME from '@/graphql/me.graphql'
-import REFRESH_TOKENS from '@/graphql/refresh-tokens.graphql'
-import LOGOUT from '@/graphql/logout.graphql'
 import ONBOARDING from '@/graphql/onboarding.graphql'
 import SETTINGS_GENERAL from '@/graphql/settings-general.graphql'
 import SETTINGS_STATISTICS from '@/graphql/settings-statistics.graphql'
 
-import TokensService from '@/services/tokens-service'
+import { authApi } from '@/api/auth'
+import apolloClient from '@/apolloClient'
 
 export function useSignUp() {
-  const { mutate, loading } = useMutation<RegistrationMutation, RegistrationMutationVariables>(
-    REGISTRATION,
-  )
+  const loading = ref(false)
 
-  const signUp = async (variables: RegistrationMutationVariables) => {
+  const signUp = async (variables: { name: string; email: string; password: string; lang: string }) => {
+    loading.value = true
     try {
-      const result = await mutate(variables)
-      return result?.data?.signUp || null
-    } catch (e) {
-      throw e
+      return await authApi.signUp(variables)
+    } finally {
+      loading.value = false
     }
   }
 
@@ -47,22 +35,16 @@ export function useSignUp() {
 }
 
 export const useSignIn = () => {
-  const { mutate, loading } = useMutation<LoginMutation, LoginMutationVariables>(LOGIN, {
-    fetchPolicy: 'no-cache',
-  })
+  const loading = ref(false)
 
-  const signIn = async (variables: LoginMutationVariables) => {
+  const signIn = async (variables: { email: string; password: string }) => {
+    loading.value = true
     try {
-      const result = await mutate(variables)
-      if (result?.data?.signIn) {
-        TokensService.setTokens(result.data.signIn.accessToken, result.data.signIn.refreshToken)
-        return result.data.signIn
-      } else {
-        TokensService.clearTokens()
-      }
-      return null
+      return await authApi.signIn(variables)
     } catch (e) {
       throw e
+    } finally {
+      loading.value = false
     }
   }
 
@@ -70,17 +52,16 @@ export const useSignIn = () => {
 }
 
 export const useSignOut = () => {
-  const { mutate, loading } = useMutation<LogoutMutation, LogoutMutationVariables>(LOGOUT, {
-    fetchPolicy: 'no-cache',
-  })
+  const loading = ref(false)
 
   const signOut = async () => {
+    loading.value = true
     try {
-      const result = await mutate()
-      TokensService.clearTokens()
-      return result?.data?.signOut || null
-    } catch (e) {
-      throw e
+      const result = await authApi.signOut()
+      await apolloClient.clearStore()
+      return result
+    } finally {
+      loading.value = false
     }
   }
 
@@ -93,28 +74,17 @@ export const useMe = () => {
 }
 
 export const usesRefreshTokens = () => {
-  const { mutate, loading } = useMutation<RefreshTokensMutation, RefreshTokensMutationVariables>(
-    REFRESH_TOKENS,
-    { fetchPolicy: 'no-cache' },
-  )
+  const loading = ref(false)
 
   const refreshTokens = async () => {
-    const refreshToken = TokensService.getRefreshToken()
-    if (!refreshToken) return null
-
+    loading.value = true
     try {
-      const result = await mutate({ refreshToken })
-      if (result?.data?.refreshTokens) {
-        TokensService.setTokens(
-          result.data.refreshTokens.accessToken,
-          result.data.refreshTokens.refreshToken,
-        )
-        return result.data.refreshTokens
-      }
-      return null
+      const result = await authApi.refresh()
+      return result.user
     } catch (e) {
-      TokensService.clearTokens()
       throw e
+    } finally {
+      loading.value = false
     }
   }
   return { refreshTokens, loading }

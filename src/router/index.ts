@@ -8,11 +8,8 @@ import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 
-import apolloClient from '@/apolloClient.ts'
-import type { MeQuery } from '@/graphql/types.ts'
-import ME from '@/graphql/me.graphql'
+import { authApi } from '@/api/auth'
 import { ONBOARDING_UPDATED_AT } from '@/constants/meta.ts'
-import TokensService from '@/services/tokens-service.ts'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,38 +54,24 @@ const router = createRouter({
       name: 'shadcn-demo',
       component: ShadcnDemoView,
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue'),
-    // },
   ],
 })
 
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth || to.meta.requiresNoAuth) {
     try {
-      const token = TokensService.getRefreshToken()
-      if (!token) {
-        throw new Error('No token')
-      }
-      const { data } = await apolloClient.query<MeQuery>({
-        query: ME,
-      })
-      if (data.me) {
+      const user = await authApi.me()
+      if (user) {
         if (
-          (!data.me.onboardingAt ||
-            new Date(data.me.onboardingAt) < new Date(ONBOARDING_UPDATED_AT)) &&
+          (!user.onboardingAt ||
+            new Date(user.onboardingAt) < new Date(ONBOARDING_UPDATED_AT)) &&
           to.name !== 'onboarding'
         ) {
           return { name: 'onboarding' }
         }
         if (
-          (data.me.onboardingAt ||
-            new Date(data.me.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT)) &&
+          (user.onboardingAt &&
+            new Date(user.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT)) &&
           to.name === 'onboarding'
         ) {
           return { name: 'dashboard' }

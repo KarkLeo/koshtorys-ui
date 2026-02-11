@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { loginSchema } from '@/validations/login.ts'
 import { useMe, useSignIn } from '@/hooks/auth-hooks.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
+import { ApiError } from '@/api/client'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -76,16 +77,12 @@ const login = async () => {
     }
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-        if (errorCodes.form) {
-          toastStore.error(t(`login.errors.${errorCodes.form}`))
-        }
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+      if (e.errorCodes.form) {
+        toastStore.error(t(`login.errors.${e.errorCodes.form}`))
       }
-      // eslint-disable-next-line
-    } catch (e: any) {
+    } else {
       toastStore.error(t('common_errors.server_error'))
     }
   }

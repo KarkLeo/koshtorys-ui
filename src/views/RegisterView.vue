@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router'
 import { registerSchema } from '@/validations/register.ts'
 import { useSignUp } from '@/hooks/auth-hooks.ts'
 import { useToastStore } from '@/stores/toastStore.ts'
+import { ApiError } from '@/api/client'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -96,13 +97,9 @@ const register = async () => {
     }
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
       toastStore.error(t('common_errors.server_error'))
     }
   }
