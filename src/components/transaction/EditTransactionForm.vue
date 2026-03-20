@@ -5,7 +5,7 @@ import { ValidationError } from 'yup'
 
 import type { TransactionsQuery } from '@/graphql/types.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useUpdateTransaction } from '@/hooks/transaction-hooks.ts'
 import { transactionSchema } from '@/validations/transaction.ts'
@@ -39,9 +39,8 @@ const { transaction } = defineProps<{
 
 // ===== Hooks =====
 
-const toastStore = useToastStore()
 const { t } = useI18n()
-const { me } = useMe()
+const { user } = useMe()
 const { updateTransaction, loading } = useUpdateTransaction()
 
 // ===== Refs =====
@@ -51,7 +50,7 @@ const errors = ref<Record<string, string>>({})
 
 const amount = ref(String(transaction?.originalAmount || transaction.amount))
 const currency = ref(
-  transaction?.originalCurrency || transaction.currency || me.value?.me.currency || CURRENCIES[0],
+  transaction?.originalCurrency || transaction.currency || user.value?.currency || CURRENCIES[0],
 )
 const description = ref(transaction?.description || '')
 const date = ref<Date>(new Date(transaction.date))
@@ -72,7 +71,7 @@ watch(
     currency.value =
       newTransaction?.originalCurrency ||
       newTransaction.currency ||
-      me.value?.me.currency ||
+      user.value?.currency ||
       CURRENCIES[0]
     description.value = newTransaction?.description || ''
     date.value = new Date(newTransaction.date)
@@ -116,7 +115,7 @@ const clearForm = () => {
   description.value = ''
   categoryId.value = ''
   date.value = new Date()
-  currency.value = me.value?.me.currency || CURRENCIES[0]
+  currency.value = user.value?.currency || CURRENCIES[0]
   errors.value = {}
   isOpenSelectPlanningModal.value = false
   selectedPlanning.value = null
@@ -141,7 +140,7 @@ const handlerUpdateTransaction = async () => {
 
     clearForm()
     emit('closeForm')
-    toastStore.success(t('transaction.form.messages.update_success'))
+    toast.success(t('transaction.form.messages.update_success'))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -151,11 +150,11 @@ const handlerUpdateTransaction = async () => {
       }
 
       if (errorCodes.form) {
-        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+        toast.error(t(`transaction.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }

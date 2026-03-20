@@ -6,8 +6,9 @@ import type { ValidationError } from 'yup'
 
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { onboardingSchema } from '@/validations/onboarding.ts'
-import { useMe, usesOnboarding } from '@/hooks/auth-hooks.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { usesOnboarding } from '@/hooks/auth-hooks.ts'
+import { toast } from 'vue-sonner'
+import { ApiError } from '@/api/client'
 
 import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
 import KitDropdown from '@/components/kit/KitDropdown.vue'
@@ -15,9 +16,7 @@ import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
 
 const { onboarding } = usesOnboarding()
-const { refreshMe } = useMe()
 const router = useRouter()
-const toastStore = useToastStore()
 const { t } = useI18n()
 
 const currency = ref<(typeof CURRENCIES)[number]>(CURRENCIES[0])
@@ -89,20 +88,15 @@ const handleOnboarding = async () => {
     })
 
     if (data) {
-      refreshMe()
-      toastStore.success(t('onboarding.success'))
+      toast.success(t('onboarding.success'))
       await router.push('/dashboard')
     }
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
+      toast.error(t('common_errors.server_error'))
     }
   }
 }

@@ -5,7 +5,7 @@ import { ValidationError } from 'yup'
 
 import type { PlanningQuery, PlanningType } from '@/graphql/types.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import { usePlanningList, useUpdatePlanning } from '@/hooks/planning-hooks.ts'
@@ -36,8 +36,7 @@ const { planning } = defineProps<{
 // ===== Hooks =====
 
 const { t } = useI18n()
-const { me } = useMe()
-const toastStore = useToastStore()
+const { user } = useMe()
 const { updatePlanning, loading } = useUpdatePlanning()
 const { statisticDate } = useStatisticDateStore()
 const { planning: planningList } = usePlanningList()
@@ -46,7 +45,7 @@ const { planning: planningList } = usePlanningList()
 
 const type = ref<PlanningType>(planning.type as PlanningType)
 const amount = ref(String(planning.amount))
-const currency = ref(planning.currency || me.value?.me.currency || CURRENCIES[0])
+const currency = ref(planning.currency || user.value?.currency || CURRENCIES[0])
 const description = ref(planning.description || '')
 const date = ref<Date | null>(planning.date ? new Date(planning.date) : null)
 const categoryId = ref(planning.categoryId || '')
@@ -61,7 +60,7 @@ watch(
   (newPlanning) => {
     type.value = newPlanning.type as PlanningType
     amount.value = String(newPlanning.amount)
-    currency.value = newPlanning.currency || me.value?.me.currency || CURRENCIES[0]
+    currency.value = newPlanning.currency || user.value?.currency || CURRENCIES[0]
     description.value = newPlanning.description || ''
     date.value = newPlanning.date ? new Date(newPlanning.date) : null
     categoryId.value = newPlanning.categoryId || ''
@@ -72,7 +71,7 @@ watch(
 // ===== Computed =====
 
 const currentPeriod = computed(() => {
-  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
+  return getMonthPeriod(user.value?.monthStartDay, statisticDate.value)
 })
 
 // ===== Handlers and utils =====
@@ -111,7 +110,7 @@ const validateForm = async () => {
 
 const clearForm = () => {
   amount.value = ''
-  currency.value = me.value?.me.currency || CURRENCIES[0]
+  currency.value = user.value?.currency || CURRENCIES[0]
   description.value = ''
   categoryId.value = ''
   date.value = statisticDate.value
@@ -133,13 +132,13 @@ const handlerUpdatePlanning = async () => {
         description: description.value,
         categoryId: categoryId.value,
         date: date.value?.toISOString(),
-        monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
-        year: getIndexedYear(statisticDate.value, me.value?.me.monthStartDay),
+        monthIndex: getMonthIndex(statisticDate.value, user.value?.monthStartDay),
+        year: getIndexedYear(statisticDate.value, user.value?.monthStartDay),
         repeat: repeat.value,
       },
     })
     clearForm()
-    toastStore.success(t(`planning.form.messages.update_success`))
+    toast.success(t(`planning.form.messages.update_success`))
     emit('closeForm')
     // eslint-disable-next-line
   } catch (e: any) {
@@ -149,11 +148,11 @@ const handlerUpdatePlanning = async () => {
         errors.value = errorCodes
       }
       if (errorCodes.form) {
-        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+        toast.error(t(`planning.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }

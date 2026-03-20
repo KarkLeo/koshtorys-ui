@@ -9,16 +9,16 @@ import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vu
 import KitDropdown from '@/components/kit/KitDropdown.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
+import { ApiError } from '@/api/client'
 
-const { me, refreshMe } = useMe()
+const { user } = useMe()
 const { settingsGeneral } = usesSettingsGeneral()
 const { locale, availableLocales, t } = useI18n()
-const toastStore = useToastStore()
 
-const name = ref(me.value?.me.name || '')
-const email = ref(me.value?.me.email || '')
-const lang = ref(me.value?.me.lang || '')
+const name = ref(user.value?.name || '')
+const email = ref(user.value?.email || '')
+const lang = ref(user.value?.lang || '')
 const newPassword = ref('')
 const confirmNewPassword = ref('')
 const oldPassword = ref('')
@@ -78,22 +78,17 @@ const update = async () => {
     })
 
     if (data) {
-      refreshMe()
       if (data.lang === 'en' || data.lang === 'uk-UA') {
         locale.value = data.lang
       }
-      toastStore.success(t('settings.success'))
+      toast.success(t('settings.success'))
     }
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -113,8 +108,8 @@ const passwordMessage = computed(() => {
 
 const isChanged = computed(() => {
   return (
-    name.value !== me.value?.me.name ||
-    lang.value !== me.value?.me.lang ||
+    name.value !== user.value?.name ||
+    lang.value !== user.value?.lang ||
     newPassword.value !== '' ||
     confirmNewPassword.value !== '' ||
     oldPassword.value !== ''

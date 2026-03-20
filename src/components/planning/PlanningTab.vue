@@ -6,7 +6,7 @@ import type { Planning } from '@/graphql/types.ts'
 import { getChangedDateByMonthIndex, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import {
   useCanselRepeatingPlanning,
@@ -34,13 +34,12 @@ import KitPreloader from '@/components/kit/KitPreloader.vue'
 // ===== Hooks =====
 
 const { t } = useI18n()
-const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
 const { deletePlanning, loading: deleteLoading } = useDeletePlanning()
 const { repeatPlanning, loading: repeatPlanningLoading } = useRepeatPlanning()
 const { canselRepeatingPlanning, loading: canselRepeatingPlanningLoading } =
   useCanselRepeatingPlanning()
-const { me } = useMe()
+const { user } = useMe()
 
 // ===== Refs =====
 
@@ -60,18 +59,18 @@ const handleDeletePlanning = async (id: string) => {
     await deletePlanning({
       planningId: Number(id),
     })
-    toastStore.success(t('planning.form.messages.delete_success'))
+    toast.success(t('planning.form.messages.delete_success'))
     deletingPlanningId.value = null
     // eslint-disable-next-line
   } catch (e: any) {
     try {
       const errorCodes = e.cause.extensions.originalError.errorCodes
       if (errorCodes?.form) {
-        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+        toast.error(t(`planning.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -80,11 +79,11 @@ const repeatPlanningHandler = async (plan: Planning) => {
   try {
     activeRepitingPlanningId.value = plan.id
     await repeatPlanning(plan)
-    toastStore.success(t('planning.form.messages.repeat_success'))
+    toast.success(t('planning.form.messages.repeat_success'))
     activeRepitingPlanningId.value = null
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error(t('common_errors.server_error'))
+    toast.error(t('common_errors.server_error'))
   }
 }
 
@@ -92,12 +91,12 @@ const canselRepeatingPlanningHandler = async (plan: Planning) => {
   try {
     activeRepitingPlanningId.value = plan.id
     await canselRepeatingPlanning(plan)
-    toastStore.success(t('planning.form.messages.cansel_repeat_success'))
+    toast.success(t('planning.form.messages.cansel_repeat_success'))
     activeRepitingPlanningId.value = null
 
     // eslint-disable-next-line
   } catch (e: any) {
-    toastStore.error(t('common_errors.server_error'))
+    toast.error(t('common_errors.server_error'))
   }
 }
 
@@ -118,13 +117,13 @@ const formatCurrency = (value: string) => {
 }
 
 const prepareRepeatedDate = (date: string) => {
-  const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-  const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+  const monthIndex = getMonthIndex(statisticDate.value, user.value?.monthStartDay)
+  const year = getIndexedYear(statisticDate.value, user.value?.monthStartDay)
   return getChangedDateByMonthIndex(
     new Date(date),
     year,
     monthIndex,
-    me.value?.me.monthStartDay,
+    user.value?.monthStartDay,
   ).toLocaleDateString()
 }
 </script>
@@ -143,21 +142,21 @@ const prepareRepeatedDate = (date: string) => {
         <div class="planning-header-item-title">{{ t('planning.header.monthlyBudget') }}</div>
         <div class="planning-header-item-value">
           {{ formatAmount(planningStatistics?.monthlyBudget || 0) }}
-          {{ formatCurrency(me?.me.currency || '') }}
+          {{ formatCurrency(user?.currency || '') }}
         </div>
       </div>
       <div class="planning-header-item">
         <div class="planning-header-item-title">{{ t('planning.header.plannedExpenses') }}</div>
         <div class="planning-header-item-value">
           {{ formatAmount(planningStatistics?.plannedExpenses || 0) }}
-          {{ formatCurrency(me?.me.currency || '') }}
+          {{ formatCurrency(user?.currency || '') }}
         </div>
       </div>
       <div class="planning-header-item">
         <div class="planning-header-item-title">{{ t('planning.header.freeMoney') }}</div>
         <div class="planning-header-item-value">
           {{ formatAmount(planningStatistics?.freeMoney || 0) }}
-          {{ formatCurrency(me?.me.currency || '') }}
+          {{ formatCurrency(user?.currency || '') }}
         </div>
       </div>
 
@@ -165,7 +164,7 @@ const prepareRepeatedDate = (date: string) => {
         <div class="planning-header-item-title">{{ t('planning.header.remainingToPay') }}</div>
         <div class="planning-header-item-value">
           {{ formatAmount(planningStatistics?.remainingToPay || 0) }}
-          {{ formatCurrency(me?.me.currency || '') }}
+          {{ formatCurrency(user?.currency || '') }}
         </div>
       </div>
     </div>
@@ -173,7 +172,7 @@ const prepareRepeatedDate = (date: string) => {
     <div v-for="table in planningTables" :key="table.category" class="planning-table">
       <div class="planning-table-header" :style="getCategoryStyle(table.category)">
         {{ getCategoriesLabel(table.category) }}
-        <span>{{ formatAmount(table.total) }} {{ formatCurrency(me?.me.currency || '') }}</span>
+        <span>{{ formatAmount(table.total) }} {{ formatCurrency(user?.currency || '') }}</span>
       </div>
       <div class="planning-table-body">
         <div class="planning-table-item" v-for="plan in table.items" :key="plan.id">
@@ -308,7 +307,7 @@ const prepareRepeatedDate = (date: string) => {
     >
       <div class="planning-table-header" :style="getCategoryStyle(table.category)">
         {{ getCategoriesLabel(table.category) }}
-        <span> {{ table.total }} {{ formatCurrency(me?.me.currency || '') }} </span>
+        <span> {{ table.total }} {{ formatCurrency(user?.currency || '') }} </span>
       </div>
       <div class="planning-table-body">
         <div class="planning-table-item" v-for="plan in table.items" :key="plan.id">

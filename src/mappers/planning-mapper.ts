@@ -115,14 +115,14 @@ export const usePlanningMapper = () => {
   const { planningExchangeRage, loading: planningExchangeRageLoading } = usePlanningExchangeRage()
   const { repeatingPlanning } = useRepeatingPlanningList()
   const { transactions } = useTransactionList()
-  const { me } = useMe()
+  const { user } = useMe()
 
   const planningTables = computed(() => {
     if (
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
       !planningExchangeRage?.value?.exchangeRate ||
-      !me.value
+      !user.value
     )
       return []
 
@@ -132,7 +132,7 @@ export const usePlanningMapper = () => {
           planningItem,
           (transactions.value?.transactions || []) as Transaction[],
           planningExchangeRage.value?.exchangeRate as ExchangeRate,
-          me.value?.me.currency as string,
+          user.value?.currency as string,
           t,
         ),
       ),
@@ -145,7 +145,7 @@ export const usePlanningMapper = () => {
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
       !planningExchangeRage?.value?.exchangeRate ||
-      !me.value
+      !user.value
     )
       return []
     return reducePlanningByCategory(
@@ -157,7 +157,7 @@ export const usePlanningMapper = () => {
           planningItem,
           (transactions.value?.transactions || []) as Transaction[],
           planningExchangeRage.value?.exchangeRate as ExchangeRate,
-          me.value?.me.currency as string,
+          user.value?.currency as string,
           t,
         ),
       ),
@@ -169,7 +169,7 @@ export const usePlanningMapper = () => {
       !planning?.value?.planning ||
       !transactions.value?.transactions ||
       !planningExchangeRage?.value?.exchangeRate ||
-      !me.value
+      !user.value
     )
       return null
 
@@ -178,12 +178,12 @@ export const usePlanningMapper = () => {
         planningItem,
         (transactions.value?.transactions || []) as Transaction[],
         planningExchangeRage.value?.exchangeRate as ExchangeRate,
-        me.value?.me.currency as string,
+        user.value?.currency as string,
         t,
       ),
     )
 
-    const monthlyBudget = me?.value?.me.monthlyBudget
+    const monthlyBudget = user.value?.monthlyBudget
 
     const plannedExpenses = preparedPlannings.reduce(
       (acc, planningItem) => acc + planningItem.amount,
@@ -215,7 +215,7 @@ export const usePlanningMapper = () => {
             transaction.exchangeRate,
             transaction.amount,
             transaction.currency,
-            me.value?.me.currency || CURRENCIES[0],
+            user.value?.currency || CURRENCIES[0],
           )
         )
       }, 0)

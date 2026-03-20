@@ -5,7 +5,7 @@ import { ValidationError } from 'yup'
 
 import type { PlanningType } from '@/graphql/types.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import { useCreatePlanning, usePlanningList } from '@/hooks/planning-hooks.ts'
@@ -25,8 +25,7 @@ import KitPreloader from '@/components/kit/KitPreloader.vue'
 // ===== Hooks =====
 
 const { t } = useI18n()
-const { me } = useMe()
-const toastStore = useToastStore()
+const { user } = useMe()
 const { createPlanning, loading } = useCreatePlanning()
 const { statisticDate } = useStatisticDateStore()
 const { planning } = usePlanningList()
@@ -35,7 +34,7 @@ const { planning } = usePlanningList()
 
 const type = ref<PlanningType>('TRANSACTION' as PlanningType)
 const amount = ref('0')
-const currency = ref(me.value?.me.currency || CURRENCIES[0])
+const currency = ref(user.value?.currency || CURRENCIES[0])
 const description = ref('')
 const date = ref<Date | null>()
 const categoryId = ref('')
@@ -46,7 +45,7 @@ const errors = ref<Record<string, string>>({})
 // ===== Computed =====
 
 const currentPeriod = computed(() => {
-  return getMonthPeriod(me.value?.me?.monthStartDay, statisticDate.value)
+  return getMonthPeriod(user.value?.monthStartDay, statisticDate.value)
 })
 
 // ===== Handler and utils =====
@@ -85,7 +84,7 @@ const validateForm = async () => {
 
 const clearForm = () => {
   amount.value = ''
-  currency.value = me.value?.me.currency || CURRENCIES[0]
+  currency.value = user.value?.currency || CURRENCIES[0]
   description.value = ''
   categoryId.value = ''
   date.value = null
@@ -106,13 +105,13 @@ const handlerCreatePlanning = async () => {
         description: description.value,
         categoryId: categoryId.value,
         date: date.value?.toISOString(),
-        monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
-        year: getIndexedYear(statisticDate.value, me.value?.me.monthStartDay),
+        monthIndex: getMonthIndex(statisticDate.value, user.value?.monthStartDay),
+        year: getIndexedYear(statisticDate.value, user.value?.monthStartDay),
         repeat: repeat.value,
       },
     })
     clearForm()
-    toastStore.success(t(`planning.form.messages.add_success`))
+    toast.success(t(`planning.form.messages.add_success`))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -121,11 +120,11 @@ const handlerCreatePlanning = async () => {
         errors.value = errorCodes
       }
       if (errorCodes.form) {
-        toastStore.error(t(`planning.form.errors.${errorCodes.form}`))
+        toast.error(t(`planning.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }

@@ -15,7 +15,7 @@ import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent])
 
 const { reducedTransactionsByCategory } = useTransactionStatisticsMapper()
-const { me } = useMe()
+const { user } = useMe()
 const { t } = useI18n()
 
 const getCategoriesLabel = (category: string) => t(`categories.${category}`)
@@ -24,7 +24,7 @@ const getCategoryStyle = (category: string) =>
 
 const option = computed(() => {
   const formatedCurrency =
-    CURRENCIES_SYMBOL[me.value?.me?.currency as string] || me?.value?.me.currency
+    CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
 
   return {
     backgroundColor: 'transparent',

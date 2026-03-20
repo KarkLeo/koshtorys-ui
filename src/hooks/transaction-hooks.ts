@@ -27,14 +27,14 @@ import PLANNING from '@/graphql/planning.graphql'
 import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
 
 export function useCreateTransaction() {
-  const { me } = useMe()
+  const { user } = useMe()
 
   const { mutate, loading } = useMutation<
     CreateTransactionMutation,
     CreateTransactionMutationVariables
   >(CREATE_TRANSACTION, {
     update(cache, { data }) {
-      if (!data?.createTransaction || !me.value?.me.monthStartDay) return
+      if (!data?.createTransaction || !user.value?.monthStartDay) return
 
       const newTransaction = data.createTransaction
       const transactionDate = new Date(newTransaction.date)
@@ -43,7 +43,7 @@ export function useCreateTransaction() {
       try {
         const { startDate, endDate } = getDateRangeByDate(
           transactionDate,
-          me.value?.me.monthStartDay || 1,
+          user.value?.monthStartDay || 1,
         )
 
         cache.updateQuery<{ transactions: Transaction[] }>(
@@ -64,8 +64,8 @@ export function useCreateTransaction() {
       // ===== Update planning =====
       if (newTransaction.planningId) {
         try {
-          const monthIndex = getMonthIndex(transactionDate, me.value?.me.monthStartDay)
-          const year = getIndexedYear(transactionDate, me.value?.me.monthStartDay)
+          const monthIndex = getMonthIndex(transactionDate, user.value?.monthStartDay)
+          const year = getIndexedYear(transactionDate, user.value?.monthStartDay)
 
           const preparedTransaction = {
             id: newTransaction.id,
@@ -116,14 +116,14 @@ export function useCreateTransaction() {
 }
 
 export function useDeleteTransaction() {
-  const { me } = useMe()
+  const { user } = useMe()
 
   const { mutate, loading } = useMutation<
     DeleteTransactionMutation,
     DeleteTransactionMutationVariables
   >(DELETE_TRANSACTION, {
     update(cache, { data }) {
-      if (!data?.deleteTransaction || !me.value?.me.monthStartDay) return
+      if (!data?.deleteTransaction || !user.value?.monthStartDay) return
 
       const deletedTransaction = data.deleteTransaction
       const transactionDate = new Date(deletedTransaction.date)
@@ -132,7 +132,7 @@ export function useDeleteTransaction() {
       try {
         const { startDate, endDate } = getDateRangeByDate(
           transactionDate,
-          me.value?.me.monthStartDay || 1,
+          user.value?.monthStartDay || 1,
         )
 
         cache.updateQuery<{ transactions: Transaction[] }>(
@@ -155,8 +155,8 @@ export function useDeleteTransaction() {
       // ===== Update planning =====
       if (deletedTransaction.planningId) {
         try {
-          const monthIndex = getMonthIndex(transactionDate, me.value?.me.monthStartDay)
-          const year = getIndexedYear(transactionDate, me.value?.me.monthStartDay)
+          const monthIndex = getMonthIndex(transactionDate, user.value?.monthStartDay)
+          const year = getIndexedYear(transactionDate, user.value?.monthStartDay)
 
           cache.updateQuery<{ planning: Planning[] }>(
             {
@@ -201,7 +201,7 @@ export function useDeleteTransaction() {
 }
 
 export function useUpdateTransaction() {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate, loading } = useMutation<
@@ -209,15 +209,15 @@ export function useUpdateTransaction() {
     UpdateTransactionMutationVariables
   >(UPDATE_TRANSACTION, {
     update(cache, { data }) {
-      if (!data?.updateTransaction || !me.value?.me.monthStartDay) return
+      if (!data?.updateTransaction || !user.value?.monthStartDay) return
 
       const updatedTransaction = data.updateTransaction
       const transactionDate = new Date(updatedTransaction.date)
       const { startDate, endDate } = getDateRangeByDate(
         transactionDate,
-        me.value?.me.monthStartDay || 1,
+        user.value?.monthStartDay || 1,
       )
-      const statisticDateRange = getDateRangeByDate(statisticDate.value, me.value?.me.monthStartDay)
+      const statisticDateRange = getDateRangeByDate(statisticDate.value, user.value?.monthStartDay)
       const isDifferentLists = startDate.getTime() !== statisticDateRange.startDate.getTime()
 
       // ===== Update transactions =====
@@ -276,11 +276,11 @@ export function useUpdateTransaction() {
         try {
           const monthIndex = getMonthIndex(
             isDifferentLists ? statisticDate.value : transactionDate,
-            me.value?.me.monthStartDay,
+            user.value?.monthStartDay,
           )
           const year = getIndexedYear(
             isDifferentLists ? statisticDate.value : transactionDate,
-            me.value?.me.monthStartDay,
+            user.value?.monthStartDay,
           )
 
           const preparedTransaction = {
@@ -354,10 +354,10 @@ export function useUpdateTransaction() {
 
 export function useTransactionList() {
   const { statisticDate } = useStatisticDateStore()
-  const { me } = useMe()
+  const { user } = useMe()
 
   const variables = computed(() =>
-    getDateRangeByDate(statisticDate.value, me.value?.me.monthStartDay || 1),
+    getDateRangeByDate(statisticDate.value, user.value?.monthStartDay || 1),
   )
 
   const { result, loading } = useQuery<TransactionsQuery, TransactionsQueryVariables>(

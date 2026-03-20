@@ -38,9 +38,11 @@
     "vue-echarts": "^7.0.3",
     "vue-i18n": "^10.0.5",
     "vue-router": "^4.4.5",
+    "vue-sonner": "^2.0.9",
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.9.3",

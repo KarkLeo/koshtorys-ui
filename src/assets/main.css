@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'vue-sonner/style.css';
 @plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));

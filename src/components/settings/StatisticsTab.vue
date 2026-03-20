@@ -11,16 +11,16 @@ import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vu
 import KitDropdown from '@/components/kit/KitDropdown.vue'
 import KitInput from '@/components/kit/KitInput.vue'
 import KitButton from '@/components/kit/KitButton.vue'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
+import { ApiError } from '@/api/client'
 
-const { me, refreshMe } = useMe()
+const { user } = useMe()
 const { settingsStatistics } = usesSettingsStatistics()
-const toastStore = useToastStore()
 const { t } = useI18n()
 
-const currency = ref(me.value?.me.currency || '')
-const monthStartDay = ref(me.value?.me.monthStartDay || '')
-const monthlyBudget = ref(me.value?.me.monthlyBudget || '')
+const currency = ref(user.value?.currency || '')
+const monthStartDay = ref(user.value?.monthStartDay || '')
+const monthlyBudget = ref(user.value?.monthlyBudget || '')
 
 const errors = ref<Record<string, string>>({})
 
@@ -62,29 +62,24 @@ const update = async () => {
     })
 
     if (data) {
-      refreshMe()
-      toastStore.success(t('settings.success'))
+      toast.success(t('settings.success'))
     }
 
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
 
 const isChanged = computed(() => {
   return (
-    currency.value !== me.value?.me.currency ||
-    monthStartDay.value !== me.value?.me.monthStartDay ||
-    monthlyBudget.value !== me.value?.me.monthlyBudget
+    currency.value !== user.value?.currency ||
+    monthStartDay.value !== user.value?.monthStartDay ||
+    monthlyBudget.value !== user.value?.monthlyBudget
   )
 })
 </script>

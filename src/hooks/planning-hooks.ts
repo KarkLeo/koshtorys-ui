@@ -191,7 +191,7 @@ export const useDeletePlanning = () => {
 }
 
 export const useRepeatPlanning = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate, loading } = useMutation<RepeatPlanningMutation, RepeatPlanningMutationVariables>(
@@ -236,8 +236,8 @@ export const useRepeatPlanning = () => {
 
   const repeatPlanning = async (planning: Planning) => {
     try {
-      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const monthIndex = getMonthIndex(statisticDate.value, user.value?.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, user.value?.monthStartDay)
 
       const result = await mutate({
         planningId: Number(planning.id),
@@ -257,7 +257,7 @@ export const useRepeatPlanning = () => {
 }
 
 export const useCanselRepeatingPlanning = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const { mutate, loading } = useMutation<
@@ -268,8 +268,8 @@ export const useCanselRepeatingPlanning = () => {
       if (!data?.canselRepeatingPlanning) return
 
       const canceledRepeatedPlanning = data.canselRepeatingPlanning
-      const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-      const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+      const monthIndex = getMonthIndex(statisticDate.value, user.value?.monthStartDay)
+      const year = getIndexedYear(statisticDate.value, user.value?.monthStartDay)
 
       // ===== Update planning =====
       cache.updateQuery<{ planning: Planning[] }>(
@@ -321,13 +321,13 @@ export const useCanselRepeatingPlanning = () => {
 }
 
 export const usePlanningList = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const variables = computed(() => {
     return {
-      monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
-      year: getIndexedYear(statisticDate.value, me.value?.me.monthStartDay),
+      monthIndex: getMonthIndex(statisticDate.value, user.value?.monthStartDay),
+      year: getIndexedYear(statisticDate.value, user.value?.monthStartDay),
     }
   })
 
@@ -342,14 +342,14 @@ export const usePlanningList = () => {
 }
 
 export const usePlanningExchangeRage = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const variables = computed(() => {
-    const monthIndex = getMonthIndex(statisticDate.value, me.value?.me.monthStartDay)
-    const year = getIndexedYear(statisticDate.value, me.value?.me.monthStartDay)
+    const monthIndex = getMonthIndex(statisticDate.value, user.value?.monthStartDay)
+    const year = getIndexedYear(statisticDate.value, user.value?.monthStartDay)
     return {
-      exchangeDate: getExchangeDate(monthIndex, year, me.value?.me.monthStartDay),
+      exchangeDate: getExchangeDate(monthIndex, year, user.value?.monthStartDay),
     }
   })
 
@@ -367,13 +367,13 @@ export const usePlanningExchangeRage = () => {
 }
 
 export const useRepeatingPlanningList = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
 
   const variables = computed(() => {
     return {
-      monthIndex: getMonthIndex(statisticDate.value, me.value?.me.monthStartDay),
-      year: getIndexedYear(statisticDate.value, me.value?.me.monthStartDay),
+      monthIndex: getMonthIndex(statisticDate.value, user.value?.monthStartDay),
+      year: getIndexedYear(statisticDate.value, user.value?.monthStartDay),
     }
   })
 

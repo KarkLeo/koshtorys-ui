@@ -4,11 +4,11 @@ import { MENU, ONBOARDING_PATHS } from '@/constants/menu'
 import { useMe } from '@/hooks/auth-hooks.ts'
 
 const router = useRoute()
-const { me } = useMe()
+const { user } = useMe()
 </script>
 
 <template>
-  <nav v-if="me?.me && router.path !== ONBOARDING_PATHS" class="p-2">
+  <nav v-if="user && router.path !== ONBOARDING_PATHS" class="p-2">
     <ul class="flex items-center justify-center gap-4 p-0 m-0">
       <li v-for="item in MENU" :key="item.path" class="list-none">
         <router-link

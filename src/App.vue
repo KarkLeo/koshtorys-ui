@@ -5,15 +5,15 @@ import { useI18n } from 'vue-i18n'
 
 import { useMe } from '@/hooks/auth-hooks.ts'
 import MainHeader from '@/components/MainHeader.vue'
-import MainToasts from '@/components/MainToasts.vue'
 import MainFooter from '@/components/MainFooter.vue'
+import Sonner from '@/components/ui/sonner/Sonner.vue'
 
-const { me } = useMe()
+const { user } = useMe()
 const { locale } = useI18n()
 
-watch(me, (newVal) => {
+watch(user, (newVal) => {
   if (newVal) {
-    locale.value = newVal.me.lang || 'en'
+    locale.value = newVal.lang || 'en'
   }
 })
 </script>
@@ -23,6 +23,6 @@ watch(me, (newVal) => {
     <MainHeader />
     <router-view class="flex-1" />
     <MainFooter />
-    <MainToasts />
+    <Sonner />
   </div>
 </template>

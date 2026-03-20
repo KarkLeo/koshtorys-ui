@@ -6,7 +6,7 @@ import type { TransactionsQuery } from '@/graphql/types.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useDeleteTransaction, useTransactionList } from '@/hooks/transaction-hooks.ts'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 
@@ -33,9 +33,8 @@ interface ExtendedTransaction extends BaseTransaction {
 // ===== Hooks =====
 
 const { t } = useI18n()
-const toastStore = useToastStore()
 const { statisticDate } = useStatisticDateStore()
-const { me } = useMe()
+const { user } = useMe()
 
 const { transactions, loading } = useTransactionList()
 const { deleteTransaction, loading: deleteLoading } = useDeleteTransaction()
@@ -48,7 +47,7 @@ const deletingTransactionId = ref<string | null>(null)
 // ===== Computed =====
 
 const list = computed<ExtendedTransaction[]>(() => {
-  const meCurrency = me.value?.me.currency
+  const meCurrency = user.value?.currency
   if (!meCurrency || !transactions.value?.transactions) return []
 
   return transactions.value.transactions
@@ -97,18 +96,18 @@ const handleDeleteTransaction = async (id: string) => {
     await deleteTransaction({
       transactionId: Number(id),
     })
-    toastStore.success(t('transaction.form.messages.delete_success'))
+    toast.success(t('transaction.form.messages.delete_success'))
     deletingTransactionId.value = null
     // eslint-disable-next-line
   } catch (e: any) {
     try {
       const errorCodes = e.cause.extensions.originalError.errorCodes
       if (errorCodes?.form) {
-        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+        toast.error(t(`transaction.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -145,8 +144,8 @@ watch(statisticDate, () => {
 
     <WaveChart
       :current="sum"
-      :max="me?.me.monthlyBudget || 0"
-      :message="`${formatAmount(sum)} / ${formatAmount(me?.me.monthlyBudget || 0)} ${formatCurrency(me?.me.currency || '')}`"
+      :max="user?.monthlyBudget || 0"
+      :message="`${formatAmount(sum)} / ${formatAmount(user?.monthlyBudget || 0)} ${formatCurrency(user?.currency || '')}`"
     />
 
     <KitPreloaderWithText class="transition-loader" size="md" v-if="loading" />

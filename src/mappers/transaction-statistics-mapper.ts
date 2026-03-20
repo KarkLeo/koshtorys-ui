@@ -50,13 +50,13 @@ const reduceTransactionsByDate = (transactions: ExtendedTransaction[]) =>
   )
 
 export const useTransactionStatisticsMapper = () => {
-  const { me } = useMe()
+  const { user } = useMe()
   const { transactions, loading } = useTransactionList()
 
   const { transactionsStatistic } = useTransactionsStatistic()
 
   const extendedTransactions = computed<ExtendedTransaction[]>(() => {
-    const meCurrency = me.value?.me.currency
+    const meCurrency = user.value?.currency
     if (!meCurrency || !transactions.value?.transactions) return []
 
     return transactions.value.transactions.map((transaction: BaseTransaction) => {
@@ -105,7 +105,7 @@ export const useTransactionStatisticsMapper = () => {
 
     const amountByDate = reduceTransactionsByDate(extendedTransactions.value)
     const date = extendedTransactions.value?.[0]?.date || new Date()
-    const { startDate, endDate } = getDateRangeByDate(date, me.value?.me.monthStartDay || 1)
+    const { startDate, endDate } = getDateRangeByDate(date, user.value?.monthStartDay || 1)
     let currentDate = startDate
     let averageIndex = 0
 

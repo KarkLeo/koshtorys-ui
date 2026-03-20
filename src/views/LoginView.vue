@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { loginSchema } from '@/validations/login.ts'
-import { useMe, useSignIn } from '@/hooks/auth-hooks.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { useSignIn } from '@/hooks/auth-hooks.ts'
+import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
 
 import { Button } from '@/components/ui/button'
@@ -14,10 +14,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const { signIn } = useSignIn()
-const { refreshMe } = useMe()
 const { locale, t } = useI18n()
 const router = useRouter()
-const toastStore = useToastStore()
 
 const email = ref('')
 const password = ref('')
@@ -71,8 +69,7 @@ const login = async () => {
     const data = await signIn({ email: email.value, password: password.value })
     if (data) {
       locale.value = data?.user?.lang || 'en'
-      refreshMe()
-      toastStore.success(t('login.success'))
+      toast.success(t('login.success'))
       await router.push('/dashboard')
     }
     // eslint-disable-next-line
@@ -80,10 +77,10 @@ const login = async () => {
     if (e instanceof ApiError && e.errorCodes) {
       errors.value = e.errorCodes
       if (e.errorCodes.form) {
-        toastStore.error(t(`login.errors.${e.errorCodes.form}`))
+        toast.error(t(`login.errors.${e.errorCodes.form}`))
       }
     } else {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }

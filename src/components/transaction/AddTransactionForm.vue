@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
 import { CURRENCIES } from '@/constants/currencies.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useCreateTransaction } from '@/hooks/transaction-hooks.ts'
 import { transactionSchema } from '@/validations/transaction.ts'
@@ -23,8 +23,7 @@ import KitPreloader from '@/components/kit/KitPreloader.vue'
 
 // ===== Hooks =====
 
-const { me } = useMe()
-const toastStore = useToastStore()
+const { user } = useMe()
 const { createTransaction, loading } = useCreateTransaction()
 const { t } = useI18n()
 
@@ -35,7 +34,7 @@ const isOpen = ref(false)
 const errors = ref<Record<string, string>>({})
 
 const amount = ref('')
-const currency = ref(me.value?.me.currency || CURRENCIES[0])
+const currency = ref(user.value?.currency || CURRENCIES[0])
 const description = ref('')
 const date = ref<Date>(new Date())
 const categoryId = ref<string>('')
@@ -79,7 +78,7 @@ const clearForm = () => {
   description.value = ''
   categoryId.value = ''
   date.value = new Date()
-  currency.value = me.value?.me.currency || CURRENCIES[0]
+  currency.value = user.value?.currency || CURRENCIES[0]
   isOpen.value = false
   errors.value = {}
   isOpenSelectPlanningModal.value = false
@@ -103,7 +102,7 @@ const handlerCreateTransaction = async () => {
     })
 
     clearForm()
-    toastStore.success(t('transaction.form.messages.add_success'))
+    toast.success(t('transaction.form.messages.add_success'))
     // eslint-disable-next-line
   } catch (e: any) {
     try {
@@ -112,11 +111,11 @@ const handlerCreateTransaction = async () => {
         errors.value = errorCodes
       }
       if (errorCodes.form) {
-        toastStore.error(t(`transaction.form.errors.${errorCodes.form}`))
+        toast.error(t(`transaction.form.errors.${errorCodes.form}`))
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -132,7 +131,7 @@ const closeSelectPlanningModal = () => {
 const submitSelectPlanningModal = (planning?: Planning) => {
   if (amount.value === '' && description.value === '') {
     amount.value = String(planning?.amount || 0)
-    currency.value = planning?.currency || me.value?.me.currency || CURRENCIES[0]
+    currency.value = planning?.currency || user.value?.currency || CURRENCIES[0]
     description.value = planning?.description || ''
     categoryId.value = planning?.categoryId || ''
     date.value = planning?.date ? new Date(planning.date) : new Date()

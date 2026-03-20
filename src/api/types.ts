@@ -29,6 +29,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Register new user
+         * @description Create new user account with email and password
+         */
         post: operations["AuthController_signUp"];
         delete?: never;
         options?: never;
@@ -45,6 +49,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Sign in user
+         * @description Authenticate user with email and password. Sets JWT tokens in cookies.
+         */
         post: operations["AuthController_signIn"];
         delete?: never;
         options?: never;
@@ -61,6 +69,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Sign out user
+         * @description Clear JWT tokens from cookies and invalidate session.
+         */
         post: operations["AuthController_signOut"];
         delete?: never;
         options?: never;
@@ -77,6 +89,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Refresh access token
+         * @description Use refresh token to obtain new access token.
+         */
         post: operations["AuthController_refreshTokens"];
         delete?: never;
         options?: never;
@@ -91,6 +107,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * Get current user
+         * @description Retrieve authenticated user profile information.
+         */
         get: operations["AuthController_me"];
         put?: never;
         post?: never;
@@ -109,6 +129,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Complete user onboarding
+         * @description Set initial user preferences: currency, month start day, monthly budget.
+         */
         post: operations["AuthController_onboarding"];
         delete?: never;
         options?: never;
@@ -129,7 +153,247 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * Update user profile
+         * @description Update user profile: name, currency, budget, password, language.
+         */
         patch: operations["AuthController_updateProfile"];
+        trace?: never;
+    };
+    "/api/exchange-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all exchange rates
+         * @description Retrieve all cached exchange rates from database
+         */
+        get: operations["ExchangeRateController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exchange-rates/{date}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get exchange rate for date
+         * @description Get exchange rates for a specific date. If not cached, fetches from Open Exchange Rates API
+         */
+        get: operations["ExchangeRateController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/statistics/by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get transaction statistics by category
+         * @description Retrieve average spending per category for current financial month
+         */
+        get: operations["TransactionController_statisticsByCategory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/statistics/by-month-day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get transaction statistics by day of month
+         * @description Retrieve spending patterns by day of month for chart rendering
+         */
+        get: operations["TransactionController_statisticsByMonthDay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user transactions
+         * @description Retrieve all transactions for authenticated user within date range
+         */
+        get: operations["TransactionController_findAll"];
+        put?: never;
+        /**
+         * Create new transaction
+         * @description Create a new transaction for authenticated user
+         */
+        post: operations["TransactionController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete transaction
+         * @description Delete existing transaction. Only owner can delete. Returns deleted transaction.
+         */
+        delete: operations["TransactionController_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update transaction
+         * @description Update existing transaction. Only transaction owner can update.
+         */
+        patch: operations["TransactionController_update"];
+        trace?: never;
+    };
+    "/api/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get planning list
+         * @description Retrieve all plans for a specific financial month
+         */
+        get: operations["PlanningController_getPlanningList"];
+        put?: never;
+        /**
+         * Create plan
+         * @description Create a new budget plan (one-off or dynamic)
+         */
+        post: operations["PlanningController_createPlanning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/repeating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get repeating plans
+         * @description Retrieve recurring plans for a specific financial month (suggestions)
+         */
+        get: operations["PlanningController_getRepeatingPlanning"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete plan
+         * @description Delete a budget plan
+         */
+        delete: operations["PlanningController_deletePlanning"];
+        options?: never;
+        head?: never;
+        /**
+         * Update plan
+         * @description Update an existing budget plan
+         */
+        patch: operations["PlanningController_updatePlanning"];
+        trace?: never;
+    };
+    "/api/plans/{id}/repeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Repeat plan
+         * @description Copy a single plan to a target financial month
+         */
+        post: operations["PlanningController_repeatPlanning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/{id}/cancel-repeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel recurring plan
+         * @description Stop a plan from repeating in future months
+         */
+        post: operations["PlanningController_canselRepeatingPlanning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -186,6 +450,341 @@ export interface components {
             lang?: string;
             confirmNewPassword?: string;
         };
+        ExchangeRateResponseDto: {
+            /**
+             * @description Unique exchange rate ID
+             * @example 1
+             */
+            id: number;
+            /**
+             * @description Base currency (default: USD)
+             * @example USD
+             */
+            base: string;
+            /**
+             * @description Date for exchange rates
+             * @example 2026-02-15T00:00:00Z
+             */
+            date: string;
+            /**
+             * @description Exchange rates for different currencies
+             * @example {
+             *       "UAH": 41.5,
+             *       "EUR": 0.92,
+             *       "GBP": 0.79
+             *     }
+             */
+            rates: Record<string, never>;
+        };
+        TransactionsByCategoryResponseDto: {
+            /**
+             * @description Category identifier
+             * @example food--groceries
+             */
+            categoryId: string;
+            /**
+             * @description Average amount spent in this category
+             * @example 275.5
+             */
+            average: number;
+        };
+        TransactionsByMonthDayResponseDto: {
+            /**
+             * @description Day of month (1-28/29/30/31)
+             * @example 15
+             */
+            period_index: number;
+            /**
+             * @description Total amount spent on this day across all months
+             * @example 450.75
+             */
+            total: number;
+            /**
+             * @description Average daily spending across all months
+             * @example 150.25
+             */
+            average: number;
+            /**
+             * @description Number of months included in calculation
+             * @example 3
+             */
+            count_of_month: number;
+        };
+        ExchangeRateDto: {
+            /** @example 7 */
+            id: number;
+            /** @example USD */
+            base: string;
+            /**
+             * Format: date-time
+             * @example 2026-02-10T00:00:00.000Z
+             */
+            date: string;
+            /**
+             * @example {
+             *       "USD": 1,
+             *       "EUR": 0.92,
+             *       "UAH": 41.25,
+             *       "PLN": 4.05,
+             *       "MDL": 18.4,
+             *       "RON": 4.56
+             *     }
+             */
+            rates: Record<string, never>;
+        };
+        TransactionResponseDto: {
+            /** @example 123 */
+            id: number;
+            /** @example 42 */
+            userId: number;
+            /** @example 150.5 */
+            amount: number;
+            /** @example USD */
+            currency: string;
+            /**
+             * Format: date-time
+             * @example 2026-02-10T10:30:00.000Z
+             */
+            date: string;
+            /** @example food--groceries */
+            categoryId: string;
+            /** @example Weekly groceries at supermarket */
+            description: string | null;
+            /** @example 7 */
+            exchangeRateId: number;
+            /** @example 42 */
+            planningId: number | null;
+            /**
+             * Format: date-time
+             * @example 2026-02-10T10:30:00.000Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @example 2026-02-10T10:35:00.000Z
+             */
+            updatedAt: string;
+            exchangeRate: components["schemas"]["ExchangeRateDto"];
+        };
+        CreateTransactionDto: {
+            /**
+             * @description Transaction amount
+             * @example 150.5
+             */
+            amount: number;
+            /**
+             * @description Transaction currency code
+             * @example USD
+             * @enum {string}
+             */
+            currency: "USD" | "EUR" | "UAH" | "PLN" | "MDL" | "RON";
+            /**
+             * @description Transaction date (ISO 8601 format, must not be in future)
+             * @example 2026-02-10T10:30:00.000Z
+             */
+            date: string;
+            /**
+             * @description Category identifier
+             * @example food--groceries
+             */
+            categoryId: string;
+            /**
+             * @description Optional transaction description
+             * @example Weekly groceries at supermarket
+             */
+            description?: string;
+            /**
+             * @description Optional planning ID to link transaction to budget plan
+             * @example 42
+             */
+            planningId?: number;
+        };
+        UpdateTransactionDto: {
+            /**
+             * @description Transaction amount
+             * @example 150.5
+             */
+            amount: number;
+            /**
+             * @description Transaction currency code
+             * @example USD
+             * @enum {string}
+             */
+            currency: "USD" | "EUR" | "UAH" | "PLN" | "MDL" | "RON";
+            /**
+             * @description Transaction date (ISO 8601 format, must not be in future)
+             * @example 2026-02-10T10:30:00.000Z
+             */
+            date: string;
+            /**
+             * @description Category identifier
+             * @example food--groceries
+             */
+            categoryId: string;
+            /**
+             * @description Optional transaction description
+             * @example Weekly groceries at supermarket
+             */
+            description?: string;
+            /**
+             * @description Optional planning ID to link transaction to budget plan
+             * @example 42
+             */
+            planningId?: number;
+        };
+        PlanResponseDto: {
+            /**
+             * @description Unique plan ID
+             * @example 1
+             */
+            id: number;
+            /**
+             * @description Plan type
+             * @enum {string}
+             */
+            type: "TRANSACTION" | "CATEGORY";
+            /**
+             * @description User ID
+             * @example 1
+             */
+            userId: number;
+            /** @example 2026-02-15 */
+            date: string | null;
+            /**
+             * @description Financial month index
+             * @example 2
+             */
+            monthIndex: number;
+            /**
+             * @description Year
+             * @example 2026
+             */
+            year: number;
+            /**
+             * @description Amount
+             * @example 1500.5
+             */
+            amount: number;
+            /** @example Budget for groceries */
+            description: string | null;
+            /**
+             * @description Currency code
+             * @example UAH
+             */
+            currency: string;
+            /**
+             * @description Category ID
+             * @example FOOD
+             */
+            categoryId: string;
+            /**
+             * @description Whether plan repeats monthly
+             * @example false
+             */
+            repeat: boolean;
+            /**
+             * @description Referenced repeating plan ID
+             * @example null
+             */
+            repeatedPlanningId: number | null;
+            /**
+             * @description Parent plan ID
+             * @example null
+             */
+            parentPlanningId: number | null;
+            /** @example 2026-02-11T10:00:00Z */
+            createdAt: string;
+            /** @example 2026-02-11T10:00:00Z */
+            updatedAt: string;
+        };
+        CreatePlanDto: {
+            /**
+             * @description Plan type: TRANSACTION (one-off, linked to transaction) or CATEGORY (dynamic, category budget)
+             * @example TRANSACTION
+             * @enum {string}
+             */
+            type: "TRANSACTION" | "CATEGORY";
+            /**
+             * @description Financial month index (1-12)
+             * @example 1
+             */
+            monthIndex: number;
+            /**
+             * @description Year
+             * @example 2026
+             */
+            year: number;
+            /**
+             * @description Amount in specified currency
+             * @example 1500
+             */
+            amount: number;
+            /**
+             * @description Currency code (e.g. UAH, USD, EUR)
+             * @example UAH
+             */
+            currency: string;
+            /** @example Budget for groceries */
+            description?: string | null;
+            /** @example 2026-02-15 */
+            date?: string | null;
+            /**
+             * @description Category ID or code
+             * @example FOOD
+             */
+            categoryId: string;
+            /**
+             * @description Whether plan repeats monthly
+             * @example false
+             */
+            repeat?: boolean;
+            /**
+             * @description Referenced repeating plan ID
+             * @example null
+             */
+            repeatedPlanningId?: number | null;
+            /**
+             * @description Parent plan ID for copies
+             * @example null
+             */
+            parentPlanningId?: number | null;
+        };
+        UpdatePlanDto: {
+            /** @enum {string} */
+            type?: "TRANSACTION" | "CATEGORY";
+            /** @example 1 */
+            monthIndex?: number;
+            /** @example 2026 */
+            year?: number;
+            /** @example 1500 */
+            amount?: number;
+            /** @example UAH */
+            currency?: string;
+            /** @example Budget for groceries */
+            description?: string | null;
+            /** @example 2026-02-15 */
+            date?: string | null;
+            /** @example FOOD */
+            categoryId?: string;
+            /** @example false */
+            repeat?: boolean;
+            /** @example null */
+            repeatedPlanningId?: number | null;
+            /** @example null */
+            parentPlanningId?: number | null;
+        };
+        RepeatPlanDto: {
+            /**
+             * @description Target financial month index (1-12)
+             * @example 2
+             */
+            monthIndex: number;
+            /**
+             * @description Target year
+             * @example 2026
+             */
+            year: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -225,6 +824,7 @@ export interface operations {
             };
         };
         responses: {
+            /** @description User successfully registered */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -232,6 +832,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserResponseDto"];
                 };
+            };
+            /** @description Invalid input or email already exists */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -248,6 +855,7 @@ export interface operations {
             };
         };
         responses: {
+            /** @description User successfully authenticated. JWT tokens set in httpOnly cookies. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -255,6 +863,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AuthResponseDto"];
                 };
+            };
+            /** @description Invalid email or password */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -267,6 +882,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description User successfully signed out */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -274,6 +890,13 @@ export interface operations {
                 content: {
                     "application/json": boolean;
                 };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -286,6 +909,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description New tokens issued */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -293,6 +917,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AuthResponseDto"];
                 };
+            };
+            /** @description Invalid or expired refresh token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -305,6 +936,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Current user data */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -312,6 +944,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserResponseDto"];
                 };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -328,6 +967,7 @@ export interface operations {
             };
         };
         responses: {
+            /** @description User onboarding completed */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -335,6 +975,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserResponseDto"];
                 };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -351,6 +998,7 @@ export interface operations {
             };
         };
         responses: {
+            /** @description User profile updated */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -358,6 +1006,564 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserResponseDto"];
                 };
+            };
+            /** @description Invalid input or incorrect current password */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ExchangeRateController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeRateResponseDto"][];
+                };
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ExchangeRateController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeRateResponseDto"];
+                };
+            };
+            /** @description Invalid date or API error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TransactionController_statisticsByCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of category statistics */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionsByCategoryResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TransactionController_statisticsByMonthDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of daily spending statistics */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionsByMonthDayResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TransactionController_findAll: {
+        parameters: {
+            query: {
+                /** @description Start date for filtering transactions (inclusive, ISO 8601) */
+                startDate: string;
+                /** @description End date for filtering transactions (inclusive, ISO 8601) */
+                endDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of transactions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionResponseDto"][];
+                };
+            };
+            /** @description Invalid date format in query parameters */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TransactionController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTransactionDto"];
+            };
+        };
+        responses: {
+            /** @description Transaction successfully created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionResponseDto"];
+                };
+            };
+            /** @description Invalid input data or date in future */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TransactionController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Transaction successfully deleted (returns the deleted transaction) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User does not own this transaction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Transaction not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    TransactionController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTransactionDto"];
+            };
+        };
+        responses: {
+            /** @description Transaction successfully updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionResponseDto"];
+                };
+            };
+            /** @description Invalid input data or date in future */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User does not own this transaction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Transaction not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    PlanningController_getPlanningList: {
+        parameters: {
+            query: {
+                /** @description Financial month index (1-12) */
+                monthIndex: number;
+                /** @description Year */
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"][];
+                };
+            };
+            /** @description Invalid monthIndex or year */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_createPlanning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePlanDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"];
+                };
+            };
+            /** @description Invalid plan data */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_getRepeatingPlanning: {
+        parameters: {
+            query: {
+                /** @description Financial month index (1-12) */
+                monthIndex: number;
+                /** @description Year */
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"][];
+                };
+            };
+            /** @description Invalid monthIndex or year */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_deletePlanning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"];
+                };
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_updatePlanning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePlanDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"];
+                };
+            };
+            /** @description Invalid plan data */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_repeatPlanning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RepeatPlanDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"];
+                };
+            };
+            /** @description Invalid plan data or target month */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlanningController_canselRepeatingPlanning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponseDto"];
+                };
+            };
+            /** @description User not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

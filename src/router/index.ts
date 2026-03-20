@@ -8,7 +8,7 @@ import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 
-import { authApi } from '@/api/auth'
+import { useUserStore } from '@/stores/userStore'
 import { ONBOARDING_UPDATED_AT } from '@/constants/meta.ts'
 
 const router = createRouter({
@@ -60,7 +60,8 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth || to.meta.requiresNoAuth) {
     try {
-      const user = await authApi.me()
+      const userStore = useUserStore()
+      const user = await userStore.fetchUser()
       if (user) {
         if (
           (!user.onboardingAt ||

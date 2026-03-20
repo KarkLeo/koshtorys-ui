@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 
 import { registerSchema } from '@/validations/register.ts'
 import { useSignUp } from '@/hooks/auth-hooks.ts'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
 
 import { Button } from '@/components/ui/button'
@@ -15,9 +15,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const { locale, t } = useI18n()
-const { signUp } = useSignUp()
+const { signUp, loading } = useSignUp()
 const router = useRouter()
-const toastStore = useToastStore()
 
 const name = ref('')
 const email = ref('')
@@ -92,7 +91,7 @@ const register = async () => {
     })
 
     if (data) {
-      toastStore.success(t('register.success'))
+      toast.success(t('register.success'))
       await router.push('/login')
     }
     // eslint-disable-next-line
@@ -100,7 +99,7 @@ const register = async () => {
     if (e instanceof ApiError && e.errorCodes) {
       errors.value = e.errorCodes
     } else {
-      toastStore.error(t('common_errors.server_error'))
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -182,7 +181,7 @@ const register = async () => {
       </div>
 
       <div class="mt-2 flex flex-col">
-        <Button type="submit" class="w-full">{{ $t('register.submit') }}</Button>
+        <Button type="submit" class="w-full" :disabled="loading">{{ $t('register.submit') }}</Button>
       </div>
     </form>
 

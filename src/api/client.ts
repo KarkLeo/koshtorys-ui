@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios'
 import router from '@/router'
-import apolloClient from '@/apolloClient'
 
 export class ApiError extends Error {
   errorCodes: Record<string, string>
@@ -55,7 +54,6 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError)
-        apolloClient.clearStore()
         router.push({ name: 'login' })
         return Promise.reject(refreshError)
       } finally {

@@ -1,23 +1,14 @@
 import { ref } from 'vue'
-import { useMutation, useQuery } from '@vue/apollo-composable'
-
-import type {
-  MeQuery,
-  OnboardingMutation,
-  OnboardingMutationVariables,
-  SettingsGeneralMutation,
-  SettingsGeneralMutationVariables,
-  SettingsStatisticsMutation,
-  SettingsStatisticsMutationVariables,
-} from '@/graphql/types'
-
-import ME from '@/graphql/me.graphql'
-import ONBOARDING from '@/graphql/onboarding.graphql'
-import SETTINGS_GENERAL from '@/graphql/settings-general.graphql'
-import SETTINGS_STATISTICS from '@/graphql/settings-statistics.graphql'
+import { storeToRefs } from 'pinia'
 
 import { authApi } from '@/api/auth'
+import { useUserStore } from '@/stores/userStore'
 import apolloClient from '@/apolloClient'
+
+import type { components } from '@/api/types'
+
+type OnboardingDto = components['schemas']['OnboardingDto']
+type UpdateProfileDto = components['schemas']['UpdateProfileDto']
 
 export function useSignUp() {
   const loading = ref(false)
@@ -36,11 +27,16 @@ export function useSignUp() {
 
 export const useSignIn = () => {
   const loading = ref(false)
+  const userStore = useUserStore()
 
   const signIn = async (variables: { email: string; password: string }) => {
     loading.value = true
     try {
-      return await authApi.signIn(variables)
+      const result = await authApi.signIn(variables)
+      if (result.user) {
+        userStore.setUser(result.user)
+      }
+      return result
     } catch (e) {
       throw e
     } finally {
@@ -53,11 +49,13 @@ export const useSignIn = () => {
 
 export const useSignOut = () => {
   const loading = ref(false)
+  const userStore = useUserStore()
 
   const signOut = async () => {
     loading.value = true
     try {
       const result = await authApi.signOut()
+      userStore.clearUser()
       await apolloClient.clearStore()
       return result
     } finally {
@@ -69,17 +67,22 @@ export const useSignOut = () => {
 }
 
 export const useMe = () => {
-  const { result, loading, error, refetch } = useQuery<MeQuery>(ME)
-  return { me: result, loading, error, refreshMe: refetch }
+  const userStore = useUserStore()
+  const { user, loading } = storeToRefs(userStore)
+  return { user, loading, refreshMe: () => userStore.fetchUser() }
 }
 
 export const usesRefreshTokens = () => {
   const loading = ref(false)
+  const userStore = useUserStore()
 
   const refreshTokens = async () => {
     loading.value = true
     try {
       const result = await authApi.refresh()
+      if (result.user) {
+        userStore.setUser(result.user)
+      }
       return result.user
     } catch (e) {
       throw e
@@ -91,19 +94,21 @@ export const usesRefreshTokens = () => {
 }
 
 export const usesOnboarding = () => {
-  const { mutate, loading } = useMutation<OnboardingMutation, OnboardingMutationVariables>(
-    ONBOARDING,
-    {
-      fetchPolicy: 'no-cache',
-    },
-  )
+  const loading = ref(false)
+  const userStore = useUserStore()
 
-  const onboarding = async (onboardingData: OnboardingMutationVariables) => {
+  const onboarding = async (onboardingData: OnboardingDto) => {
+    loading.value = true
     try {
-      const result = await mutate(onboardingData)
-      return result?.data?.onboarding || null
+      const result = await authApi.onboarding(onboardingData)
+      if (result) {
+        userStore.setUser(result)
+      }
+      return result
     } catch (e) {
       throw e
+    } finally {
+      loading.value = false
     }
   }
 
@@ -111,17 +116,21 @@ export const usesOnboarding = () => {
 }
 
 export const usesSettingsGeneral = () => {
-  const { mutate, loading } = useMutation<
-    SettingsGeneralMutation,
-    SettingsGeneralMutationVariables
-  >(SETTINGS_GENERAL, { fetchPolicy: 'no-cache' })
+  const loading = ref(false)
+  const userStore = useUserStore()
 
-  const settingsGeneral = async (updateProfileData: SettingsGeneralMutationVariables) => {
+  const settingsGeneral = async (updateProfileData: UpdateProfileDto) => {
+    loading.value = true
     try {
-      const result = await mutate(updateProfileData)
-      return result?.data?.updateProfile || null
+      const result = await authApi.updateProfile(updateProfileData)
+      if (result) {
+        userStore.setUser(result)
+      }
+      return result
     } catch (e) {
       throw e
+    } finally {
+      loading.value = false
     }
   }
 
@@ -129,17 +138,21 @@ export const usesSettingsGeneral = () => {
 }
 
 export const usesSettingsStatistics = () => {
-  const { mutate, loading } = useMutation<
-    SettingsStatisticsMutation,
-    SettingsStatisticsMutationVariables
-  >(SETTINGS_STATISTICS, { fetchPolicy: 'no-cache' })
+  const loading = ref(false)
+  const userStore = useUserStore()
 
-  const settingsStatistics = async (updateProfileData: SettingsStatisticsMutationVariables) => {
+  const settingsStatistics = async (updateProfileData: UpdateProfileDto) => {
+    loading.value = true
     try {
-      const result = await mutate(updateProfileData)
-      return result?.data?.updateProfile || null
+      const result = await authApi.updateProfile(updateProfileData)
+      if (result) {
+        userStore.setUser(result)
+      }
+      return result
     } catch (e) {
       throw e
+    } finally {
+      loading.value = false
     }
   }
 
