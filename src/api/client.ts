@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import router from '@/router'
+import { isInNavigationGuard } from '@/api/navigation-guard-flag'
 
 export class ApiError extends Error {
   errorCodes: Record<string, string>
@@ -38,7 +39,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -54,7 +55,9 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError)
-        router.push({ name: 'login' })
+        if (!isInNavigationGuard()) {
+          router.push({ name: 'login' })
+        }
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

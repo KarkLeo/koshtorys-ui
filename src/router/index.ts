@@ -10,6 +10,7 @@ import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 
 import { useUserStore } from '@/stores/userStore'
 import { ONBOARDING_UPDATED_AT } from '@/constants/meta.ts'
+import { setInNavigationGuard } from '@/api/navigation-guard-flag'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth || to.meta.requiresNoAuth) {
+    setInNavigationGuard(true)
     try {
       const userStore = useUserStore()
       const user = await userStore.fetchUser()
@@ -85,6 +87,8 @@ router.beforeEach(async (to) => {
     } catch (e) {
       console.error(`[router.beforeEach]: ${e}`)
       return to.meta.requiresAuth ? { name: 'login' } : true
+    } finally {
+      setInNavigationGuard(false)
     }
   } else {
     return true
