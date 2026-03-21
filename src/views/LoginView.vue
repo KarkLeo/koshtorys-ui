@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const { signIn } = useSignIn()
+const { signIn, loading } = useSignIn()
 const { locale, t } = useI18n()
 const router = useRouter()
 
@@ -129,7 +129,7 @@ const login = async () => {
       </div>
 
       <div class="mt-2 flex flex-col">
-        <Button type="submit" class="w-full">{{ $t('login.submit') }}</Button>
+        <Button type="submit" class="w-full" :disabled="loading">{{ $t('login.submit') }}</Button>
       </div>
 
       <p class="mt-6 text-center text-sm text-muted-foreground">
