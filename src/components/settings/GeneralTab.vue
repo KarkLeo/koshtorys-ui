@@ -5,15 +5,22 @@ import { useI18n } from 'vue-i18n'
 
 import { useMe, usesSettingsGeneral } from '@/hooks/auth-hooks.ts'
 import settingsGeneralSchema from '@/validations/settings.general.ts'
-import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
-import KitDropdown from '@/components/kit/KitDropdown.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitButton from '@/components/kit/KitButton.vue'
 import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import SettingsField from '@/components/settings/SettingsField.vue'
+
 const { user } = useMe()
-const { settingsGeneral } = usesSettingsGeneral()
+const { settingsGeneral, loading } = usesSettingsGeneral()
 const { locale, availableLocales, t } = useI18n()
 
 const name = ref(user.value?.name || '')
@@ -106,6 +113,10 @@ const passwordMessage = computed(() => {
   return ''
 })
 
+const passwordError = computed(() =>
+  Boolean(errors.value.oldPassword || errors.value.newPassword || errors.value.confirmNewPassword),
+)
+
 const isChanged = computed(() => {
   return (
     name.value !== user.value?.name ||
@@ -118,98 +129,78 @@ const isChanged = computed(() => {
 </script>
 
 <template>
-  <form @submit.prevent="update" class="form">
-    <KitSettingsFieldWrapper
+  <form @submit.prevent="update" class="flex flex-col px-4 md:px-6">
+    <SettingsField
       :label="$t('settings.fields.lang.label')"
       :description="$t('settings.fields.lang.description')"
       :error="Boolean(errors?.lang)"
-      :message="errors?.lang ? $t(`settings.fields.lang.errors.${errors?.lang}`) : ''"
+      :message="errors?.lang ? $t(`settings.fields.lang.errors.${errors.lang}`) : ''"
     >
-      <KitDropdown v-model="lang" :options="availableLocales" :getOptionLabel="getLangLabel" />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+      <Select v-model="lang">
+        <SelectTrigger class="w-full" :aria-invalid="Boolean(errors?.lang)">
+          <SelectValue :placeholder="getLangLabel(lang)" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="loc in availableLocales" :key="loc" :value="loc">
+            {{ getLangLabel(loc) }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.name.label')"
       :description="$t('settings.fields.name.description')"
       :error="Boolean(errors?.name)"
-      :message="errors?.name ? $t(`settings.fields.name.errors.${errors?.name}`) : ''"
+      :message="errors?.name ? $t(`settings.fields.name.errors.${errors.name}`) : ''"
     >
-      <KitInput
+      <Input
         v-model="name"
         type="text"
         :placeholder="$t('settings.fields.name.placeholder')"
-        :error="Boolean(errors?.name)"
+        :aria-invalid="Boolean(errors?.name)"
       />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.email.label')"
       :description="$t('settings.fields.email.description')"
     >
-      <KitInput v-model="email" type="email" disabled />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+      <Input v-model="email" type="email" disabled />
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.newPassword.label')"
       :description="$t('settings.fields.newPassword.description')"
-      :error="Boolean(errors?.newPassword || errors?.confirmNewPassword || errors?.oldPassword)"
+      :error="passwordError"
       :message="passwordMessage"
     >
-      <div class="inputs">
-        <KitInput
+      <div class="flex flex-col gap-3">
+        <Input
           v-model="newPassword"
           type="password"
           :placeholder="$t('settings.fields.newPassword.placeholder')"
-          :error="Boolean(errors?.newPassword)"
+          :aria-invalid="Boolean(errors?.newPassword)"
         />
-        <KitInput
+        <Input
           v-model="confirmNewPassword"
           type="password"
           :placeholder="$t('settings.fields.confirmNewPassword.placeholder')"
-          :error="Boolean(errors?.confirmNewPassword)"
+          :aria-invalid="Boolean(errors?.confirmNewPassword)"
         />
-        <KitInput
+        <Input
           v-model="oldPassword"
           type="password"
           :placeholder="$t('settings.fields.oldPassword.placeholder')"
-          :error="Boolean(errors?.oldPassword)"
+          :aria-invalid="Boolean(errors?.oldPassword)"
         />
       </div>
-    </KitSettingsFieldWrapper>
-    <div class="buttons">
-      <KitButton type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</KitButton>
+    </SettingsField>
+
+    <div class="flex justify-end border-t border-border py-5 md:py-6">
+      <Button type="submit" :disabled="!isChanged || loading">
+        {{ $t('settings.submit') }}
+      </Button>
     </div>
   </form>
 </template>
-
-<style scoped>
-.form :deep(.texts),
-.form :deep(.control) {
-  padding-inline: var(--spacing-2xl);
-}
-
-.inputs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-
-  border-top: 1px solid var(--border-secondary);
-}
-
-@media screen and (min-width: 768px) {
-  .form :deep(.texts) {
-    padding-inline: var(--spacing-2xl) 0;
-  }
-  .form :deep(.control) {
-    padding-inline: 0 var(--spacing-2xl);
-  }
-
-  .buttons {
-    padding: var(--spacing-2xl);
-  }
-}
-</style>

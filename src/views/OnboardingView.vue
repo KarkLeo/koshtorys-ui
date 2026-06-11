@@ -10,12 +10,19 @@ import { usesOnboarding } from '@/hooks/auth-hooks.ts'
 import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
 
-import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
-import KitDropdown from '@/components/kit/KitDropdown.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitButton from '@/components/kit/KitButton.vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
-const { onboarding } = usesOnboarding()
+const { onboarding, loading } = usesOnboarding()
 const router = useRouter()
 const { t } = useI18n()
 
@@ -101,131 +108,89 @@ const handleOnboarding = async () => {
   }
 }
 </script>
-<template>
-  <div class="form-wrapper">
-    <div class="inner">
-      <h1 class="title">{{ $t('onboarding.title') }}</h1>
 
-      <form @submit.prevent="handleOnboarding" class="form">
-        <KitSettingsFieldWrapper
-          :label="$t('onboarding.fields.currency.label')"
-          :description="$t('onboarding.fields.currency.description')"
-          :error="Boolean(errors?.currency)"
-          :message="
-            errors?.currency ? $t(`onboarding.fields.currency.errors.${errors.currency}`) : ''
-          "
-        >
-          <KitDropdown
-            :options="CURRENCIES"
-            :placeholder="$t('onboarding.fields.currency.placeholder')"
-            v-model="currency"
-          />
-        </KitSettingsFieldWrapper>
-        <KitSettingsFieldWrapper
-          :label="$t('onboarding.fields.monthStartDay.label')"
-          :description="$t('onboarding.fields.monthStartDay.description')"
-          :error="Boolean(errors?.monthStartDay)"
-          :message="
-            errors?.monthStartDay
-              ? $t(`onboarding.fields.monthStartDay.errors.${errors.monthStartDay}`)
-              : ''
-          "
-        >
-          <KitInput
-            v-model="monthStartDay"
-            type="number"
-            :placeholder="$t('onboarding.fields.monthStartDay.placeholder')"
-            @blur="validateField('monthStartDay')"
-            :error="Boolean(errors?.monthStartDay)"
-          />
-        </KitSettingsFieldWrapper>
-        <KitSettingsFieldWrapper
-          :label="$t('onboarding.fields.monthlyBudget.label')"
-          :description="$t('onboarding.fields.monthlyBudget.description')"
-          :error="Boolean(errors?.monthlyBudget)"
-          :message="
-            errors?.monthlyBudget
-              ? $t(`onboarding.fields.monthlyBudget.errors.${errors.monthlyBudget}`)
-              : ''
-          "
-        >
-          <KitInput
-            v-model="monthlyBudget"
-            type="number"
-            :placeholder="$t('onboarding.fields.monthlyBudget.placeholder')"
-            @blur="validateField('monthlyBudget')"
-            :error="Boolean(errors?.monthlyBudget)"
-          />
-        </KitSettingsFieldWrapper>
-        <div class="buttons">
-          <KitButton type="submit">{{ $t('onboarding.submit') }}</KitButton>
-        </div>
-      </form>
-    </div>
+<template>
+  <div class="flex flex-1 flex-col items-center justify-center p-6 md:p-12">
+    <Card class="w-full max-w-2xl">
+      <CardHeader>
+        <CardTitle class="text-2xl font-semibold md:text-3xl">
+          {{ $t('onboarding.title') }}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form @submit.prevent="handleOnboarding" class="flex flex-col gap-6">
+          <div class="flex flex-col gap-2">
+            <Label :class="{ 'text-destructive': Boolean(errors?.currency) }">
+              {{ $t('onboarding.fields.currency.label') }}
+            </Label>
+            <p class="text-sm text-muted-foreground">
+              {{ $t('onboarding.fields.currency.description') }}
+            </p>
+            <Select
+              :model-value="currency"
+              @update:model-value="
+                (value) => (currency = value as (typeof CURRENCIES)[number])
+              "
+            >
+              <SelectTrigger :aria-invalid="Boolean(errors?.currency)">
+                <SelectValue :placeholder="$t('onboarding.fields.currency.placeholder')" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="option in CURRENCIES" :key="option" :value="option">
+                  {{ option }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="errors?.currency" class="text-sm text-destructive">
+              {{ $t(`onboarding.fields.currency.errors.${errors.currency}`) }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <Label :class="{ 'text-destructive': Boolean(errors?.monthStartDay) }">
+              {{ $t('onboarding.fields.monthStartDay.label') }}
+            </Label>
+            <p class="text-sm text-muted-foreground">
+              {{ $t('onboarding.fields.monthStartDay.description') }}
+            </p>
+            <Input
+              v-model="monthStartDay"
+              type="number"
+              :placeholder="$t('onboarding.fields.monthStartDay.placeholder')"
+              @blur="validateField('monthStartDay')"
+              :aria-invalid="Boolean(errors?.monthStartDay)"
+            />
+            <p v-if="errors?.monthStartDay" class="text-sm text-destructive">
+              {{ $t(`onboarding.fields.monthStartDay.errors.${errors.monthStartDay}`) }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <Label :class="{ 'text-destructive': Boolean(errors?.monthlyBudget) }">
+              {{ $t('onboarding.fields.monthlyBudget.label') }}
+            </Label>
+            <p class="text-sm text-muted-foreground">
+              {{ $t('onboarding.fields.monthlyBudget.description') }}
+            </p>
+            <Input
+              v-model="monthlyBudget"
+              type="number"
+              :placeholder="$t('onboarding.fields.monthlyBudget.placeholder')"
+              @blur="validateField('monthlyBudget')"
+              :aria-invalid="Boolean(errors?.monthlyBudget)"
+            />
+            <p v-if="errors?.monthlyBudget" class="text-sm text-destructive">
+              {{ $t(`onboarding.fields.monthlyBudget.errors.${errors.monthlyBudget}`) }}
+            </p>
+          </div>
+
+          <div class="flex justify-end border-t pt-6">
+            <Button type="submit" :disabled="loading">
+              {{ $t('onboarding.submit') }}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   </div>
 </template>
-<style scoped>
-.form-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  flex-grow: 1;
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-}
-
-.inner {
-  width: 100%;
-  max-width: var(--container-max-width-desktop);
-  margin: var(--spacing-xl);
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-
-  background-color: var(--bg-primary_alt);
-  border: 1px solid var(--border-secondary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xs);
-}
-
-.title {
-  margin: 0 0 var(--spacing-3xl);
-
-  font-size: var(--font-size-display-xs);
-  line-height: var(--line-height-display-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-lg);
-  padding-top: var(--spacing-xl);
-
-  border-top: 1px solid var(--border-secondary);
-}
-
-@media screen and (min-width: 768px) {
-  .form-wrapper {
-    padding: var(--spacing-3xl);
-  }
-
-  .inner {
-    margin: var(--spacing-3xl);
-    padding: var(--spacing-3xl);
-  }
-
-  .title {
-    margin: 0 0 var(--spacing-4xl);
-
-    font-size: var(--font-size-display-sm);
-    line-height: var(--line-height-display-sm);
-  }
-
-  .buttons {
-    padding-top: var(--spacing-2xl);
-  }
-}
-</style>

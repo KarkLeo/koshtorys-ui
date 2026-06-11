@@ -32,3 +32,5 @@ coverage
 .env
 
 keys/
+*storybook.log
+storybook-static
