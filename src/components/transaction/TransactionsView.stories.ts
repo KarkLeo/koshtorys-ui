@@ -31,3 +31,6 @@ export const EmptyMonth: Story = { args: { transactions: [] } }
 export const EmptyByFilters: Story = {
   args: { initialFilters: { search: 'неіснуючий запит', categories: [], plan: 'all' } },
 }
+
+// Ошибка загрузки: сообщение + кнопка «Повторити».
+export const LoadError: Story = { args: { error: true, transactions: [] } }

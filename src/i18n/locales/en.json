@@ -387,6 +387,8 @@
       "empty": "No transactions this month",
       "empty_filtered": "Nothing found",
       "reset_filters": "Reset filters",
+      "error": "Failed to load transactions",
+      "retry": "Retry",
       "menu": {
         "edit": "Edit",
         "delete": "Delete"

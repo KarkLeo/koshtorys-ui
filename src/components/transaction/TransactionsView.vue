@@ -18,6 +18,7 @@ import {
 const props = defineProps<{
   transactions: DisplayTransaction[]
   loading?: boolean
+  error?: boolean
   monthStartDay: number
   monthlyBudget: number
   currency: string
@@ -25,7 +26,7 @@ const props = defineProps<{
   initialFilters?: TransactionFilters
 }>()
 
-const emit = defineEmits<{ edit: [id: string]; delete: [id: string] }>()
+const emit = defineEmits<{ edit: [id: string]; delete: [id: string]; retry: [] }>()
 
 const month = defineModel<Date>('month', { default: () => new Date() })
 
@@ -75,6 +76,16 @@ const hasActiveFilters = computed(
     <template v-if="loading">
       <Skeleton v-for="i in 3" :key="i" class="h-24 w-full rounded-xl" />
     </template>
+
+    <div
+      v-else-if="error && transactions.length === 0"
+      class="mt-6 flex flex-col items-center gap-3"
+    >
+      <p class="text-sm italic text-muted-foreground">{{ $t('transaction.list.error') }}</p>
+      <Button variant="outline" size="sm" @click="emit('retry')">
+        {{ $t('transaction.list.retry') }}
+      </Button>
+    </div>
 
     <p
       v-else-if="transactions.length === 0"
