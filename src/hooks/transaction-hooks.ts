@@ -359,6 +359,8 @@ export function useUpdateTransaction() {
       const result = await mutate(variables)
       const updated = result?.data?.updateTransaction || null
       if (updated) {
+        // Инвалидируем месяц назначения транзакции И текущий просматриваемый месяц:
+        // при переносе транзакции в другой месяц нужно обновить оба. НЕ удалять второй вызов.
         store.invalidate(new Date(updated.date), user.value?.monthStartDay || 1)
         store.invalidate(statisticDate.value, user.value?.monthStartDay || 1)
       }
