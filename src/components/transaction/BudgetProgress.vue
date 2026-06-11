@@ -24,12 +24,14 @@ const message = computed(
 /* Рамка — на новых Shadcn-токенах (как у MonthSwitcher). Внутренняя легаси-рамка
    WaveChart завязана на старые переменные из base.css, которых нет в новом
    контексте, — гасим её, не трогая сам WaveChart. */
+/* Концентричные углы: внутренний радиус = внешний (--radius-xl) - border 1px - padding 4px. */
 :deep(.wave-chart-border) {
   border: none;
   padding: 0;
+  border-radius: calc(var(--radius-xl) - 5px);
 }
 :deep(.wave-chart) {
-  border-radius: var(--radius);
+  border-radius: calc(var(--radius-xl) - 5px);
 }
 /* Типографика сообщения тоже была на легаси-переменных. */
 :deep(.wave-chart-message) {
