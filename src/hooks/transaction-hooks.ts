@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
@@ -25,6 +25,9 @@ import UPDATE_TRANSACTION from '@/graphql/update-transaction.graphql'
 import TRANSACTIONS from '@/graphql/transactions.graphql'
 import PLANNING from '@/graphql/planning.graphql'
 import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
+import { useTransactionsStore, monthKeyOf } from '@/stores/transactionsStore.ts'
+import { toDisplayTransaction } from '@/mappers/transaction-mapper.ts'
+import type { DisplayTransaction } from '@/components/transaction/types'
 
 export function useCreateTransaction() {
   const { user } = useMe()
@@ -103,10 +106,15 @@ export function useCreateTransaction() {
       }
     },
   })
+  const store = useTransactionsStore()
   const createTransaction = async (variables: CreateTransactionMutationVariables) => {
     try {
       const result = await mutate(variables)
-      return result?.data?.createTransaction || null
+      const created = result?.data?.createTransaction || null
+      if (created) {
+        store.invalidate(new Date(created.date), user.value?.monthStartDay)
+      }
+      return created
     } catch (e) {
       throw e
     }
@@ -188,10 +196,15 @@ export function useDeleteTransaction() {
       }
     },
   })
+  const store = useTransactionsStore()
   const deleteTransaction = async (variables: DeleteTransactionMutationVariables) => {
     try {
       const result = await mutate(variables)
-      return result?.data?.deleteTransaction || null
+      const deleted = result?.data?.deleteTransaction || null
+      if (deleted) {
+        store.invalidate(new Date(deleted.date), user.value?.monthStartDay)
+      }
+      return deleted
     } catch (e) {
       throw e
     }
@@ -340,10 +353,16 @@ export function useUpdateTransaction() {
       }
     },
   })
+  const store = useTransactionsStore()
   const updateTransaction = async (variables: UpdateTransactionMutationVariables) => {
     try {
       const result = await mutate(variables)
-      return result?.data?.updateTransaction || null
+      const updated = result?.data?.updateTransaction || null
+      if (updated) {
+        store.invalidate(new Date(updated.date), user.value?.monthStartDay)
+        store.invalidate(statisticDate.value, user.value?.monthStartDay)
+      }
+      return updated
     } catch (e) {
       throw e
     }
@@ -390,4 +409,38 @@ export function useTransactionsStatistic() {
     transactionsStatistic: result,
     loading,
   }
+}
+
+export function useMonthlyTransactions() {
+  const { statisticDate } = useStatisticDateStore()
+  const { user } = useMe()
+  const store = useTransactionsStore()
+
+  const monthStartDay = computed(() => user.value?.monthStartDay ?? 1)
+  const monthKey = computed(() => monthKeyOf(statisticDate.value, monthStartDay.value))
+
+  // Единый реактивный эффект: грузит месяц при смене и реагирует на инвалидацию
+  // активного месяца (мост удалил ключ -> has стал false -> дозагрузка).
+  watch(
+    () => [monthKey.value, store.has(monthKey.value)] as const,
+    () => {
+      if (!store.has(monthKey.value) && !store.isLoading(monthKey.value)) {
+        store.fetchMonth(statisticDate.value, monthStartDay.value)
+      }
+    },
+    { immediate: true },
+  )
+
+  const transactions = computed<DisplayTransaction[]>(() => {
+    const currency = user.value?.currency
+    const raw = store.getMonth(monthKey.value)
+    if (!currency || !raw) return []
+    return raw.map((dto) => toDisplayTransaction(dto, currency))
+  })
+
+  const loading = computed(() => store.isLoading(monthKey.value))
+  const error = computed(() => store.hasError(monthKey.value))
+  const refetch = () => store.fetchMonth(statisticDate.value, monthStartDay.value, { force: true })
+
+  return { transactions, loading, error, refetch }
 }
