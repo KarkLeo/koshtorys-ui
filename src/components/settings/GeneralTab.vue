@@ -7,6 +7,9 @@ import { useMe, usesSettingsGeneral } from '@/hooks/auth-hooks.ts'
 import settingsGeneralSchema from '@/validations/settings.general.ts'
 import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
+import type { components } from '@/api/types'
+
+type UpdateProfileDto = components['schemas']['UpdateProfileDto']
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -77,12 +80,18 @@ const update = async () => {
     const isValid = await validateForm()
     if (!isValid) return
 
-    const data = await settingsGeneral({
+    // Only send password fields when a new password is actually entered —
+    // an empty newPassword string fails the backend's @MinLength(6) validation.
+    const payload: UpdateProfileDto = {
       name: name.value,
       lang: lang.value,
-      newPassword: newPassword.value,
-      oldPassword: oldPassword.value,
-    })
+    }
+    if (newPassword.value) {
+      payload.newPassword = newPassword.value
+      payload.oldPassword = oldPassword.value
+    }
+
+    const data = await settingsGeneral(payload)
 
     if (data) {
       if (data.lang === 'en' || data.lang === 'uk-UA') {
