@@ -112,7 +112,7 @@ export function useCreateTransaction() {
       const result = await mutate(variables)
       const created = result?.data?.createTransaction || null
       if (created) {
-        store.invalidate(new Date(created.date), user.value?.monthStartDay)
+        store.invalidate(new Date(created.date), user.value?.monthStartDay || 1)
       }
       return created
     } catch (e) {
@@ -202,7 +202,7 @@ export function useDeleteTransaction() {
       const result = await mutate(variables)
       const deleted = result?.data?.deleteTransaction || null
       if (deleted) {
-        store.invalidate(new Date(deleted.date), user.value?.monthStartDay)
+        store.invalidate(new Date(deleted.date), user.value?.monthStartDay || 1)
       }
       return deleted
     } catch (e) {
@@ -359,8 +359,8 @@ export function useUpdateTransaction() {
       const result = await mutate(variables)
       const updated = result?.data?.updateTransaction || null
       if (updated) {
-        store.invalidate(new Date(updated.date), user.value?.monthStartDay)
-        store.invalidate(statisticDate.value, user.value?.monthStartDay)
+        store.invalidate(new Date(updated.date), user.value?.monthStartDay || 1)
+        store.invalidate(statisticDate.value, user.value?.monthStartDay || 1)
       }
       return updated
     } catch (e) {
