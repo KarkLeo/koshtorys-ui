@@ -20,6 +20,8 @@ export const toDisplayTransaction = (
 
   if (userCurrency === dto.currency) return base
 
+  // openapi-typescript генерирует Record<string, never> для free-form объектів;
+  // rates фактично Record<string, number>. Правильний фікс — патч ExchangeRateDto в генераторі.
   const rates = dto.exchangeRate.rates as Record<string, number>
   const fromRate = rates[dto.currency]
   const toRate = rates[userCurrency]
