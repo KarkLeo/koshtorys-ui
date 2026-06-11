@@ -41,10 +41,10 @@ const symbol = (currency: string) => CURRENCIES_SYMBOL[currency] || currency
 
       <Badge
         variant="outline"
-        class="max-w-44 truncate rounded-full"
+        class="max-w-44 rounded-full"
         :style="{ color: categoryColor, borderColor: categoryColor }"
       >
-        {{ $t(`categories.${transaction.categoryId}`) }}
+        <span class="truncate">{{ $t(`categories.${transaction.categoryId}`) }}</span>
       </Badge>
 
       <Link2 v-if="transaction.planningId" class="size-4 shrink-0 text-primary" />

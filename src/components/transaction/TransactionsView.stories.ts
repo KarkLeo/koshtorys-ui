@@ -11,6 +11,7 @@ const meta = {
     monthStartDay: MOCK_USER_CONTEXT.monthStartDay,
     monthlyBudget: MOCK_USER_CONTEXT.monthlyBudget,
     currency: MOCK_USER_CONTEXT.currency,
+    month: new Date(2026, 4, 20),
   },
 } satisfies Meta<typeof TransactionsView>
 

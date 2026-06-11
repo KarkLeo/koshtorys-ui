@@ -6,6 +6,7 @@ import { createEmptyFilters, type TransactionFilters, type TransactionSort } fro
 const meta = {
   title: 'Transactions/TransactionsToolbar',
   component: TransactionsToolbar,
+  // args нужны только для vue-tsc (обязательные модели); сами stories управляют v-model локально.
   args: { filters: createEmptyFilters(), sort: 'date-desc' as TransactionSort },
   decorators: [() => ({ template: '<div class="max-w-[600px]"><story /></div>' })],
 } satisfies Meta<typeof TransactionsToolbar>

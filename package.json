@@ -22,7 +22,6 @@
     "@graphql-codegen/schema-ast": "^4.1.0",
     "@graphql-codegen/typescript": "^4.1.2",
     "@graphql-codegen/typescript-operations": "^4.4.0",
-    "@lucide/vue": "^1.17.0",
     "@rollup/plugin-graphql": "^2.0.5",
     "@vue/apollo-composable": "^4.2.1",
     "@vueuse/core": "^14.3.0",
