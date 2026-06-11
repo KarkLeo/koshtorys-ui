@@ -20,7 +20,6 @@ const props = defineProps<{
   monthStartDay: number
   monthlyBudget: number
   currency: string
-  budgetVariant?: 'bar' | 'wave'
   /** Только для Storybook: стартовое состояние фильтров */
   initialFilters?: TransactionFilters
 }>()
@@ -58,12 +57,7 @@ const hasActiveFilters = computed(
   <div class="mx-auto flex w-full max-w-[600px] flex-col gap-4">
     <MonthSwitcher v-model="month" :month-start-day="monthStartDay" />
 
-    <BudgetProgress
-      :current="spent"
-      :max="monthlyBudget"
-      :currency="currency"
-      :variant="budgetVariant"
-    />
+    <BudgetProgress :current="spent" :max="monthlyBudget" :currency="currency" />
 
     <TransactionsToolbar v-model:filters="filters" v-model:sort="sort" />
 

@@ -11,11 +11,8 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// Вариант A: спокойный градиентный бар (новый).
-export const Bar: Story = {}
-
-// Вариант B: анимированная «волна» (текущий WaveChart).
-export const Wave: Story = { args: { variant: 'wave' } }
+// Анимированная «волна» (оригинальный WaveChart) — выбранный вариант дизайна.
+export const Default: Story = {}
 
 // Перерасход бюджета.
 export const Overspent: Story = { args: { current: 4100 } }

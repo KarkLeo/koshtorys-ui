@@ -21,9 +21,6 @@ type Story = StoryObj<typeof meta>
 // Полный экран «Витрати» с данными со скриншота.
 export const Default: Story = {}
 
-// Вариант бюджета «волна» (старый WaveChart) для сравнения.
-export const WaveBudget: Story = { args: { budgetVariant: 'wave' } }
-
 // Загрузка: skeleton-карточки.
 export const Loading: Story = { args: { loading: true, transactions: [] } }
 
