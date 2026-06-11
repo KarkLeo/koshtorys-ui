@@ -381,6 +381,34 @@
     },
     "table": {
       "empty": "Транзакції відсутні"
+    },
+    "list": {
+      "search_placeholder": "Пошук за описом...",
+      "empty": "Транзакцій за цей місяць немає",
+      "empty_filtered": "Нічого не знайдено",
+      "reset_filters": "Скинути фільтри",
+      "menu": {
+        "edit": "Редагувати",
+        "delete": "Видалити"
+      },
+      "filters": {
+        "button": "Фільтри",
+        "categories": "Категорії",
+        "plan": "Звʼязок з планом",
+        "plan_all": "Всі",
+        "plan_linked": "Звʼязані з планом",
+        "plan_unlinked": "Без плану",
+        "chip_plan_linked": "з планом",
+        "chip_plan_unlinked": "без плану",
+        "reset_all": "Скинути все"
+      },
+      "sort": {
+        "date-desc": "Дата ↓",
+        "date-asc": "Дата ↑",
+        "amount-desc": "Сума ↓",
+        "amount-asc": "Сума ↑",
+        "category": "Категорія"
+      }
     }
   },
   "planning": {

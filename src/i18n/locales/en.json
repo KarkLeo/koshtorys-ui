@@ -381,6 +381,34 @@
     },
     "table": {
       "empty": "No transactions found"
+    },
+    "list": {
+      "search_placeholder": "Search by description...",
+      "empty": "No transactions this month",
+      "empty_filtered": "Nothing found",
+      "reset_filters": "Reset filters",
+      "menu": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "button": "Filters",
+        "categories": "Categories",
+        "plan": "Plan link",
+        "plan_all": "All",
+        "plan_linked": "Linked to a plan",
+        "plan_unlinked": "Not linked",
+        "chip_plan_linked": "with plan",
+        "chip_plan_unlinked": "no plan",
+        "reset_all": "Reset all"
+      },
+      "sort": {
+        "date-desc": "Date ↓",
+        "date-asc": "Date ↑",
+        "amount-desc": "Amount ↓",
+        "amount-asc": "Amount ↑",
+        "category": "Category"
+      }
     }
   },
   "planning": {
