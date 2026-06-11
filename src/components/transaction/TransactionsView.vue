@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import MonthSwitcher from '@/components/MonthSwitcher.vue'
 import BudgetProgress from './BudgetProgress.vue'
 import TransactionsToolbar from './TransactionsToolbar.vue'
 import TransactionCard from './TransactionCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { filterAndSortTransactions } from '@/helpers/transaction-filters.ts'
+import { filterAndSortTransactions, groupTransactionsByDay } from '@/helpers/transaction-filters.ts'
 import {
   createEmptyFilters,
   type DisplayTransaction,
@@ -36,9 +37,19 @@ watch(month, () => {
   filters.value = createEmptyFilters()
 })
 
+const { locale } = useI18n()
+
 const visible = computed(() =>
   filterAndSortTransactions(props.transactions, filters.value, sort.value),
 )
+
+// Группы по дням — только при сортировке по дате; в остальных сортировках
+// список плоский и дата показывается в самой карточке.
+const groupedByDay = computed(() => sort.value === 'date-desc' || sort.value === 'date-asc')
+const dayGroups = computed(() => (groupedByDay.value ? groupTransactionsByDay(visible.value) : []))
+
+const formatDayHeader = (date: Date) =>
+  date.toLocaleDateString(locale.value, { day: 'numeric', month: 'long' })
 
 // Бюджет считается по всему месяцу, не по отфильтрованному списку.
 const spent = computed(() =>
@@ -84,10 +95,29 @@ const hasActiveFilters = computed(
       </Button>
     </div>
 
-    <ul v-else class="m-0 flex list-none flex-col gap-3 p-0">
+    <template v-else-if="groupedByDay">
+      <section v-for="group in dayGroups" :key="group.date.getTime()" class="flex flex-col gap-2">
+        <h3 class="flex items-center gap-3 text-xs font-medium text-muted-foreground">
+          {{ formatDayHeader(group.date) }}
+          <span class="h-px flex-1 bg-border" />
+        </h3>
+        <ul class="m-0 flex list-none flex-col gap-2 p-0">
+          <li v-for="transaction in group.transactions" :key="transaction.id">
+            <TransactionCard
+              :transaction="transaction"
+              @edit="emit('edit', $event)"
+              @delete="emit('delete', $event)"
+            />
+          </li>
+        </ul>
+      </section>
+    </template>
+
+    <ul v-else class="m-0 flex list-none flex-col gap-2 p-0">
       <li v-for="transaction in visible" :key="transaction.id">
         <TransactionCard
           :transaction="transaction"
+          show-date
           @edit="emit('edit', $event)"
           @delete="emit('delete', $event)"
         />

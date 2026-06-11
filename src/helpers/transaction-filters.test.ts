@@ -1,9 +1,31 @@
 import { describe, it, expect } from 'vitest'
-import { filterAndSortTransactions } from './transaction-filters'
+import { filterAndSortTransactions, groupTransactionsByDay } from './transaction-filters'
 import { createEmptyFilters } from '@/components/transaction/types'
 import { mockTransactions } from '@/components/transaction/__fixtures__/transactions'
 
 const ids = (list: { id: string }[]) => list.map((t) => t.id)
+
+describe('groupTransactionsByDay', () => {
+  it('groups consecutive same-day transactions preserving order', () => {
+    const sorted = filterAndSortTransactions(mockTransactions, createEmptyFilters(), 'date-desc')
+    const groups = groupTransactionsByDay(sorted)
+    // 03.06, 02.06, 30.05, 28.05, 27.05, 26.05 (две транзакции: 6 и 7)
+    expect(groups).toHaveLength(6)
+    expect(ids(groups[5].transactions)).toEqual(['6', '7'])
+    expect(groups.map((g) => g.date.getDate())).toEqual([3, 2, 30, 28, 27, 26])
+  })
+
+  it('works for ascending order too', () => {
+    const sorted = filterAndSortTransactions(mockTransactions, createEmptyFilters(), 'date-asc')
+    const groups = groupTransactionsByDay(sorted)
+    expect(groups).toHaveLength(6)
+    expect(ids(groups[0].transactions)).toEqual(['7', '6'])
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(groupTransactionsByDay([])).toEqual([])
+  })
+})
 
 describe('filterAndSortTransactions', () => {
   describe('search', () => {

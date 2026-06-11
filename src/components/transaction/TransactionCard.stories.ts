@@ -12,8 +12,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// Обычная транзакция (Суші, 52 €).
+// Обычная транзакция (Суші, 52 €) — компактная строка без даты (дата в заголовке дня).
 export const Default: Story = {}
+
+// Плоский режим (сортировка по сумме/категории): дата возвращается в карточку.
+export const WithDate: Story = { args: { showDate: true } }
 
 // Мультивалютная: 5 € / 6 $ (JetBrains).
 export const MultiCurrency: Story = { args: { transaction: mockTransactions[0] } }

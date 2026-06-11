@@ -55,3 +55,22 @@ export const filterAndSortTransactions = (
     )
     .sort(COMPARATORS[sort])
 }
+
+export interface TransactionDayGroup {
+  date: Date
+  transactions: DisplayTransaction[]
+}
+
+/** Группирует последовательные транзакции одного дня; порядок входа сохраняется. */
+export const groupTransactionsByDay = (list: DisplayTransaction[]): TransactionDayGroup[] => {
+  const groups: TransactionDayGroup[] = []
+  for (const transaction of list) {
+    const last = groups[groups.length - 1]
+    if (last && dayTime(last.date) === dayTime(transaction.date)) {
+      last.transactions.push(transaction)
+    } else {
+      groups.push({ date: transaction.date, transactions: [transaction] })
+    }
+  }
+  return groups
+}
