@@ -81,7 +81,7 @@ const hasActiveFilters = computed(
       v-else-if="error && transactions.length === 0"
       class="mt-6 flex flex-col items-center gap-3"
     >
-      <p class="text-sm italic text-muted-foreground">{{ $t('transaction.list.error') }}</p>
+      <p class="text-center text-sm italic text-muted-foreground">{{ $t('transaction.list.error') }}</p>
       <Button variant="outline" size="sm" @click="emit('retry')">
         {{ $t('transaction.list.retry') }}
       </Button>
