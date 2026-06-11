@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 
-import type { TransactionsQuery } from '@/graphql/types.ts'
+import type { DisplayTransaction } from '@/components/transaction/types'
 import { CURRENCIES } from '@/constants/currencies.ts'
 import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
@@ -21,20 +21,11 @@ import IconLink from '@/components/icons/IconLink.vue'
 import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
 import KitPreloader from '@/components/kit/KitPreloader.vue'
 
-// ===== Types =====
-
-type BaseTransaction = TransactionsQuery['transactions'][number]
-
-interface ExtendedTransaction extends BaseTransaction {
-  originalAmount?: number
-  originalCurrency?: string
-}
-
 // ===== Emits and Props =====
 
 const emit = defineEmits(['closeForm'])
 const { transaction } = defineProps<{
-  transaction: ExtendedTransaction
+  transaction: DisplayTransaction
 }>()
 
 // ===== Hooks =====
