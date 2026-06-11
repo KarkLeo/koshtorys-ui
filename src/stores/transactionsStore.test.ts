@@ -37,6 +37,15 @@ describe('transactionsStore', () => {
     expect(store.getMonth(monthKeyOf(date, monthStartDay))).toEqual([dummyTx])
   })
 
+  it('has() reflects whether a month is cached', async () => {
+    findAll.mockResolvedValue([dummyTx])
+    const store = useTransactionsStore()
+    const key = monthKeyOf(date, monthStartDay)
+    expect(store.has(key)).toBe(false)
+    await store.fetchMonth(date, monthStartDay)
+    expect(store.has(key)).toBe(true)
+  })
+
   it('fetchMonth does not refetch a cached month', async () => {
     findAll.mockResolvedValue([dummyTx])
     const store = useTransactionsStore()

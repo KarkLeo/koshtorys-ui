@@ -16,6 +16,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
   const loadingKeys = reactive(new Set<string>())
   const errorKeys = reactive(new Set<string>())
 
+  const has = (key: string) => cache.has(key)
   const isLoading = (key: string) => loadingKeys.has(key)
   const hasError = (key: string) => errorKeys.has(key)
   const getMonth = (key: string) => cache.get(key)
@@ -28,19 +29,22 @@ export const useTransactionsStore = defineStore('transactions', () => {
     const key = monthKeyOf(date, monthStartDay)
     if ((!opts.force && cache.has(key)) || loadingKeys.has(key)) return
 
+    // endDate — эксклюзивная граница (первый момент следующего фин. месяца), как в getDateRangeByDate.
     const { startDate, endDate } = getDateRangeByDate(date, monthStartDay)
     loadingKeys.add(key)
     errorKeys.delete(key)
     try {
       const data = await transactionApi.findAll(startDate.toISOString(), endDate.toISOString())
       cache.set(key, data)
-    } catch {
+    } catch (e) {
       errorKeys.add(key)
+      console.error('[transactionsStore] fetchMonth failed:', e)
     } finally {
       loadingKeys.delete(key)
     }
   }
 
+  /** Инвалидация: оба аргумента — конкретный месяц; без аргументов — весь кэш. */
   const invalidate = (date?: Date, monthStartDay?: number) => {
     if (date && monthStartDay != null) {
       cache.delete(monthKeyOf(date, monthStartDay))
@@ -49,5 +53,5 @@ export const useTransactionsStore = defineStore('transactions', () => {
     }
   }
 
-  return { cache, loadingKeys, errorKeys, isLoading, hasError, getMonth, fetchMonth, invalidate }
+  return { has, isLoading, hasError, getMonth, fetchMonth, invalidate }
 })
