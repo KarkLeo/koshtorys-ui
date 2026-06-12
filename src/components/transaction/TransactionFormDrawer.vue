@@ -15,12 +15,16 @@ import {
 } from '@/helpers/transaction-form'
 import type { PlanningLike } from '@/helpers/transaction-form'
 
+import { CalendarDate, getLocalTimeZone, today, type DateValue } from '@internationalized/date'
+
 import { ResponsiveSheet } from '@/components/ui/responsive-sheet'
 import { MoneyInput } from '@/components/ui/money-input'
 import { CategoryPicker } from '@/components/ui/category-picker'
 import { ActionCard } from '@/components/ui/action-card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 import IconLink from '@/components/icons/IconLink.vue'
 import IconSlashCircle from '@/components/icons/IconSlashCircle.vue'
@@ -56,48 +60,27 @@ const isPlanningOpen = ref(false)
 const errors = ref<Record<string, string>>({})
 
 // ---------------------------------------------------------------------------
-// Date pill helpers (Option B: native <input type="date">)
+// Date picker (shadcn Popover + Calendar; мост Date <-> CalendarDate)
 // ---------------------------------------------------------------------------
 
-/** yyyy-MM-dd string bound to the native date input */
-const dateInputValue = computed({
+const isDateOpen = ref(false)
+
+/** Reka-ui Calendar работает с DateValue (CalendarDate), форма хранит нативный Date. */
+const calendarDate = computed<DateValue>({
   get() {
     const d = date.value
-    const yyyy = d.getFullYear()
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const dd = String(d.getDate()).padStart(2, '0')
-    return `${yyyy}-${mm}-${dd}`
+    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
   },
-  set(val: string) {
-    if (val) date.value = new Date(val + 'T00:00:00')
-  },
-})
-
-/** Today as yyyy-MM-dd — used as `max` on the date input */
-const todayString = computed(() => {
-  const d = new Date()
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
-})
-
-/** Открытие нативного календаря по клику на пилюлю (клик по opacity-0 input сам по себе
- *  во многих браузерах календарь не открывает — нужен showPicker). */
-const dateInputRef = ref<HTMLInputElement | null>(null)
-const openDatePicker = () => {
-  const el = dateInputRef.value
-  if (!el) return
-  if (typeof el.showPicker === 'function') {
-    try {
-      el.showPicker()
-    } catch {
-      el.focus()
+  set(value) {
+    if (value) {
+      date.value = value.toDate(getLocalTimeZone())
+      isDateOpen.value = false
     }
-  } else {
-    el.focus()
-  }
-}
+  },
+})
+
+/** Максимум — сегодня (запрет будущих дат, дублирует yup date_max). */
+const maxDate = computed<DateValue>(() => today(getLocalTimeZone()))
 
 /** Human-readable date label for the pill button */
 const datePillLabel = computed(() => {
@@ -237,26 +220,22 @@ const onPlanningCardClick = () => {
   <ResponsiveSheet v-model:open="open" :title="t('transaction.form.title')">
     <div class="flex flex-col gap-6 py-2">
       <!-- Date pill -->
-      <div class="relative">
-        <button
-          type="button"
-          class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition hover:bg-accent"
-          :class="errors.date ? 'border-destructive text-destructive' : 'border-border'"
-          @click="openDatePicker"
-        >
-          <IconCalendar class="size-4 shrink-0" />
-          <span>{{ datePillLabel }}</span>
-        </button>
-        <input
-          ref="dateInputRef"
-          v-model="dateInputValue"
-          type="date"
-          :max="todayString"
-          class="sr-only"
-          tabindex="-1"
-          aria-hidden="true"
-          @click.stop
-        />
+      <div>
+        <Popover v-model:open="isDateOpen">
+          <PopoverTrigger as-child>
+            <button
+              type="button"
+              class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition hover:bg-accent"
+              :class="errors.date ? 'border-destructive text-destructive' : 'border-border'"
+            >
+              <IconCalendar class="size-4 shrink-0" />
+              <span>{{ datePillLabel }}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent class="w-auto p-0" align="start">
+            <Calendar v-model="calendarDate" :max-value="maxDate" initial-focus />
+          </PopoverContent>
+        </Popover>
         <p v-if="errors.date" class="mt-1 text-xs text-destructive">
           {{ t(`transaction.form.errors.${errors.date}`) }}
         </p>
