@@ -82,6 +82,23 @@ const todayString = computed(() => {
   return `${yyyy}-${mm}-${dd}`
 })
 
+/** Открытие нативного календаря по клику на пилюлю (клик по opacity-0 input сам по себе
+ *  во многих браузерах календарь не открывает — нужен showPicker). */
+const dateInputRef = ref<HTMLInputElement | null>(null)
+const openDatePicker = () => {
+  const el = dateInputRef.value
+  if (!el) return
+  if (typeof el.showPicker === 'function') {
+    try {
+      el.showPicker()
+    } catch {
+      el.focus()
+    }
+  } else {
+    el.focus()
+  }
+}
+
 /** Human-readable date label for the pill button */
 const datePillLabel = computed(() => {
   return date.value.toLocaleDateString(undefined, {
@@ -221,19 +238,25 @@ const onPlanningCardClick = () => {
     <div class="flex flex-col gap-6 py-2">
       <!-- Date pill -->
       <div class="relative">
-        <label
+        <button
+          type="button"
           class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition hover:bg-accent"
           :class="errors.date ? 'border-destructive text-destructive' : 'border-border'"
+          @click="openDatePicker"
         >
           <IconCalendar class="size-4 shrink-0" />
           <span>{{ datePillLabel }}</span>
-          <input
-            v-model="dateInputValue"
-            type="date"
-            :max="todayString"
-            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-          />
-        </label>
+        </button>
+        <input
+          ref="dateInputRef"
+          v-model="dateInputValue"
+          type="date"
+          :max="todayString"
+          class="sr-only"
+          tabindex="-1"
+          aria-hidden="true"
+          @click.stop
+        />
         <p v-if="errors.date" class="mt-1 text-xs text-destructive">
           {{ t(`transaction.form.errors.${errors.date}`) }}
         </p>
