@@ -21,7 +21,7 @@ const colorOf = (id: string) => TRANSACTION_CATEGORIES_COLORS[getMainCategory(id
 
 <template>
   <Select v-model="model">
-    <SelectTrigger :class="error ? 'border-destructive' : ''">
+    <SelectTrigger class="w-full" :class="error ? 'border-destructive' : ''">
       <SelectValue :placeholder="t('transaction.form.fields.category.placeholder')">
         <span v-if="model" class="inline-flex items-center gap-2">
           <span class="size-2 rounded-full" :style="{ backgroundColor: colorOf(model) }" />
