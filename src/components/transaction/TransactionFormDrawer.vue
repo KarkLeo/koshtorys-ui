@@ -206,6 +206,14 @@ const onPlanningSubmit = (plan?: {
 const onPlanningClose = () => {
   isPlanningOpen.value = false
 }
+
+const onPlanningCardClick = () => {
+  if (selectedPlanning.value) {
+    selectedPlanning.value = null
+  } else {
+    isPlanningOpen.value = true
+  }
+}
 </script>
 
 <template>
@@ -264,7 +272,7 @@ const onPlanningClose = () => {
         <ActionCard
           :label="t('transaction.form.actions.planning')"
           :class="selectedPlanning ? 'border-primary' : ''"
-          @click="isPlanningOpen = true"
+          @click="onPlanningCardClick"
         >
           <template #icon>
             <IconLink class="size-5" />

@@ -26,8 +26,8 @@ const { planning } = usePlanningList()
 const { planningTables, loading } = usePlanningMapper()
 
 const planningTransactionTable = computed(() => {
-  return planningTables?.value
-    ?.map((planningTable) => {
+  return (planningTables?.value ?? [])
+    .map((planningTable) => {
       return {
         ...planningTable,
         items: planningTable.items.filter((plan) => plan.type === 'TRANSACTION'),
@@ -40,6 +40,7 @@ const planningTransactionTable = computed(() => {
 
 const cancelHandler = () => {
   model.value = null
+  closeHandler()
 }
 
 const submitHandler = () => {
