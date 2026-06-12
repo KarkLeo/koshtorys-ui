@@ -21,7 +21,7 @@ defineProps<{ min?: number; error?: boolean }>()
       inputmode="decimal"
       :min="min ?? 0"
       placeholder="00.00"
-      class="w-full bg-transparent text-5xl font-bold tabular-nums outline-none placeholder:text-muted-foreground"
+      class="no-spinner w-full bg-transparent text-5xl font-bold tabular-nums outline-none placeholder:text-muted-foreground"
     />
     <Select v-model="currency">
       <SelectTrigger class="w-auto border-none shadow-none text-lg font-medium">
@@ -33,3 +33,16 @@ defineProps<{ min?: number; error?: boolean }>()
     </Select>
   </div>
 </template>
+
+<style scoped>
+/* Прячем нативные стрелки-степпер у input[type=number] */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+</style>
