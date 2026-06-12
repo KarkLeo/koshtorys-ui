@@ -344,7 +344,8 @@
           "placeholder": "Введіть транзакцію"
         },
         "category": {
-          "placeholder": "Оберіть категорію"
+          "placeholder": "Оберіть категорію",
+          "search": "Пошук категорії..."
         },
         "description": {
           "placeholder": "Додайте опис"
@@ -440,7 +441,8 @@
           "placeholder": "Введіть суму"
         },
         "category": {
-          "placeholder": "Оберіть категорію"
+          "placeholder": "Оберіть категорію",
+          "search": "Пошук категорії..."
         },
         "description": {
           "placeholder": "Додайте опис"

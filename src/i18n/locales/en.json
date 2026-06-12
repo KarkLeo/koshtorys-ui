@@ -344,7 +344,8 @@
           "placeholder": "Enter transaction"
         },
         "category": {
-          "placeholder": "Select category"
+          "placeholder": "Select category",
+          "search": "Search category..."
         },
         "description": {
           "placeholder": "Enter description"
@@ -440,7 +441,8 @@
           "placeholder": "Enter amount"
         },
         "category": {
-          "placeholder": "Select category"
+          "placeholder": "Select category",
+          "search": "Search category..."
         },
         "description": {
           "placeholder": "Enter description"
