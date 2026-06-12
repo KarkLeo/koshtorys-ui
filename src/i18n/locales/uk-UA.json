@@ -334,6 +334,11 @@
   },
   "transaction": {
     "form": {
+      "title": "Додати нову транзакцію",
+      "actions": {
+        "scan": "Сканувати чек",
+        "planning": "Планування"
+      },
       "fields": {
         "amount": {
           "placeholder": "Введіть транзакцію"
@@ -374,10 +379,10 @@
     "selectPlanning": {
       "title": "Оберіть планування",
       "subtitle": "Оберіть планування для витрати",
-        "buttons": {
-            "submit": "Зберегти",
-            "cancel": "Видалити"
-        }
+      "buttons": {
+        "submit": "Зберегти",
+        "cancel": "Видалити"
+      }
     },
     "table": {
       "empty": "Транзакції відсутні"

@@ -334,6 +334,11 @@
   },
   "transaction": {
     "form": {
+      "title": "Add new transaction",
+      "actions": {
+        "scan": "Scan receipt",
+        "planning": "Planning"
+      },
       "fields": {
         "amount": {
           "placeholder": "Enter transaction"
