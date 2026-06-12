@@ -4,14 +4,16 @@ import { computed } from 'vue'
 import { usePlanningList } from '@/hooks/planning-hooks.ts'
 import { usePlanningMapper } from '@/mappers/planning-mapper.ts'
 
-import KitModal from '@/components/kit/KitModal.vue'
+import ResponsiveSheet from '@/components/ui/responsive-sheet/ResponsiveSheet.vue'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
-import KitRadio from '@/components/kit/KitRadio.vue'
-import KitPreloaderWithText from '@/components/kit/KitPreloaderWithText.vue'
 
 const emit = defineEmits(['close', 'submit'])
 const model = defineModel<string | null>()
-defineProps<{
+const props = defineProps<{
   oldPlanningId?: string | null
 }>()
 
@@ -50,166 +52,102 @@ const submitHandler = () => {
 const closeHandler = () => {
   emit('close')
 }
+
+const sheetOpen = computed({
+  get: () => true,
+  set: (val: boolean) => {
+    if (!val) closeHandler()
+  },
+})
+
+const isDisabled = (planId: string, transactionCount: number) =>
+  planId !== props.oldPlanningId && transactionCount > 0
 </script>
 
 <template>
-  <KitModal
-    :title="$t('transaction.selectPlanning.title')"
-    :subtitle="$t('transaction.selectPlanning.subtitle')"
-    :cancelText="$t('transaction.selectPlanning.buttons.cancel')"
-    :submitText="$t('transaction.selectPlanning.buttons.submit')"
-    @cancel="cancelHandler"
-    @submit="submitHandler"
-    @close="closeHandler"
-  >
-    <div class="planning-content">
-      <KitPreloaderWithText v-if="loading" class="planning-loader" size="md" />
+  <ResponsiveSheet v-model:open="sheetOpen" :title="$t('transaction.selectPlanning.title')">
+    <div class="flex flex-col gap-6">
+      <p class="text-sm text-muted-foreground">
+        {{ $t('transaction.selectPlanning.subtitle') }}
+      </p>
 
-      <h4 v-if="!loading && planningTransactionTable.length === 0" class="planning-empty">
+      <!-- Loading state -->
+      <div v-if="loading" class="flex flex-col gap-3">
+        <Skeleton class="h-14 w-full rounded-xl" />
+        <Skeleton class="h-14 w-full rounded-xl" />
+        <Skeleton class="h-14 w-full rounded-xl" />
+      </div>
+
+      <!-- Empty state -->
+      <p
+        v-else-if="planningTransactionTable.length === 0"
+        class="my-4 text-center text-sm font-medium italic text-muted-foreground"
+      >
         {{ $t('planning.table.empty') }}
-      </h4>
-      <template v-if="!loading && planningTransactionTable.length > 0">
-        <div class="planning-table" v-for="table in planningTransactionTable" :key="table.category">
-          <div class="planning-table-body">
+      </p>
+
+      <!-- Plan list -->
+      <RadioGroup v-else v-model="model" class="gap-0">
+        <template v-for="table in planningTransactionTable" :key="table.category">
+          <div class="overflow-hidden rounded-xl border border-border">
             <label
-              class="planning-table-item"
               v-for="plan in table.items"
               :key="plan.id"
+              class="flex w-full cursor-pointer items-center gap-4 border-t border-border px-4 py-3 first:border-t-0"
               :class="{
-                disabled:
-                  plan.id !== oldPlanningId && (plan?.original.transactions?.length || 0) > 0,
+                'pointer-events-none opacity-50': isDisabled(
+                  plan.id,
+                  plan?.original.transactions?.length || 0,
+                ),
               }"
             >
-              <span class="planning-table-item-radio">
-                <KitRadio v-model="model" name="planning" :value="plan.id" />
-              </span>
-              <span class="planning-table-item-main">
-                <span>{{ plan.description }}</span>
-                <span
-                  class="planning-table-item-category"
-                  :style="{
-                    '--color': plan.categoryColor,
-                  }"
+              <RadioGroupItem
+                :value="plan.id"
+                :disabled="isDisabled(plan.id, plan?.original.transactions?.length || 0)"
+              />
+
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="truncate text-sm font-medium">{{ plan.description }}</span>
+                <Badge
+                  variant="outline"
+                  class="w-fit"
+                  :style="{ color: plan.categoryColor, borderColor: plan.categoryColor }"
                 >
                   {{ plan.categoryName }}
-                </span>
+                </Badge>
               </span>
-              <span class="planning-table-item-date" v-if="plan.date">
-                <IconCalendar /> {{ plan.date }}
+
+              <span
+                v-if="plan.date"
+                class="flex shrink-0 items-center gap-1 text-sm text-muted-foreground"
+              >
+                <IconCalendar class="size-4" />
+                {{ plan.date }}
               </span>
-              <span class="planning-table-item-amount">
+
+              <span class="ml-auto flex shrink-0 flex-row-reverse items-baseline gap-2">
+                <span class="text-sm font-medium">{{ plan.amount }} {{ plan.currency }}</span>
                 <span
-                  class="planning-table-item-amount-original"
                   v-if="plan.originalAmount && plan.originalCurrency"
+                  class="text-xs text-muted-foreground"
                 >
                   {{ plan.originalAmount }} {{ plan.originalCurrency }} /
                 </span>
-                {{ plan.amount }} {{ plan.currency }}
               </span>
             </label>
           </div>
-        </div>
-      </template>
+        </template>
+      </RadioGroup>
+
+      <!-- Action buttons -->
+      <div class="flex justify-end gap-2">
+        <Button variant="outline" @click="cancelHandler">
+          {{ $t('transaction.selectPlanning.buttons.cancel') }}
+        </Button>
+        <Button @click="submitHandler">
+          {{ $t('transaction.selectPlanning.buttons.submit') }}
+        </Button>
+      </div>
     </div>
-  </KitModal>
+  </ResponsiveSheet>
 </template>
-
-<style scoped>
-.planning-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-.planning-loader {
-  margin: var(--spacing-xl) auto;
-}
-
-.planning-empty {
-  margin: var(--spacing-xl) 0;
-  padding: 0;
-
-  font-size: var(--font-size-text-sm);
-  line-height: var(--line-height-text-sm);
-  font-weight: var(--font-weight-medium);
-  font-style: italic;
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
-.planning-table {
-  display: flex;
-  flex-direction: column;
-
-  border: 1px solid var(--border-secondary);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-}
-
-.planning-table-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xl);
-  padding: var(--spacing-xl) var(--spacing-3xl);
-  box-sizing: border-box;
-
-  border-top: 1px solid var(--border-secondary);
-}
-
-.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.planning-table-item-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.planning-table-item-amount {
-  margin-left: auto;
-  display: flex;
-  justify-content: flex-end;
-  align-items: baseline;
-  flex-direction: row-reverse;
-  gap: 1ch;
-}
-
-.planning-table-item-amount-original {
-  font-size: var(--font-size-text-sm);
-  line-height: var(--line-height-text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-tertiary);
-}
-
-.planning-table-item-date {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-
-  font-size: var(--font-size-text-sm);
-  line-height: var(--line-height-text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-}
-.planning-table-item-date svg {
-  width: var(--line-height-text-sm);
-  height: var(--line-height-text-sm);
-}
-
-.planning-table-item-category {
-  box-sizing: border-box;
-  width: min-content;
-  overflow: hidden;
-
-  font-size: var(--font-size-text-sm);
-  line-height: var(--line-height-text-md);
-  font-weight: var(--font-weight-medium);
-  color: var(--color);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-</style>
