@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import TransactionsView from '@/components/transaction/TransactionsView.vue'
-import AddTransactionForm from '@/components/transaction/AddTransactionForm.vue'
+import AddTransactionTrigger from '@/components/transaction/AddTransactionTrigger.vue'
+import TransactionFormDrawer from '@/components/transaction/TransactionFormDrawer.vue'
 import EditTransactionForm from '@/components/transaction/EditTransactionForm.vue'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useMe } from '@/hooks/auth-hooks.ts'
@@ -18,6 +19,7 @@ const { statisticDate } = useStatisticDateStore()
 const { transactions, loading, error, refetch } = useMonthlyTransactions()
 const { deleteTransaction } = useDeleteTransaction()
 
+const addOpen = ref(false)
 const editing = ref<DisplayTransaction | null>(null)
 const dialogOpen = computed({
   get: () => editing.value !== null,
@@ -56,7 +58,8 @@ const handleDelete = async (id: string) => {
     @retry="refetch"
   />
 
-  <AddTransactionForm />
+  <AddTransactionTrigger @open="addOpen = true" />
+  <TransactionFormDrawer v-model:open="addOpen" mode="add" />
 
   <Dialog v-model:open="dialogOpen">
     <DialogContent>
