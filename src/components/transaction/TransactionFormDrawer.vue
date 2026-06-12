@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ValidationError } from 'yup'
 import { toast } from 'vue-sonner'
@@ -29,6 +29,7 @@ import IconCalendar from '@/components/icons/IconCalendar.vue'
 import IconLink from '@/components/icons/IconLink.vue'
 import IconSlashCircle from '@/components/icons/IconSlashCircle.vue'
 import SelectPlanningModal from '@/components/transaction/SelectPlanningModal.vue'
+import SelectedPlanCard from '@/components/transaction/SelectedPlanCard.vue'
 
 // ---------------------------------------------------------------------------
 // Props / emits
@@ -58,6 +59,20 @@ const categoryId = ref('')
 const selectedPlanning = ref<string | null>(null)
 const isPlanningOpen = ref(false)
 const errors = ref<Record<string, string>>({})
+
+/** Сводка выбранного плана для блока в форме (название/категория/сумма). */
+interface SelectedPlan {
+  description: string
+  categoryId: string
+  amount: number
+  currency: string
+}
+const selectedPlan = ref<SelectedPlan | null>(null)
+
+// Когда привязка снимается (cancel в модалке, clearForm, «×» в блоке) — чистим и сводку.
+watch(selectedPlanning, (val) => {
+  if (!val) selectedPlan.value = null
+})
 
 // ---------------------------------------------------------------------------
 // Date picker (shadcn Popover + Calendar; мост Date <-> CalendarDate)
@@ -199,6 +214,14 @@ const onPlanningSubmit = (plan?: {
     description.value = next.description
     categoryId.value = next.categoryId
     date.value = next.date
+
+    // Сохраняем сводку для блока выбранного плана.
+    selectedPlan.value = {
+      description: plan.description ?? '',
+      categoryId: plan.categoryId ?? '',
+      amount: plan.amount ?? 0,
+      currency: plan.currency ?? (user.value?.currency || CURRENCIES[0]),
+    }
   }
   isPlanningOpen.value = false
 }
@@ -207,12 +230,13 @@ const onPlanningClose = () => {
   isPlanningOpen.value = false
 }
 
+/** Карточка «Планування» всегда открывает выбор (сменить план); отвязка — через «×» в блоке. */
 const onPlanningCardClick = () => {
-  if (selectedPlanning.value) {
-    selectedPlanning.value = null
-  } else {
-    isPlanningOpen.value = true
-  }
+  isPlanningOpen.value = true
+}
+
+const clearPlanning = () => {
+  selectedPlanning.value = null // watch очистит selectedPlan
 }
 </script>
 
@@ -268,6 +292,9 @@ const onPlanningCardClick = () => {
           {{ t(`transaction.form.errors.${errors.categoryId}`) }}
         </p>
       </div>
+
+      <!-- Selected plan block (2.5) -->
+      <SelectedPlanCard v-if="selectedPlan" :plan="selectedPlan" @unlink="clearPlanning" />
 
       <!-- Action cards grid -->
       <div class="grid grid-cols-2 gap-3">
