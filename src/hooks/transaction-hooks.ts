@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
@@ -6,8 +6,6 @@ import { useMe } from '@/hooks/auth-hooks.ts'
 import { getDateRangeByDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
 
 import type {
-  CreateTransactionMutation,
-  CreateTransactionMutationVariables,
   DeleteTransactionMutation,
   DeleteTransactionMutationVariables,
   Planning,
@@ -19,104 +17,30 @@ import type {
   UpdateTransactionMutation,
   UpdateTransactionMutationVariables,
 } from '@/graphql/types.ts'
-import CREATE_TRANSACTION from '@/graphql/create-transaction.graphql'
 import DELETE_TRANSACTION from '@/graphql/delete-transaction.graphql'
 import UPDATE_TRANSACTION from '@/graphql/update-transaction.graphql'
 import TRANSACTIONS from '@/graphql/transactions.graphql'
 import PLANNING from '@/graphql/planning.graphql'
 import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
+import { transactionApi } from '@/api/services/transaction.service'
+import type { CreateTransactionDto } from '@/helpers/transaction-form'
 import { useTransactionsStore, monthKeyOf } from '@/stores/transactionsStore.ts'
 import { toDisplayTransaction } from '@/mappers/transaction-mapper.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
 
 export function useCreateTransaction() {
   const { user } = useMe()
-
-  const { mutate, loading } = useMutation<
-    CreateTransactionMutation,
-    CreateTransactionMutationVariables
-  >(CREATE_TRANSACTION, {
-    update(cache, { data }) {
-      if (!data?.createTransaction || !user.value?.monthStartDay) return
-
-      const newTransaction = data.createTransaction
-      const transactionDate = new Date(newTransaction.date)
-
-      // ===== Update transactions =====
-      try {
-        const { startDate, endDate } = getDateRangeByDate(
-          transactionDate,
-          user.value?.monthStartDay || 1,
-        )
-
-        cache.updateQuery<{ transactions: Transaction[] }>(
-          {
-            query: TRANSACTIONS,
-            variables: { startDate, endDate },
-          },
-          (data) =>
-            data && {
-              ...data,
-              transactions: [newTransaction, ...(data?.transactions || [])] as Transaction[],
-            },
-        )
-      } catch (e) {
-        console.error('CreateTransaction - Error updating cache TRANSACTIONS:', e)
-      }
-
-      // ===== Update planning =====
-      if (newTransaction.planningId) {
-        try {
-          const monthIndex = getMonthIndex(transactionDate, user.value?.monthStartDay)
-          const year = getIndexedYear(transactionDate, user.value?.monthStartDay)
-
-          const preparedTransaction = {
-            id: newTransaction.id,
-            amount: newTransaction.amount,
-            currency: newTransaction.currency,
-            exchangeRate: {
-              rates: newTransaction.exchangeRate.rates,
-            },
-          }
-
-          cache.updateQuery<{ planning: Planning[] }>(
-            {
-              query: PLANNING,
-              variables: { monthIndex, year },
-            },
-            (data) =>
-              data && {
-                ...data,
-                planning: (data?.planning || []).map((planning) => {
-                  if (String(planning.id) === String(newTransaction.planningId)) {
-                    return {
-                      ...planning,
-                      transactions: planning?.transactions
-                        ? [...planning.transactions, preparedTransaction]
-                        : [preparedTransaction],
-                    }
-                  }
-                  return planning
-                }) as Planning[],
-              },
-          )
-        } catch (e) {
-          console.error('CreateTransaction - Error updating cache PLANNING:', e)
-        }
-      }
-    },
-  })
   const store = useTransactionsStore()
-  const createTransaction = async (variables: CreateTransactionMutationVariables) => {
+  const loading = ref(false)
+
+  const createTransaction = async (dto: CreateTransactionDto) => {
+    loading.value = true
     try {
-      const result = await mutate(variables)
-      const created = result?.data?.createTransaction || null
-      if (created) {
-        store.invalidate(new Date(created.date), user.value?.monthStartDay || 1)
-      }
+      const created = await transactionApi.create(dto)
+      store.invalidate(new Date(created.date), user.value?.monthStartDay || 1)
       return created
-    } catch (e) {
-      throw e
+    } finally {
+      loading.value = false
     }
   }
 

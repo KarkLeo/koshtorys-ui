@@ -7,6 +7,7 @@ import { CURRENCIES } from '@/constants/currencies.ts'
 import { toast } from 'vue-sonner'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useCreateTransaction } from '@/hooks/transaction-hooks.ts'
+import type { CreateTransactionDto } from '@/helpers/transaction-form'
 import { transactionSchema } from '@/validations/transaction.ts'
 
 import KitMoneyInput from '@/components/kit/KitMoneyInput.vue'
@@ -91,14 +92,12 @@ const handlerCreateTransaction = async () => {
     if (!isValid) return
 
     await createTransaction({
-      transactionData: {
-        amount: parseFloat(amount.value),
-        currency: currency.value,
-        description: description.value,
-        categoryId: categoryId.value,
-        date: date.value.toISOString(),
-        planningId: selectedPlanning.value ? Number(selectedPlanning.value) : undefined,
-      },
+      amount: parseFloat(amount.value),
+      currency: currency.value as CreateTransactionDto['currency'],
+      description: description.value,
+      categoryId: categoryId.value,
+      date: date.value.toISOString(),
+      planningId: selectedPlanning.value ? Number(selectedPlanning.value) : undefined,
     })
 
     clearForm()
