@@ -18,11 +18,11 @@ const isDesktop = useMediaQuery('(min-width: 768px)')
     </DialogContent>
   </Dialog>
   <Drawer v-else v-model:open="open">
-    <DrawerContent>
+    <DrawerContent class="h-[90vh] max-h-[90vh]">
       <DrawerHeader v-if="title">
         <DrawerTitle>{{ title }}</DrawerTitle>
       </DrawerHeader>
-      <div class="px-4 pb-6">
+      <div class="flex-1 overflow-y-auto px-4 pb-6">
         <slot />
       </div>
     </DrawerContent>
