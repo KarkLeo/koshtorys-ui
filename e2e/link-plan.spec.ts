@@ -57,7 +57,9 @@ async function signUpAndOnboard(
 /** Сид one-off (TRANSACTION) плана в текущем фин. месяце через REST. */
 async function seedOneOffPlan(page: Page) {
   const now = new Date()
-  const monthIndex = now.getMonth() + 1 // monthStartDay=1 (<15) → monthIndex = календарный месяц
+  // UI считает monthIndex как getIndexedDate(...).getMonth() — 0-based (январь=0, июнь=5).
+  // Сид через REST должен совпасть с этой конвенцией, иначе модалка не найдёт план.
+  const monthIndex = now.getMonth() // monthStartDay=1 (<15) → indexedDate = тот же месяц
   const year = now.getFullYear()
   const res = await page.request.post(`${API}/plans`, {
     data: {

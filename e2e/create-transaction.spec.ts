@@ -119,17 +119,12 @@ test.describe.serial('Create transaction through drawer', () => {
     await page.getByPlaceholder('00.00').fill('52')
 
     // ── Select category ──
-    // The drawer has TWO Shadcn/reka-ui Select comboboxes (scoped to the dialog):
-    //   1st (inside MoneyInput) — currency select (shows current value, e.g. "EUR")
-    //   2nd (CategoryPicker)    — category select (placeholder "Select category")
-    // Strategy: try accessible name first; fall back to nth(1) (second combobox in DOM order).
-    // The category combobox placeholder text is "Select category" (i18n en.json).
+    // CategoryPicker is a searchable Combobox (reka-ui): its trigger button shows the
+    // placeholder "Select category"; opening it reveals a search input + option list.
     const dialogEl = page.getByRole('dialog')
-    const allComboboxes = dialogEl.getByRole('combobox')
-    // CategoryPicker is the second combobox in the dialog (index 1).
-    const categoryCombobox = allComboboxes.nth(1)
-    await categoryCombobox.click()
-    // Choose the first option in the listbox — "Food" (categories.food = "Food")
+    await dialogEl.getByText('Select category').click()
+    await page.getByPlaceholder('Search category...').fill('Food')
+    // Choose the "Food" option (categories.food = "Food")
     await page.getByRole('option', { name: /^Food$/i }).first().click()
 
     // ── Fill description ──
