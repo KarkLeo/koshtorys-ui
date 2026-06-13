@@ -332,7 +332,7 @@ export const usePlanningList = () => {
   })
 
   const { result, loading } = useQuery<PlanningQuery, PlanningQueryVariables>(PLANNING, variables, {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   })
 
   return {
