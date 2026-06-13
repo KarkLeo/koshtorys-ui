@@ -309,7 +309,7 @@ export function useTransactionList() {
     TRANSACTIONS,
     variables,
     {
-      fetchPolicy: 'cache-first',
+      fetchPolicy: 'cache-and-network',
     },
   )
 
