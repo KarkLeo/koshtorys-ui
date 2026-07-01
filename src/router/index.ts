@@ -3,7 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import LoginView from '@/views/LoginView.vue'
-import DashboardView from '@/views/DashboardView.vue'
+import TransactionTab from '@/components/transaction/TransactionTab.vue'
+import PlanningTab from '@/components/planning/PlanningTab.vue'
+import StatisticsTab from '@/components/statistics/StatisticsTab.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
@@ -32,10 +34,23 @@ const router = createRouter({
       component: LoginView,
       meta: { requiresNoAuth: true },
     },
+    { path: '/dashboard', redirect: '/transactions' },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
+      path: '/transactions',
+      name: 'transactions',
+      component: TransactionTab,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/planning',
+      name: 'planning',
+      component: PlanningTab,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/statistics',
+      name: 'statistics',
+      component: StatisticsTab,
       meta: { requiresAuth: true },
     },
     {
@@ -76,10 +91,10 @@ router.beforeEach(async (to) => {
           new Date(user.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT) &&
           to.name === 'onboarding'
         ) {
-          return { name: 'dashboard' }
+          return { name: 'transactions' }
         }
 
-        return to.meta.requiresAuth ? true : { name: 'dashboard' }
+        return to.meta.requiresAuth ? true : { name: 'transactions' }
       } else {
         return to.meta.requiresAuth ? { name: 'login' } : true
       }
