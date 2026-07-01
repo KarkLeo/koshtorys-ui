@@ -1,0 +1,88 @@
+import { describe, it, expect } from 'vitest'
+import {
+  getPlanSpent,
+  getConvertedPlanAmount,
+  filterRepeatingPlans,
+  reducePlansByCategory,
+  type PreparedPlan,
+} from '@/helpers/planning-rest'
+import type { components } from '@/api/types'
+import type { DisplayTransaction } from '@/components/transaction/types'
+
+type Plan = components['schemas']['PlanResponseDto']
+
+const basePlan = (over: Partial<Plan>): Plan => ({
+  id: 1, type: 'CATEGORY', userId: 1, date: null, monthIndex: 6, year: 2026,
+  amount: 100, description: null, currency: 'EUR', categoryId: 'food--groceries',
+  repeat: false, repeatedPlanningId: null, parentPlanningId: null,
+  createdAt: '2026-07-01T00:00:00Z', updatedAt: '2026-07-01T00:00:00Z', ...over,
+})
+
+const tx = (over: Partial<DisplayTransaction>): DisplayTransaction => ({
+  id: '1', amount: 10, currency: 'EUR', categoryId: 'food--groceries',
+  date: new Date('2026-07-02'), createdAt: new Date('2026-07-02'),
+  planningId: null, ...over,
+})
+
+describe('getPlanSpent', () => {
+  it('one-off: sums transactions linked to the plan id', () => {
+    const plan = basePlan({ id: 5, type: 'TRANSACTION' })
+    const txs = [tx({ id: 'a', amount: 30, planningId: '5' }), tx({ id: 'b', amount: 7, planningId: '9' })]
+    expect(getPlanSpent(plan, txs)).toBe(30)
+  })
+  it('dynamic: sums category transactions NOT linked to a one-off plan', () => {
+    const plan = basePlan({ id: 5, type: 'CATEGORY', categoryId: 'food--groceries' })
+    const txs = [
+      tx({ id: 'a', amount: 30, categoryId: 'food--groceries', planningId: null }),
+      tx({ id: 'b', amount: 5, categoryId: 'food--groceries', planningId: '7' }), // linked → excluded
+      tx({ id: 'c', amount: 9, categoryId: 'car--fuel', planningId: null }), // other cat
+    ]
+    expect(getPlanSpent(plan, txs)).toBe(30)
+  })
+})
+
+describe('getConvertedPlanAmount', () => {
+  it('returns amount unchanged when plan currency == base', () => {
+    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'EUR' }), { EUR: 0.9, USD: 1 }, 'EUR')).toBe(100)
+  })
+  it('converts via rates when currencies differ', () => {
+    // 100 USD → EUR with USD:1, EUR:0.9  => (100/1)*0.9 = 90
+    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'USD' }), { USD: 1, EUR: 0.9 }, 'EUR')).toBe(90)
+  })
+})
+
+describe('filterRepeatingPlans', () => {
+  it('drops a repeating CATEGORY plan if the same category already planned this month', () => {
+    const repeating = [basePlan({ id: 10, type: 'CATEGORY', categoryId: 'food--groceries' })]
+    const current = [basePlan({ id: 20, type: 'CATEGORY', categoryId: 'food--groceries' })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('drops a repeating plan already carried over (parent/repeated link)', () => {
+    const repeating = [basePlan({ id: 10 })]
+    const current = [basePlan({ id: 20, repeatedPlanningId: 10 })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('keeps an unrelated repeating plan', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel' })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries' })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(1)
+  })
+})
+
+describe('reducePlansByCategory', () => {
+  it('groups by main category, sums totals, sorts groups by total desc', () => {
+    const p = (over: Partial<PreparedPlan>): PreparedPlan => ({
+      original: basePlan({}), id: '1', type: 'CATEGORY', amount: 10, currency: '€',
+      spent: 0, categoryId: 'food--groceries', categoryName: 'Groceries',
+      mainCategory: 'food', categoryColor: '#f00', repeat: false, ...over,
+    })
+    const groups = reducePlansByCategory([
+      p({ id: '1', mainCategory: 'food', amount: 10 }),
+      p({ id: '2', mainCategory: 'car', amount: 50 }),
+      p({ id: '3', mainCategory: 'food', amount: 20 }),
+    ])
+    expect(groups[0]).toMatchObject({ category: 'car', total: 50 })
+    expect(groups[1]).toMatchObject({ category: 'food', total: 30 })
+    expect(groups[1].items).toHaveLength(2)
+  })
+})
