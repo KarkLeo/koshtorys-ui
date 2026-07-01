@@ -30,8 +30,9 @@ export function useMonthlyPlanning() {
     loading.value = true
     try {
       const { mi, y } = key.value
-      // getExchangeDate returns a Date; the REST endpoint takes a date-string path param.
-      const exchangeDate = getExchangeDate(mi, y, monthStartDay.value).toISOString()
+      // getExchangeDate returns a Date; convert to local YYYY-MM-DD string to avoid timezone off-by-one.
+      const d = getExchangeDate(mi, y, monthStartDay.value)
+      const exchangeDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       const [list, rep, rate] = await Promise.all([
         planningApi.getList(mi, y),
         planningApi.getRepeating(mi, y),
