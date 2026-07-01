@@ -8,7 +8,7 @@ const { user } = useMe()
 </script>
 
 <template>
-  <nav v-if="user && route.path !== ONBOARDING_PATHS" class="p-2">
+  <nav v-if="user && route.path !== ONBOARDING_PATHS" class="hidden p-2 md:block">
     <ul class="m-0 flex items-center justify-center gap-2 p-0">
       <li v-for="item in NAV_TABS" :key="item.path" class="list-none">
         <router-link
