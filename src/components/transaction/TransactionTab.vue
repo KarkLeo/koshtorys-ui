@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import TransactionsView from '@/components/transaction/TransactionsView.vue'
-import AddTransactionTrigger from '@/components/transaction/AddTransactionTrigger.vue'
 import TransactionFormDrawer from '@/components/transaction/TransactionFormDrawer.vue'
 import {
   AlertDialog,
@@ -28,7 +27,6 @@ const { statisticDate } = useStatisticDateStore()
 const { transactions, loading, error, refetch } = useMonthlyTransactions()
 const { deleteTransaction, loading: deleteLoading } = useDeleteTransaction()
 
-const addOpen = ref(false)
 const editing = ref<DisplayTransaction | null>(null)
 const editOpen = computed({
   get: () => editing.value !== null,
@@ -84,9 +82,6 @@ const confirmDelete = async () => {
     @delete="handleDelete"
     @retry="refetch"
   />
-
-  <AddTransactionTrigger @open="addOpen = true" />
-  <TransactionFormDrawer v-model:open="addOpen" mode="add" />
 
   <TransactionFormDrawer
     v-model:open="editOpen"

@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
-const emit = defineEmits<{ open: [] }>()
+import { useI18n } from 'vue-i18n'
+import { useAddTransaction } from '@/composables/useAddTransaction'
+
 const { t } = useI18n()
+const route = useRoute()
+const { open } = useAddTransaction()
 </script>
 
 <template>
-  <div class="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-2xl justify-center p-4">
-    <Button size="lg" class="w-full rounded-full shadow-lg" @click="emit('open')">
+  <!-- Desktop-only pill (на мобилке add идёт через центральную «+» BottomTabBar). Скрыта на settings. -->
+  <div
+    v-if="route.name !== 'settings'"
+    class="fixed inset-x-0 bottom-0 z-40 mx-auto hidden max-w-2xl justify-center p-4 md:flex"
+  >
+    <Button size="lg" class="w-full rounded-full shadow-lg" @click="open">
       + {{ t('transaction.form.buttons.add') }}
     </Button>
   </div>
