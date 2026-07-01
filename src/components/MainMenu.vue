@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { MENU, ONBOARDING_PATHS } from '@/constants/menu'
+import { NAV_TABS, ONBOARDING_PATHS } from '@/constants/menu'
 import { useMe } from '@/hooks/auth-hooks.ts'
 
-const router = useRoute()
+const route = useRoute()
 const { user } = useMe()
 </script>
 
 <template>
-  <nav v-if="user && router.path !== ONBOARDING_PATHS" class="p-2">
-    <ul class="flex items-center justify-center gap-4 p-0 m-0">
-      <li v-for="item in MENU" :key="item.path" class="list-none">
+  <nav v-if="user && route.path !== ONBOARDING_PATHS" class="p-2">
+    <ul class="m-0 flex items-center justify-center gap-2 p-0">
+      <li v-for="item in NAV_TABS" :key="item.path" class="list-none">
         <router-link
           :to="item.path"
-          class="flex items-center justify-center gap-1 rounded-md px-3 py-2 text-secondary-foreground no-underline transition-colors hover:bg-accent [&.active]:bg-accent [&_svg]:size-5 [&_svg]:text-muted-foreground [&:hover_svg]:text-secondary-foreground"
+          class="flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-secondary-foreground no-underline transition-colors hover:bg-accent [&.active]:bg-accent [&_svg]:size-5 [&_svg]:text-muted-foreground [&:hover_svg]:text-secondary-foreground [&.active_svg]:text-secondary-foreground"
           active-class="active"
         >
           <component :is="item.icon" />
-          <span>{{ $t(`mainMenu.${item.name}`) }}</span>
+          <span>{{ $t(`nav.${item.name}`) }}</span>
         </router-link>
       </li>
     </ul>
