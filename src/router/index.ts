@@ -4,7 +4,7 @@ import HomeView from '@/views/HomeView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import LoginView from '@/views/LoginView.vue'
 import TransactionTab from '@/components/transaction/TransactionTab.vue'
-import PlanningTab from '@/components/planning/PlanningTab.vue'
+import PlanningView from '@/components/planning/PlanningView.vue'
 import StatisticsTab from '@/components/statistics/StatisticsTab.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
@@ -44,7 +44,7 @@ const router = createRouter({
     {
       path: '/planning',
       name: 'planning',
-      component: PlanningTab,
+      component: PlanningView,
       meta: { requiresAuth: true },
     },
     {
