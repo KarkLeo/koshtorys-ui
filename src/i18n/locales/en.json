@@ -9,6 +9,8 @@
   },
   "calendar": {
     "placeholder": "Select date",
+    "prev_month": "Previous month",
+    "next_month": "Next month",
     "months": {
       "1": "January",
       "2": "February",
@@ -335,6 +337,7 @@
   "transaction": {
     "form": {
       "title": "Add new transaction",
+      "edit_title": "Edit transaction",
       "actions": {
         "scan": "Scan receipt",
         "planning": "Planning"
@@ -377,6 +380,12 @@
         "delete_success": "Transaction successfully deleted"
       }
     },
+    "delete_confirm": {
+      "title": "Delete transaction?",
+      "description": "This action cannot be undone. The transaction will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
     "selectPlanning": {
       "title": "Add Transaction",
       "subtitle": "Select a planning to add a transaction",
@@ -396,6 +405,7 @@
       "error": "Failed to load transactions",
       "retry": "Retry",
       "menu": {
+        "trigger": "Transaction actions",
         "edit": "Edit",
         "delete": "Delete"
       },

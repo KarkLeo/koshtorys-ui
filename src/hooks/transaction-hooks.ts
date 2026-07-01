@@ -1,29 +1,20 @@
 import { ref, computed, watch } from 'vue'
-import { useMutation, useQuery } from '@vue/apollo-composable'
+import { useQuery } from '@vue/apollo-composable'
 
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { getDateRangeByDate, getIndexedYear, getMonthIndex } from '@/helpers/date.ts'
+import { getDateRangeByDate } from '@/helpers/date.ts'
 
 import type {
-  DeleteTransactionMutation,
-  DeleteTransactionMutationVariables,
-  Planning,
-  Transaction,
   TransactionsQuery,
   TransactionsQueryVariables,
   TransactionStatisticQuery,
   TransactionStatisticQueryVariables,
-  UpdateTransactionMutation,
-  UpdateTransactionMutationVariables,
 } from '@/graphql/types.ts'
-import DELETE_TRANSACTION from '@/graphql/delete-transaction.graphql'
-import UPDATE_TRANSACTION from '@/graphql/update-transaction.graphql'
 import TRANSACTIONS from '@/graphql/transactions.graphql'
-import PLANNING from '@/graphql/planning.graphql'
 import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
 import { transactionApi } from '@/api/services/transaction.service'
-import type { CreateTransactionDto } from '@/helpers/transaction-form'
+import type { CreateTransactionDto, UpdateTransactionDto } from '@/helpers/transaction-form'
 import { useTransactionsStore, monthKeyOf } from '@/stores/transactionsStore.ts'
 import { toDisplayTransaction } from '@/mappers/transaction-mapper.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
@@ -49,88 +40,17 @@ export function useCreateTransaction() {
 
 export function useDeleteTransaction() {
   const { user } = useMe()
-
-  const { mutate, loading } = useMutation<
-    DeleteTransactionMutation,
-    DeleteTransactionMutationVariables
-  >(DELETE_TRANSACTION, {
-    update(cache, { data }) {
-      if (!data?.deleteTransaction || !user.value?.monthStartDay) return
-
-      const deletedTransaction = data.deleteTransaction
-      const transactionDate = new Date(deletedTransaction.date)
-
-      // ===== Update transactions =====
-      try {
-        const { startDate, endDate } = getDateRangeByDate(
-          transactionDate,
-          user.value?.monthStartDay || 1,
-        )
-
-        cache.updateQuery<{ transactions: Transaction[] }>(
-          {
-            query: TRANSACTIONS,
-            variables: { startDate, endDate },
-          },
-          (data) =>
-            data && {
-              ...data,
-              transactions: (data?.transactions || []).filter(
-                (transaction) => transaction.id !== deletedTransaction.id,
-              ) as Transaction[],
-            },
-        )
-      } catch (e) {
-        console.error('Delete Transaction - Error updating cache TRANSACTIONS:', e)
-      }
-
-      // ===== Update planning =====
-      if (deletedTransaction.planningId) {
-        try {
-          const monthIndex = getMonthIndex(transactionDate, user.value?.monthStartDay)
-          const year = getIndexedYear(transactionDate, user.value?.monthStartDay)
-
-          cache.updateQuery<{ planning: Planning[] }>(
-            {
-              query: PLANNING,
-              variables: { monthIndex, year },
-            },
-            (data) =>
-              data && {
-                ...data,
-                planning: (data?.planning || []).map((planning) => {
-                  if (String(planning.id) === String(deletedTransaction.planningId)) {
-                    return {
-                      ...planning,
-                      transactions:
-                        planning?.transactions?.length === 1
-                          ? null
-                          : planning?.transactions?.filter(
-                              (transaction) => transaction.id !== deletedTransaction.id,
-                            ) || null,
-                    }
-                  }
-                  return planning
-                }) as Planning[],
-              },
-          )
-        } catch (e) {
-          console.error('Delete Transaction - Error updating cache PLANNING:', e)
-        }
-      }
-    },
-  })
   const store = useTransactionsStore()
-  const deleteTransaction = async (variables: DeleteTransactionMutationVariables) => {
+  const loading = ref(false)
+
+  const deleteTransaction = async (id: number) => {
+    loading.value = true
     try {
-      const result = await mutate(variables)
-      const deleted = result?.data?.deleteTransaction || null
-      if (deleted) {
-        store.invalidate(new Date(deleted.date), user.value?.monthStartDay || 1)
-      }
+      const deleted = await transactionApi.delete(id)
+      store.invalidate(new Date(deleted.date), user.value?.monthStartDay || 1)
       return deleted
-    } catch (e) {
-      throw e
+    } finally {
+      loading.value = false
     }
   }
 
@@ -140,157 +60,20 @@ export function useDeleteTransaction() {
 export function useUpdateTransaction() {
   const { user } = useMe()
   const { statisticDate } = useStatisticDateStore()
-
-  const { mutate, loading } = useMutation<
-    UpdateTransactionMutation,
-    UpdateTransactionMutationVariables
-  >(UPDATE_TRANSACTION, {
-    update(cache, { data }) {
-      if (!data?.updateTransaction || !user.value?.monthStartDay) return
-
-      const updatedTransaction = data.updateTransaction
-      const transactionDate = new Date(updatedTransaction.date)
-      const { startDate, endDate } = getDateRangeByDate(
-        transactionDate,
-        user.value?.monthStartDay || 1,
-      )
-      const statisticDateRange = getDateRangeByDate(statisticDate.value, user.value?.monthStartDay)
-      const isDifferentLists = startDate.getTime() !== statisticDateRange.startDate.getTime()
-
-      // ===== Update transactions =====
-      try {
-        if (isDifferentLists) {
-          // Update new list
-          cache.updateQuery<{ transactions: Transaction[] }>(
-            {
-              query: TRANSACTIONS,
-              variables: { startDate, endDate },
-            },
-            (data) =>
-              data && {
-                ...data,
-                transactions: [updatedTransaction, ...(data?.transactions || [])] as Transaction[],
-              },
-          )
-          // Update old list
-          cache.updateQuery<{ transactions: Transaction[] }>(
-            {
-              query: TRANSACTIONS,
-              variables: {
-                startDate: statisticDateRange.startDate,
-                endDate: statisticDateRange.endDate,
-              },
-            },
-            (data) =>
-              data && {
-                ...data,
-                transactions: (data?.transactions || []).filter(
-                  (transaction) => transaction.id !== updatedTransaction.id,
-                ),
-              },
-          )
-        } else {
-          cache.updateQuery<{ transactions: Transaction[] }>(
-            {
-              query: TRANSACTIONS,
-              variables: { startDate, endDate },
-            },
-            (data) =>
-              data && {
-                ...data,
-                transactions: (data?.transactions || []).map((transaction) =>
-                  transaction.id === updatedTransaction.id ? updatedTransaction : transaction,
-                ) as Transaction[],
-              },
-          )
-        }
-      } catch (e) {
-        console.error('UpdateTransaction - Error updating cache TRANSACTIONS:', e)
-      }
-
-      // ===== Update planning =====
-      if (updatedTransaction.planningId) {
-        try {
-          const monthIndex = getMonthIndex(
-            isDifferentLists ? statisticDate.value : transactionDate,
-            user.value?.monthStartDay,
-          )
-          const year = getIndexedYear(
-            isDifferentLists ? statisticDate.value : transactionDate,
-            user.value?.monthStartDay,
-          )
-
-          const preparedTransaction = {
-            id: updatedTransaction.id,
-            amount: updatedTransaction.amount,
-            currency: updatedTransaction.currency,
-            exchangeRate: {
-              rates: updatedTransaction.exchangeRate.rates,
-            },
-          }
-
-          cache.updateQuery<{ planning: Planning[] }>(
-            {
-              query: PLANNING,
-              variables: { monthIndex, year },
-            },
-            (data) =>
-              data && {
-                ...data,
-                planning: (data?.planning || []).map((planning) => {
-                  // Update current planning
-                  if (String(planning.id) === String(updatedTransaction.planningId)) {
-                    const isTransactionExist = planning.transactions?.some(
-                      (transaction) => transaction.id === updatedTransaction.id,
-                    )
-                    const newTransactions = isTransactionExist
-                      ? planning.transactions?.map((transaction) =>
-                          transaction.id === updatedTransaction.id
-                            ? preparedTransaction
-                            : transaction,
-                        )
-                      : [...(planning.transactions || []), preparedTransaction]
-
-                    return {
-                      ...planning,
-                      transactions: newTransactions,
-                    }
-                  }
-                  // Update other (old) planning
-                  if (planning.transactions) {
-                    const newTransactions = planning.transactions.filter(
-                      (transaction) => transaction.id !== updatedTransaction.id,
-                    )
-                    return {
-                      ...planning,
-                      transactions: newTransactions.length ? newTransactions : null,
-                    }
-                  }
-                  // Planning without transactions
-                  return planning
-                }) as Planning[],
-              },
-          )
-        } catch (e) {
-          console.error('UpdateTransaction - Error updating cache PLANNING:', e)
-        }
-      }
-    },
-  })
   const store = useTransactionsStore()
-  const updateTransaction = async (variables: UpdateTransactionMutationVariables) => {
+  const loading = ref(false)
+
+  const updateTransaction = async (id: number, dto: UpdateTransactionDto) => {
+    loading.value = true
     try {
-      const result = await mutate(variables)
-      const updated = result?.data?.updateTransaction || null
-      if (updated) {
-        // Инвалидируем месяц назначения транзакции И текущий просматриваемый месяц:
-        // при переносе транзакции в другой месяц нужно обновить оба. НЕ удалять второй вызов.
-        store.invalidate(new Date(updated.date), user.value?.monthStartDay || 1)
-        store.invalidate(statisticDate.value, user.value?.monthStartDay || 1)
-      }
+      const updated = await transactionApi.update(id, dto)
+      // Инвалидируем месяц назначения транзакции И текущий просматриваемый месяц:
+      // при переносе транзакции в другой месяц нужно обновить оба. НЕ удалять второй вызов.
+      store.invalidate(new Date(updated.date), user.value?.monthStartDay || 1)
+      store.invalidate(statisticDate.value, user.value?.monthStartDay || 1)
       return updated
-    } catch (e) {
-      throw e
+    } finally {
+      loading.value = false
     }
   }
 

@@ -1,6 +1,7 @@
 import type { components } from '@/api/types'
 
 export type CreateTransactionDto = components['schemas']['CreateTransactionDto']
+export type UpdateTransactionDto = components['schemas']['UpdateTransactionDto']
 
 export interface TransactionFormState {
   amount: string
@@ -41,6 +42,21 @@ export function buildCreateTransactionDto(
   const dto: CreateTransactionDto = {
     amount: parseFloat(state.amount),
     currency: state.currency as CreateTransactionDto['currency'],
+    description: state.description,
+    categoryId: state.categoryId,
+    date: state.date.toISOString(),
+  }
+  if (state.planningId) dto.planningId = Number(state.planningId)
+  return dto
+}
+
+/** Собирает payload для PATCH /transactions/:id из состояния формы (edit). */
+export function buildUpdateTransactionDto(
+  state: TransactionFormState & { planningId: string | null },
+): UpdateTransactionDto {
+  const dto: UpdateTransactionDto = {
+    amount: parseFloat(state.amount),
+    currency: state.currency as UpdateTransactionDto['currency'],
     description: state.description,
     categoryId: state.categoryId,
     date: state.date.toISOString(),

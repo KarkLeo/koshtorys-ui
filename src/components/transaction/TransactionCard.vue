@@ -75,7 +75,12 @@ const shortDate = computed(() =>
 
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="size-8 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-8 shrink-0"
+            :aria-label="$t('transaction.list.menu.trigger')"
+          >
             <EllipsisVertical class="size-4" />
           </Button>
         </DropdownMenuTrigger>

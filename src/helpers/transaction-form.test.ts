@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import {
   applyPlanningToForm,
   buildCreateTransactionDto,
+  buildUpdateTransactionDto,
   mapApiErrorCodes,
 } from '@/helpers/transaction-form'
 
@@ -17,7 +18,13 @@ describe('applyPlanningToForm', () => {
 
   it('заполняет поля из плана, когда amount и description пусты', () => {
     const result = applyPlanningToForm(
-      { amount: '', currency: 'USD', description: '', categoryId: '', date: new Date('2026-01-01') },
+      {
+        amount: '',
+        currency: 'USD',
+        description: '',
+        categoryId: '',
+        date: new Date('2026-01-01'),
+      },
       plan,
       'USD',
     )
@@ -29,20 +36,38 @@ describe('applyPlanningToForm', () => {
   })
 
   it('НЕ перетирает, если amount уже заполнен', () => {
-    const current = { amount: '10', currency: 'USD', description: '', categoryId: '', date: new Date('2026-01-01') }
+    const current = {
+      amount: '10',
+      currency: 'USD',
+      description: '',
+      categoryId: '',
+      date: new Date('2026-01-01'),
+    }
     const result = applyPlanningToForm(current, plan, 'USD')
     expect(result).toEqual(current)
   })
 
   it('НЕ перетирает, если description уже заполнен', () => {
-    const current = { amount: '', currency: 'USD', description: 'моё', categoryId: '', date: new Date('2026-01-01') }
+    const current = {
+      amount: '',
+      currency: 'USD',
+      description: 'моё',
+      categoryId: '',
+      date: new Date('2026-01-01'),
+    }
     const result = applyPlanningToForm(current, plan, 'USD')
     expect(result).toEqual(current)
   })
 
   it('фолбэк валюты на userCurrency, если у плана нет валюты', () => {
     const result = applyPlanningToForm(
-      { amount: '', currency: 'USD', description: '', categoryId: '', date: new Date('2026-01-01') },
+      {
+        amount: '',
+        currency: 'USD',
+        description: '',
+        categoryId: '',
+        date: new Date('2026-01-01'),
+      },
       { amount: 0, description: '', categoryId: 'food', date: null },
       'UAH',
     )
@@ -85,9 +110,46 @@ describe('buildCreateTransactionDto', () => {
   })
 })
 
+describe('buildUpdateTransactionDto', () => {
+  it('собирает DTO с planningId', () => {
+    const dto = buildUpdateTransactionDto({
+      amount: '75.5',
+      currency: 'EUR',
+      description: 'Оновлено',
+      categoryId: 'car--parking',
+      date: new Date('2026-05-02T10:00:00.000Z'),
+      planningId: '7',
+    })
+    expect(dto).toEqual({
+      amount: 75.5,
+      currency: 'EUR',
+      description: 'Оновлено',
+      categoryId: 'car--parking',
+      date: '2026-05-02T10:00:00.000Z',
+      planningId: 7,
+    })
+  })
+
+  it('опускает planningId, когда привязки нет', () => {
+    const dto = buildUpdateTransactionDto({
+      amount: '10',
+      currency: 'USD',
+      description: '',
+      categoryId: 'food',
+      date: new Date('2026-05-02T10:00:00.000Z'),
+      planningId: null,
+    })
+    expect(dto.planningId).toBeUndefined()
+    expect(dto.amount).toBe(10)
+  })
+})
+
 describe('mapApiErrorCodes', () => {
   it('возвращает errorCodes из ApiError', () => {
-    const err = Object.assign(new Error('bad'), { name: 'ApiError', errorCodes: { amount: 'amount_min' } })
+    const err = Object.assign(new Error('bad'), {
+      name: 'ApiError',
+      errorCodes: { amount: 'amount_min' },
+    })
     expect(mapApiErrorCodes(err)).toEqual({ amount: 'amount_min' })
   })
 

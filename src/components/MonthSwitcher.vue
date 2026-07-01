@@ -22,7 +22,12 @@ const shiftMonth = (delta: number) => {
 
 <template>
   <div class="flex items-center justify-between gap-2 rounded-xl border p-1.5">
-    <Button variant="ghost" size="icon" @click="shiftMonth(-1)">
+    <Button
+      variant="ghost"
+      size="icon"
+      :aria-label="$t('calendar.prev_month')"
+      @click="shiftMonth(-1)"
+    >
       <ChevronLeft class="size-4" />
     </Button>
     <div class="text-center">
@@ -31,7 +36,12 @@ const shiftMonth = (delta: number) => {
         {{ currentPeriod[0].toLocaleDateString() }} – {{ currentPeriod[1].toLocaleDateString() }}
       </div>
     </div>
-    <Button variant="ghost" size="icon" @click="shiftMonth(1)">
+    <Button
+      variant="ghost"
+      size="icon"
+      :aria-label="$t('calendar.next_month')"
+      @click="shiftMonth(1)"
+    >
       <ChevronRight class="size-4" />
     </Button>
   </div>

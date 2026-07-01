@@ -15,6 +15,7 @@
 
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TransactionFormDrawer from './TransactionFormDrawer.vue'
+import type { DisplayTransaction } from './types'
 
 const meta = {
   title: 'Transaction/TransactionFormDrawer',
@@ -37,5 +38,29 @@ export const AddOpen: Story = {
   args: {
     mode: 'add',
     open: true,
+  },
+}
+
+/**
+ * Edit-transaction drawer — open with a pre-filled transaction.
+ * Header switches to «Редагувати транзакцію», submit button to «Оновити»;
+ * amount/currency/description/category/date are seeded from the transaction.
+ */
+const mockTransaction: DisplayTransaction = {
+  id: '101',
+  amount: 42.5,
+  currency: 'EUR',
+  categoryId: 'food--groceries',
+  description: 'Тижневі закупи',
+  date: new Date('2026-06-15T10:00:00.000Z'),
+  createdAt: new Date('2026-06-15T10:00:00.000Z'),
+  planningId: null,
+}
+
+export const EditOpen: Story = {
+  args: {
+    mode: 'edit',
+    open: true,
+    transaction: mockTransaction,
   },
 }

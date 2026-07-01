@@ -6,14 +6,16 @@ import { toast } from 'vue-sonner'
 
 import { CURRENCIES } from '@/constants/currencies'
 import { useMe } from '@/hooks/auth-hooks'
-import { useCreateTransaction } from '@/hooks/transaction-hooks'
+import { useCreateTransaction, useUpdateTransaction } from '@/hooks/transaction-hooks'
 import { transactionSchema } from '@/validations/transaction'
 import {
   applyPlanningToForm,
   buildCreateTransactionDto,
+  buildUpdateTransactionDto,
   mapApiErrorCodes,
 } from '@/helpers/transaction-form'
 import type { PlanningLike } from '@/helpers/transaction-form'
+import type { DisplayTransaction } from '@/components/transaction/types'
 
 import { CalendarDate, getLocalTimeZone, today, type DateValue } from '@internationalized/date'
 
@@ -35,17 +37,28 @@ import SelectedPlanCard from '@/components/transaction/SelectedPlanCard.vue'
 // Props / emits
 // ---------------------------------------------------------------------------
 
-const props = defineProps<{ mode: 'add' | 'edit' }>()
+const props = defineProps<{ mode: 'add' | 'edit'; transaction?: DisplayTransaction }>()
 const open = defineModel<boolean>('open', { default: false })
-const emit = defineEmits<{ created: [] }>()
+const emit = defineEmits<{ created: []; updated: [] }>()
 
 // ---------------------------------------------------------------------------
 // Hooks
 // ---------------------------------------------------------------------------
 
 const { user } = useMe()
-const { createTransaction, loading } = useCreateTransaction()
+const { createTransaction, loading: createLoading } = useCreateTransaction()
+const { updateTransaction, loading: updateLoading } = useUpdateTransaction()
 const { t } = useI18n()
+
+/** Общий busy-флаг для disable submit-кнопки (add и edit используют разные хуки). */
+const loading = computed(() => createLoading.value || updateLoading.value)
+
+const drawerTitle = computed(() =>
+  props.mode === 'edit' ? t('transaction.form.edit_title') : t('transaction.form.title'),
+)
+const submitLabel = computed(() =>
+  props.mode === 'edit' ? t('transaction.form.buttons.update') : t('transaction.form.buttons.add'),
+)
 
 // ---------------------------------------------------------------------------
 // Form state
@@ -73,6 +86,30 @@ const selectedPlan = ref<SelectedPlan | null>(null)
 watch(selectedPlanning, (val) => {
   if (!val) selectedPlan.value = null
 })
+
+/**
+ * Предзаполнение формы существующей транзакцией (edit-режим).
+ * originalAmount/originalCurrency берутся, если транзакция была в валюте, отличной
+ * от валюты пользователя (иначе редактировали бы конвертированную сумму).
+ */
+const fillFromTransaction = (tx: DisplayTransaction) => {
+  amount.value = String(tx.originalAmount ?? tx.amount)
+  currency.value = tx.originalCurrency || tx.currency || user.value?.currency || CURRENCIES[0]
+  description.value = tx.description || ''
+  date.value = new Date(tx.date)
+  categoryId.value = tx.categoryId || ''
+  selectedPlanning.value = tx.planningId ? String(tx.planningId) : null
+  errors.value = {}
+}
+
+// В edit-режиме заполняем сразу и при смене выбранной транзакции.
+if (props.mode === 'edit' && props.transaction) fillFromTransaction(props.transaction)
+watch(
+  () => props.transaction,
+  (tx) => {
+    if (props.mode === 'edit' && tx) fillFromTransaction(tx)
+  },
+)
 
 // ---------------------------------------------------------------------------
 // Date picker (shadcn Popover + Calendar; мост Date <-> CalendarDate)
@@ -148,9 +185,27 @@ const validateForm = async (): Promise<boolean> => {
 // ---------------------------------------------------------------------------
 
 const handleSubmit = async () => {
-  if (props.mode !== 'add') return
   if (!(await validateForm())) return
   try {
+    if (props.mode === 'edit') {
+      if (!props.transaction) return
+      await updateTransaction(
+        Number(props.transaction.id),
+        buildUpdateTransactionDto({
+          amount: amount.value,
+          currency: currency.value,
+          description: description.value,
+          categoryId: categoryId.value,
+          date: date.value,
+          planningId: selectedPlanning.value,
+        }),
+      )
+      toast.success(t('transaction.form.messages.update_success'))
+      open.value = false
+      emit('updated')
+      return
+    }
+
     await createTransaction(
       buildCreateTransactionDto({
         amount: amount.value,
@@ -241,7 +296,7 @@ const clearPlanning = () => {
 </script>
 
 <template>
-  <ResponsiveSheet v-model:open="open" :title="t('transaction.form.title')">
+  <ResponsiveSheet v-model:open="open" :title="drawerTitle">
     <div class="flex flex-col gap-6 py-2">
       <!-- Date pill -->
       <div>
@@ -317,7 +372,7 @@ const clearPlanning = () => {
 
       <!-- Submit button -->
       <Button class="w-full" :disabled="loading" @click="handleSubmit">
-        {{ t('transaction.form.buttons.add') }}
+        {{ submitLabel }}
       </Button>
     </div>
   </ResponsiveSheet>
