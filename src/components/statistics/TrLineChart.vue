@@ -32,8 +32,7 @@ const { user } = useMe()
 const { t } = useI18n()
 
 const option = computed(() => {
-  const formatedCurrency =
-    CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
 
   return {
     backgroundColor: 'transparent',

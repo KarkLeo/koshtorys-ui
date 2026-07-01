@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { DrawerRoot } from "vaul-vue"
-import type { DrawerDirection } from "vaul-vue"
+import { DrawerRoot } from 'vaul-vue'
+import type { DrawerDirection } from 'vaul-vue'
 
 // vaul-vue's DrawerRootProps has `fadeFromIndex?: never` which causes vue-tsc
 // to collapse the intersection to `never`. We define our own props without it.
@@ -29,8 +29,8 @@ const emits = defineEmits<{
   drag: [percentageDragged: number]
   release: [open: boolean]
   close: []
-  "update:open": [open: boolean]
-  "update:activeSnapPoint": [val: string | number]
+  'update:open': [open: boolean]
+  'update:activeSnapPoint': [val: string | number]
   animationEnd: [open: boolean]
 }>()
 </script>

@@ -28,7 +28,9 @@ const handleSignOut = async () => {
   <header class="flex items-center justify-center border-b border-border px-4 py-4 md:px-8">
     <div class="flex w-full max-w-screen-xl items-center justify-between">
       <div>
-        <span v-if="!user" class="text-lg font-semibold"><span class="mr-1">&#x1F911;</span>Koshtorys</span>
+        <span v-if="!user" class="text-lg font-semibold"
+          ><span class="mr-1">&#x1F911;</span>Koshtorys</span
+        >
         <MainMenu v-else />
       </div>
       <div class="flex items-center gap-2">

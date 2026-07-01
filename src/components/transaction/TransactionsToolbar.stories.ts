@@ -36,6 +36,5 @@ export const Default: Story = {
 
 // С активными фильтрами: бейдж счётчика, чипы, «Скинути все».
 export const WithActiveFilters: Story = {
-  render: () =>
-    interactive({ search: '', categories: ['food', 'car'], plan: 'unlinked' }),
+  render: () => interactive({ search: '', categories: ['food', 'car'], plan: 'unlinked' }),
 }

@@ -21,11 +21,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
   const hasError = (key: string) => errorKeys.has(key)
   const getMonth = (key: string) => cache.get(key)
 
-  const fetchMonth = async (
-    date: Date,
-    monthStartDay: number,
-    opts: { force?: boolean } = {},
-  ) => {
+  const fetchMonth = async (date: Date, monthStartDay: number, opts: { force?: boolean } = {}) => {
     const key = monthKeyOf(date, monthStartDay)
     if ((!opts.force && cache.has(key)) || loadingKeys.has(key)) return
 

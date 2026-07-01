@@ -2,7 +2,13 @@
 import { useMediaQuery } from '@vueuse/core'
 import { XIcon } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from '@/components/ui/drawer'
 
 const open = defineModel<boolean>('open', { default: false })
 defineProps<{ title?: string }>()

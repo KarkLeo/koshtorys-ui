@@ -20,9 +20,7 @@ const meta = {
     // Seeds the Pinia user store (see .storybook/preview.ts) so `v-if="user"` passes.
     mockUser,
   },
-  decorators: [
-    () => ({ template: '<div class="min-h-screen bg-background"><story /></div>' }),
-  ],
+  decorators: [() => ({ template: '<div class="min-h-screen bg-background"><story /></div>' })],
 } satisfies Meta<typeof SettingsView>
 
 export default meta

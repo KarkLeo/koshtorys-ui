@@ -1,4 +1,4 @@
-mutation CreateTransaction ($transactionData: TransactionInput!) {
+mutation CreateTransaction($transactionData: TransactionInput!) {
   createTransaction(transactionData: $transactionData) {
     id
     amount

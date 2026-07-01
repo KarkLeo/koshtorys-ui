@@ -27,8 +27,7 @@ const option = computed(() => {
     getCategoryStyle(category.categoryId),
   )
 
-  const formatedCurrency =
-    CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
 
   const options = {
     backgroundColor: 'transparent',

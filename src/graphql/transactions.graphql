@@ -1,5 +1,5 @@
 query Transactions($startDate: DateTime!, $endDate: DateTime!) {
-  transactions (startDate: $startDate, endDate: $endDate) {
+  transactions(startDate: $startDate, endDate: $endDate) {
     id
     amount
     currency

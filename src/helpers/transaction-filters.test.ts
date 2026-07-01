@@ -111,7 +111,11 @@ describe('filterAndSortTransactions', () => {
     })
 
     it('amount-desc: most expensive first', () => {
-      const result = filterAndSortTransactions(mockTransactions, createEmptyFilters(), 'amount-desc')
+      const result = filterAndSortTransactions(
+        mockTransactions,
+        createEmptyFilters(),
+        'amount-desc',
+      )
       expect(ids(result).slice(0, 2)).toEqual(['2', '5']) // 52, затем 18 (date-desc tiebreak: 27.05 > 26.05)
     })
 

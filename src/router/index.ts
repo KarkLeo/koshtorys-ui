@@ -66,15 +66,14 @@ router.beforeEach(async (to) => {
       const user = await userStore.fetchUser()
       if (user) {
         if (
-          (!user.onboardingAt ||
-            new Date(user.onboardingAt) < new Date(ONBOARDING_UPDATED_AT)) &&
+          (!user.onboardingAt || new Date(user.onboardingAt) < new Date(ONBOARDING_UPDATED_AT)) &&
           to.name !== 'onboarding'
         ) {
           return { name: 'onboarding' }
         }
         if (
-          (user.onboardingAt &&
-            new Date(user.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT)) &&
+          user.onboardingAt &&
+          new Date(user.onboardingAt) >= new Date(ONBOARDING_UPDATED_AT) &&
           to.name === 'onboarding'
         ) {
           return { name: 'dashboard' }

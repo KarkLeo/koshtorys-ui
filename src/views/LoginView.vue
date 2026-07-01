@@ -134,7 +134,10 @@ const login = async () => {
 
       <p class="mt-6 text-center text-sm text-muted-foreground">
         {{ $t('login.sub_form.title') }}{{ ' ' }}
-        <router-link to="/register" class="font-medium text-primary underline-offset-4 hover:underline">
+        <router-link
+          to="/register"
+          class="font-medium text-primary underline-offset-4 hover:underline"
+        >
           {{ $t('login.sub_form.link') }}
         </router-link>
       </p>

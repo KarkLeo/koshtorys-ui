@@ -1,4 +1,4 @@
-mutation UpdateTransaction ($transactionId: Float!, $transactionData: TransactionInput!) {
+mutation UpdateTransaction($transactionId: Float!, $transactionData: TransactionInput!) {
   updateTransaction(transactionData: $transactionData, id: $transactionId) {
     id
     amount

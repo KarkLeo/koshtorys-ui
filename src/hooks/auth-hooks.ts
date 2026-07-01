@@ -13,7 +13,12 @@ type UpdateProfileDto = components['schemas']['UpdateProfileDto']
 export function useSignUp() {
   const loading = ref(false)
 
-  const signUp = async (variables: { name: string; email: string; password: string; lang: string }) => {
+  const signUp = async (variables: {
+    name: string
+    email: string
+    password: string
+    lang: string
+  }) => {
     loading.value = true
     try {
       return await authApi.signUp(variables)

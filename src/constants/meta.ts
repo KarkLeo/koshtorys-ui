@@ -1,1 +1,1 @@
-export const ONBOARDING_UPDATED_AT = '2024-10-01';
+export const ONBOARDING_UPDATED_AT = '2024-10-01'

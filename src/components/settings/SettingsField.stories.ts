@@ -6,7 +6,9 @@ const meta = {
   title: 'Settings/SettingsField',
   component: SettingsField,
   parameters: { layout: 'centered' },
-  decorators: [() => ({ template: '<div class="w-[640px] max-w-full px-4 md:px-6"><story /></div>' })],
+  decorators: [
+    () => ({ template: '<div class="w-[640px] max-w-full px-4 md:px-6"><story /></div>' }),
+  ],
   // Horizontal layout on md+: label/description on the left, control on the right.
   render: (args) => ({
     components: { SettingsField, Input },

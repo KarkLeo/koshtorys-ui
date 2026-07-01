@@ -1,5 +1,5 @@
-mutation CanselRepeatingPlanning($planningId: Float!,) {
-  canselRepeatingPlanning(planningId: $planningId,) {
+mutation CanselRepeatingPlanning($planningId: Float!) {
+  canselRepeatingPlanning(planningId: $planningId) {
     id
     amount
     currency

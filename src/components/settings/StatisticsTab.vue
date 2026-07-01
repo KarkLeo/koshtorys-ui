@@ -114,7 +114,9 @@ const isChanged = computed(() => {
       :description="$t('settings.fields.monthStartDay.description')"
       :error="Boolean(errors?.monthStartDay)"
       :message="
-        errors?.monthStartDay ? $t(`settings.fields.monthStartDay.errors.${errors.monthStartDay}`) : ''
+        errors?.monthStartDay
+          ? $t(`settings.fields.monthStartDay.errors.${errors.monthStartDay}`)
+          : ''
       "
     >
       <Input
@@ -130,7 +132,9 @@ const isChanged = computed(() => {
       :description="$t('settings.fields.monthlyBudget.description')"
       :error="Boolean(errors?.monthlyBudget)"
       :message="
-        errors?.monthlyBudget ? $t(`settings.fields.monthlyBudget.errors.${errors.monthlyBudget}`) : ''
+        errors?.monthlyBudget
+          ? $t(`settings.fields.monthlyBudget.errors.${errors.monthlyBudget}`)
+          : ''
       "
     >
       <Input

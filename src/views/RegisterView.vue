@@ -180,7 +180,9 @@ const register = async () => {
       </div>
 
       <div class="mt-2 flex flex-col">
-        <Button type="submit" class="w-full" :disabled="loading">{{ $t('register.submit') }}</Button>
+        <Button type="submit" class="w-full" :disabled="loading">{{
+          $t('register.submit')
+        }}</Button>
       </div>
     </form>
 

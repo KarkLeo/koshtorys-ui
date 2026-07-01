@@ -128,9 +128,7 @@ const handleOnboarding = async () => {
             </p>
             <Select
               :model-value="currency"
-              @update:model-value="
-                (value) => (currency = value as (typeof CURRENCIES)[number])
-              "
+              @update:model-value="(value) => (currency = value as (typeof CURRENCIES)[number])"
             >
               <SelectTrigger :aria-invalid="Boolean(errors?.currency)">
                 <SelectValue :placeholder="$t('onboarding.fields.currency.placeholder')" />

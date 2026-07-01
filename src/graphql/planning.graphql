@@ -1,5 +1,5 @@
 query Planning($monthIndex: Float!, $year: Float!) {
-  planning (monthIndex: $monthIndex, year: $year) {
+  planning(monthIndex: $monthIndex, year: $year) {
     id
     amount
     currency
@@ -17,7 +17,7 @@ query Planning($monthIndex: Float!, $year: Float!) {
       amount
       currency
       exchangeRate {
-         rates
+        rates
       }
     }
   }

@@ -23,8 +23,7 @@ const getCategoryStyle = (category: string) =>
   TRANSACTION_CATEGORIES_COLORS[getMainCategory(category)] || ''
 
 const option = computed(() => {
-  const formatedCurrency =
-    CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
 
   return {
     backgroundColor: 'transparent',
