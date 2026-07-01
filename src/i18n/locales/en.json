@@ -35,10 +35,6 @@
       "7": "Sun"
     }
   },
-  "mainMenu": {
-    "dashboard": "Dashboard",
-    "settings": "Settings"
-  },
   "nav": {
     "transactions": "Transactions",
     "planning": "Planning",
