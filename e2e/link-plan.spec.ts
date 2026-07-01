@@ -26,7 +26,7 @@ function newUser() {
   }
 }
 
-/** Register → login → onboarding (EUR, monthStartDay=1, budget) → /dashboard. */
+/** Register → login → onboarding (EUR, monthStartDay=1, budget) → /transactions. */
 async function signUpAndOnboard(
   page: Page,
   user: { name: string; email: string; password: string },
@@ -51,7 +51,7 @@ async function signUpAndOnboard(
   await page.locator('input[type="number"]').first().fill('1')
   await page.locator('input[type="number"]').nth(1).fill(String(budget))
   await page.locator('button[type="submit"]').click()
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 /** Сид one-off (TRANSACTION) плана в текущем фин. месяце через REST. */
@@ -80,7 +80,7 @@ async function login(page: Page, user: { email: string; password: string }) {
   await page.getByPlaceholder(/email/i).fill(user.email)
   await page.locator('input[type="password"]').fill(user.password)
   await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 test.describe.serial('Link transaction to one-off plan', () => {

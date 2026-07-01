@@ -32,7 +32,7 @@ function newUser() {
   }
 }
 
-/** Register → login → complete onboarding via UI; lands on /dashboard. */
+/** Register → login → complete onboarding via UI; lands on /transactions. */
 async function signUpAndOnboard(
   page: Page,
   user: { name: string; email: string; password: string },
@@ -61,7 +61,7 @@ async function signUpAndOnboard(
   await page.locator('input[type="number"]').nth(1).fill(String(budget)) // monthlyBudget
   await page.locator('button[type="submit"]').click()
 
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 /**
@@ -101,7 +101,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Transactions tab is active by default (first tab).
     await expect(page.getByText('No transactions this month')).toBeVisible({ timeout: 8000 })
@@ -113,7 +113,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Create transaction via REST API (cookies are shared with page.request).
     const now = new Date()
@@ -128,7 +128,7 @@ test.describe.serial('Transactions list', () => {
 
     // Reload so the transactionsStore fetches fresh data from REST.
     await page.reload()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Card with the amount
     await expect(page.getByText('52 €')).toBeVisible({ timeout: 8000 })
@@ -143,7 +143,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Wait for card to be visible first.
     await expect(page.getByText('52 €')).toBeVisible({ timeout: 8000 })
@@ -171,7 +171,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Confirm card visible in current month.
     await expect(page.getByText('52 €')).toBeVisible({ timeout: 8000 })
@@ -198,7 +198,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Wait for transaction card.
     await expect(page.getByText('52 €')).toBeVisible({ timeout: 8000 })
@@ -225,7 +225,7 @@ test.describe.serial('Transactions list', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Error state + Retry button should appear.
     await expect(page.getByText('Failed to load transactions')).toBeVisible({ timeout: 8000 })

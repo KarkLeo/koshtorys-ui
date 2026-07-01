@@ -79,7 +79,7 @@ test.describe('Authentication', () => {
 
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
 
-    await expect(page).toHaveURL(/\/(dashboard|onboarding)/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/(transactions|onboarding)/, { timeout: 10000 })
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
@@ -102,7 +102,7 @@ test.describe('Authentication', () => {
     await page.getByPlaceholder(/email/i).fill(TEST_USER.email)
     await page.locator('input[type="password"]').fill(TEST_USER.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/(dashboard|onboarding)/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/(transactions|onboarding)/, { timeout: 10000 })
 
     // Click logout button (last SVG button in header)
     await page.locator('header button:has(svg)').last().click()

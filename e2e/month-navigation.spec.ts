@@ -48,7 +48,7 @@ async function signUpAndOnboard(
   await page.locator('input[type="number"]').nth(1).fill(String(budget))
   await page.locator('button[type="submit"]').click()
 
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 async function login(page: Page, user: { email: string; password: string }) {
@@ -56,7 +56,7 @@ async function login(page: Page, user: { email: string; password: string }) {
   await page.getByPlaceholder(/email/i).fill(user.email)
   await page.locator('input[type="password"]').fill(user.password)
   await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 async function createSushiTransaction(page: Page) {

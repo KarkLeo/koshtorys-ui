@@ -37,13 +37,13 @@ async function completeOnboarding(page: Page, currency = 'EUR') {
   await page.locator('button[type="submit"]').click()
 }
 
-// Registers a fresh user, logs in, and completes onboarding → lands on /dashboard.
+// Registers a fresh user, logs in, and completes onboarding → lands on /transactions.
 async function signUpAndOnboard(page: Page, prefix: string) {
   const user = newUser(prefix)
   await register(page, user)
   await login(page, user.email, user.password)
   await completeOnboarding(page)
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
   return user
 }
 
@@ -64,14 +64,14 @@ test.describe('Onboarding', () => {
     await page.locator('input[type="number"]').nth(1).fill('30000')
     await page.locator('button[type="submit"]').click()
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
   })
 
-  test('completed user visiting /onboarding is redirected to dashboard', async ({ page }) => {
+  test('completed user visiting /onboarding is redirected to transactions', async ({ page }) => {
     await signUpAndOnboard(page, 'onb-done')
 
     await page.goto('/onboarding')
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
   })
 })
 

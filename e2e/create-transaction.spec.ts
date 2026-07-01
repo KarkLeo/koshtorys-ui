@@ -37,7 +37,7 @@ function newUser() {
   }
 }
 
-/** Register → login → complete onboarding via UI; lands on /dashboard. */
+/** Register → login → complete onboarding via UI; lands on /transactions. */
 async function signUpAndOnboard(
   page: Page,
   user: { name: string; email: string; password: string },
@@ -66,7 +66,7 @@ async function signUpAndOnboard(
   await page.locator('input[type="number"]').nth(1).fill(String(budget)) // monthlyBudget
   await page.locator('button[type="submit"]').click()
 
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+  await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 }
 
 // ---------- tests ----------
@@ -87,7 +87,7 @@ test.describe.serial('Create transaction through drawer', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Transactions tab is active by default.
     await expect(page.getByText('No transactions this month')).toBeVisible({ timeout: 8000 })
@@ -101,7 +101,7 @@ test.describe.serial('Create transaction through drawer', () => {
     await page.getByPlaceholder(/email/i).fill(user.email)
     await page.locator('input[type="password"]').fill(user.password)
     await page.getByRole('button', { name: /submit|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 10000 })
 
     // Wait for empty state to confirm the list has loaded.
     await expect(page.getByText('No transactions this month')).toBeVisible({ timeout: 8000 })
