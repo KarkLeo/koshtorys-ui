@@ -433,6 +433,10 @@
     }
   },
   "planning": {
+    "actions": {
+      "edit": "Редагувати",
+      "delete": "Видалити"
+    },
     "header": {
       "monthlyBudget": "Місячний бюджет",
       "plannedExpenses": "Заплановані витрати",

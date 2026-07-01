@@ -433,6 +433,10 @@
     }
   },
   "planning": {
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
     "header": {
       "monthlyBudget": "Monthly Budget",
       "plannedExpenses": "Planned Expenses",
