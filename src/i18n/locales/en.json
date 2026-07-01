@@ -39,6 +39,13 @@
     "dashboard": "Dashboard",
     "settings": "Settings"
   },
+  "nav": {
+    "transactions": "Transactions",
+    "planning": "Planning",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "add": "Add"
+  },
   "register": {
     "title": "Sign Up",
     "description": "Please fill in the form below to register.",
