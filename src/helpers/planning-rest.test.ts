@@ -49,6 +49,10 @@ describe('getConvertedPlanAmount', () => {
     // 100 USD → EUR with USD:1, EUR:0.9  => (100/1)*0.9 = 90
     expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'USD' }), { USD: 1, EUR: 0.9 }, 'EUR')).toBe(90)
   })
+  it('converts in reverse direction (EUR → USD)', () => {
+    // 90 EUR → USD with USD:1, EUR:0.9  => (90/0.9)*1 = 100
+    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'EUR' }), { USD: 1, EUR: 0.9 }, 'USD')).toBe(100)
+  })
 })
 
 describe('filterRepeatingPlans', () => {
@@ -57,9 +61,29 @@ describe('filterRepeatingPlans', () => {
     const current = [basePlan({ id: 20, type: 'CATEGORY', categoryId: 'food--groceries' })]
     expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
   })
-  it('drops a repeating plan already carried over (parent/repeated link)', () => {
-    const repeating = [basePlan({ id: 10 })]
-    const current = [basePlan({ id: 20, repeatedPlanningId: 10 })]
+  it('drops a repeating plan already carried over (current.repeatedPlanningId === rp.id)', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel' })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries', repeatedPlanningId: 10 })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('drops a repeating plan already carried over (rp.repeatedPlanningId === current.id)', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel', repeatedPlanningId: 20 })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries' })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('drops a repeating plan when current.parentPlanningId === rp.id', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel' })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries', parentPlanningId: 10 })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('drops a repeating plan when rp.parentPlanningId === current.id', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel', parentPlanningId: 20 })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries' })]
+    expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
+  })
+  it('drops a repeating plan when sharing the same parentPlanningId', () => {
+    const repeating = [basePlan({ id: 10, categoryId: 'car--fuel', parentPlanningId: 99 })]
+    const current = [basePlan({ id: 20, categoryId: 'food--groceries', parentPlanningId: 99 })]
     expect(filterRepeatingPlans(repeating, current)).toHaveLength(0)
   })
   it('keeps an unrelated repeating plan', () => {
@@ -84,5 +108,7 @@ describe('reducePlansByCategory', () => {
     expect(groups[0]).toMatchObject({ category: 'car', total: 50 })
     expect(groups[1]).toMatchObject({ category: 'food', total: 30 })
     expect(groups[1].items).toHaveLength(2)
+    // Verify intra-group items are sorted by amount desc: p3 (20) before p1 (10)
+    expect(groups[1].items.map((i) => i.id)).toEqual(['3', '1'])
   })
 })
