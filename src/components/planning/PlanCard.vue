@@ -1,17 +1,31 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Pencil, Trash2, Repeat, Calendar } from 'lucide-vue-next'
+import { Pencil, Trash2, Repeat, Calendar, Check, CircleSlash } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+import { formatPlanDate } from '@/helpers/plan-form'
 import type { PreparedPlan } from '@/helpers/planning-rest'
 
-const props = defineProps<{ plan: PreparedPlan }>()
-defineEmits<{ edit: [id: string]; delete: [id: string] }>()
+const props = withDefaults(
+  defineProps<{ plan: PreparedPlan; variant?: 'plan' | 'suggestion'; disabled?: boolean }>(),
+  { variant: 'plan', disabled: false },
+)
+defineEmits<{
+  edit: [id: string]
+  delete: [id: string]
+  repeat: [id: string]
+  cancelRepeat: [id: string]
+}>()
 
 const pct = computed(() => {
   if (!props.plan.amount) return 0
   return Math.min(100, Math.round((props.plan.spent / props.plan.amount) * 100))
 })
 const overspent = computed(() => props.plan.spent > props.plan.amount)
+
+// У предложения нет трат в текущем месяце — прогресс-бар для него бессмыслен.
+const showProgress = computed(() => props.variant === 'plan')
+
+const dateLabel = computed(() => formatPlanDate(props.plan.date))
 </script>
 
 <template>
@@ -28,7 +42,7 @@ const overspent = computed(() => props.plan.spent > props.plan.amount)
         >
           <Repeat v-if="plan.repeat" class="size-3.5" />
           <Calendar v-else class="size-3.5" />
-          {{ plan.date || $t('planning.table.repeat') }}
+          {{ dateLabel || $t('planning.table.repeat') }}
         </p>
       </div>
       <div class="shrink-0 text-right">
@@ -41,7 +55,7 @@ const overspent = computed(() => props.plan.spent > props.plan.amount)
       </div>
     </div>
 
-    <div>
+    <div v-if="showProgress">
       <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
           class="h-full rounded-full transition-all"
@@ -58,12 +72,22 @@ const overspent = computed(() => props.plan.spent > props.plan.amount)
     </div>
 
     <div class="flex justify-end gap-1">
-      <Button variant="ghost" size="icon" class="size-8" :aria-label="$t('planning.actions.edit')" @click="$emit('edit', plan.id)">
-        <Pencil class="size-4" />
-      </Button>
-      <Button variant="ghost" size="icon" class="size-8" :aria-label="$t('planning.actions.delete')" @click="$emit('delete', plan.id)">
-        <Trash2 class="size-4" />
-      </Button>
+      <template v-if="variant === 'plan'">
+        <Button variant="ghost" size="icon" class="size-8" :aria-label="$t('planning.actions.edit')" @click="$emit('edit', plan.id)">
+          <Pencil class="size-4" />
+        </Button>
+        <Button variant="ghost" size="icon" class="size-8" :aria-label="$t('planning.actions.delete')" @click="$emit('delete', plan.id)">
+          <Trash2 class="size-4" />
+        </Button>
+      </template>
+      <template v-else>
+        <Button variant="ghost" size="icon" class="size-8" :disabled="disabled" :aria-label="$t('planning.actions.cancel_repeat')" @click="$emit('cancelRepeat', plan.id)">
+          <CircleSlash class="size-4" />
+        </Button>
+        <Button variant="ghost" size="icon" class="size-8" :disabled="disabled" :aria-label="$t('planning.actions.repeat')" @click="$emit('repeat', plan.id)">
+          <Check class="size-4" />
+        </Button>
+      </template>
     </div>
   </div>
 </template>

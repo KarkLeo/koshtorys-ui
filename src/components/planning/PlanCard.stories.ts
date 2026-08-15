@@ -105,6 +105,13 @@ export const OneOff: Story = {
   },
 }
 
+export const Suggestion: Story = {
+  args: {
+    plan: { ...mockOneOffPlan, date: '2026-07-15T00:00:00.000Z', repeat: true },
+    variant: 'suggestion',
+  },
+}
+
 export const Dynamic: Story = {
   args: {
     plan: mockDynamicPlan,

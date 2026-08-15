@@ -6,8 +6,15 @@ import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categorie
 const props = defineProps<{
   group: { category: string; items: PreparedPlan[]; total: number }
   currency: string
+  variant?: 'plan' | 'suggestion'
+  busyId?: string | null
 }>()
-defineEmits<{ edit: [id: string]; delete: [id: string] }>()
+defineEmits<{
+  edit: [id: string]
+  delete: [id: string]
+  repeat: [id: string]
+  cancelRepeat: [id: string]
+}>()
 
 const categoryColor = () => TRANSACTION_CATEGORIES_COLORS[props.group.category] || ''
 </script>
@@ -27,8 +34,12 @@ const categoryColor = () => TRANSACTION_CATEGORIES_COLORS[props.group.category] 
         v-for="plan in group.items"
         :key="plan.id"
         :plan="plan"
+        :variant="props.variant ?? 'plan'"
+        :disabled="props.busyId === plan.id"
         @edit="$emit('edit', $event)"
         @delete="$emit('delete', $event)"
+        @repeat="$emit('repeat', $event)"
+        @cancel-repeat="$emit('cancelRepeat', $event)"
       />
     </div>
   </div>
