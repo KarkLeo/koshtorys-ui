@@ -4,8 +4,8 @@ import {
   applyPlanningToForm,
   buildCreateTransactionDto,
   buildUpdateTransactionDto,
-  mapApiErrorCodes,
 } from '@/helpers/transaction-form'
+import { mapApiErrorCodes } from '@/helpers/api-errors'
 
 describe('applyPlanningToForm', () => {
   const plan = {

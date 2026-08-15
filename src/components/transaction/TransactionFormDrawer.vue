@@ -12,8 +12,8 @@ import {
   applyPlanningToForm,
   buildCreateTransactionDto,
   buildUpdateTransactionDto,
-  mapApiErrorCodes,
 } from '@/helpers/transaction-form'
+import { mapApiErrorCodes } from '@/helpers/api-errors'
 import type { PlanningLike } from '@/helpers/transaction-form'
 import type { DisplayTransaction } from '@/components/transaction/types'
 

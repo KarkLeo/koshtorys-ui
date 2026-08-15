@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useMonthlyTransactions, useDeleteTransaction } from '@/hooks/transaction-hooks.ts'
-import { mapApiErrorCodes } from '@/helpers/transaction-form'
+import { mapApiErrorCodes } from '@/helpers/api-errors'
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
 
