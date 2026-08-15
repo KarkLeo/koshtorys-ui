@@ -37,6 +37,7 @@ const mockOneOffPlan: PreparedPlan = {
   amount: 100,
   currency: 'USD',
   spent: 50,
+  converted: true,
   categoryId: 'food--groceries',
   categoryName: 'Food: Groceries',
   mainCategory: 'food',
@@ -64,6 +65,7 @@ const mockDynamicPlan: PreparedPlan = {
   amount: 101,
   currency: 'EUR',
   spent: 75,
+  converted: true,
   categoryId: 'transportation',
   categoryName: 'Transportation',
   mainCategory: 'transportation',
@@ -92,6 +94,7 @@ const mockOverspentPlan: PreparedPlan = {
   originalAmount: 4,
   originalCurrency: 'EUR',
   spent: 140,
+  converted: true,
   categoryId: 'housing--rent',
   categoryName: 'Housing: Rent',
   mainCategory: 'housing',
@@ -124,5 +127,17 @@ export const Dynamic: Story = {
 export const Overspent: Story = {
   args: {
     plan: mockOverspentPlan,
+  },
+}
+
+/**
+ * Rates were unavailable (e.g. exchange-rates 400 for "today"), so the plan's headline figure
+ * stayed in its OWN currency instead of being converted to base. `spent` is always base-currency
+ * (DisplayTransaction), so it's not comparable to `amount` here — the progress bar and the
+ * spent/amount line must not render (converted: false).
+ */
+export const UnconvertedFallback: Story = {
+  args: {
+    plan: { ...mockOneOffPlan, converted: false, originalAmount: null, originalCurrency: null },
   },
 }

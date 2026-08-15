@@ -44,6 +44,7 @@ function mapPlan(
     currency: formatCurrency(converted ? baseCurrency : plan.currency),
     originalAmount: showsOriginal ? plan.amount : null,
     originalCurrency: showsOriginal ? formatCurrency(plan.currency) : null,
+    converted,
     spent: Math.round(getPlanSpent(plan, transactions)),
     linkedCount: countLinkedTransactions(plan, transactions),
     categoryId: plan.categoryId,
@@ -90,7 +91,12 @@ export function usePlanningMapperRest() {
     if (!ready.value) return null
     const monthlyBudget = user.value!.monthlyBudget ?? 0
     const items = prepared.value
-    const plannedExpenses = items.reduce((acc, p) => acc + p.amount, 0)
+    // Any unconverted item (missing exchange rate) is labelled with its OWN currency, not
+    // baseCurrency — folding it into a base-currency sum below would silently mix currencies.
+    // Same call as reducePlansByCategory's group total: emit null and let the UI show a dash
+    // rather than a confidently wrong figure.
+    const hasUnconverted = items.some((p) => !p.converted)
+    const plannedExpenses = hasUnconverted ? null : items.reduce((acc, p) => acc + p.amount, 0)
     // free money = budget - (spent-or-planned per plan) - free (unplanned) transactions
     const plannedCategoryIds = new Set(
       plans.value.filter((p) => p.type === 'CATEGORY').map((p) => p.categoryId),
@@ -102,12 +108,14 @@ export function usePlanningMapperRest() {
       (acc, p) => acc + (p.type === 'TRANSACTION' && p.spent ? p.spent : p.amount),
       0,
     )
-    const freeMoney = monthlyBudget - usedByPlans - freeTx
-    const remainingToPay = items.reduce((acc, p) => {
-      if (p.type === 'TRANSACTION' && p.spent) return acc
-      if (p.type === 'CATEGORY' && p.spent) return acc + Math.max(0, p.amount - p.spent)
-      return acc + p.amount
-    }, 0)
+    const freeMoney = hasUnconverted ? null : monthlyBudget - usedByPlans - freeTx
+    const remainingToPay = hasUnconverted
+      ? null
+      : items.reduce((acc, p) => {
+          if (p.type === 'TRANSACTION' && p.spent) return acc
+          if (p.type === 'CATEGORY' && p.spent) return acc + Math.max(0, p.amount - p.spent)
+          return acc + p.amount
+        }, 0)
     return { monthlyBudget, plannedExpenses, freeMoney, remainingToPay }
   })
 

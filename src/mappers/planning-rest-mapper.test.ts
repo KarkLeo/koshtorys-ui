@@ -106,6 +106,14 @@ describe('usePlanningMapperRest', () => {
     // No contradicting "original" hint either — the primary figure already *is* the original.
     expect(items[0].originalAmount).toBeNull()
     expect(items[0].originalCurrency).toBeNull()
+    // Flagged as unconverted: PlanCard's showProgress reads exactly this to decide whether to
+    // render the progress bar / spent-vs-amount line (spent is always base-currency, amount here
+    // is not — comparing them would mix currencies), so this flag makes the card's behaviour
+    // deterministic without mounting the component.
+    expect(items[0].converted).toBe(false)
+
+    // The group total must not silently sum a base-currency figure with this unconverted one.
+    expect(planningTables.value[0].total).toBeNull()
   })
 
   it('converts and labels with base currency, showing the original as a secondary hint, when rates are available', () => {
@@ -120,5 +128,31 @@ describe('usePlanningMapperRest', () => {
     expect(items[0].currency).toBe('€')
     expect(items[0].originalAmount).toBe(108)
     expect(items[0].originalCurrency).toBe('$')
+    expect(items[0].converted).toBe(true)
+    expect(planningTables.value[0].total).toBe(100)
+  })
+
+  it('planningStatistics: nulls plannedExpenses/freeMoney/remainingToPay (but keeps a real monthlyBudget) when a plan could not be converted', () => {
+    const { plans, rates } = useMonthlyPlanning()
+    plans.value = [basePlan({ id: 4, currency: 'USD', amount: 90, type: 'CATEGORY' })]
+    rates.value = {} // rate missing -> unconverted
+
+    const { planningStatistics } = mount()
+    expect(planningStatistics.value).not.toBeNull()
+    expect(planningStatistics.value!.monthlyBudget).toBe(1000) // pure base-currency, unaffected
+    expect(planningStatistics.value!.plannedExpenses).toBeNull()
+    expect(planningStatistics.value!.freeMoney).toBeNull()
+    expect(planningStatistics.value!.remainingToPay).toBeNull()
+  })
+
+  it('planningStatistics: computes real numbers when every plan converted fine', () => {
+    const { plans, rates } = useMonthlyPlanning()
+    plans.value = [basePlan({ id: 5, currency: 'EUR', amount: 90, type: 'CATEGORY' })]
+    rates.value = {}
+
+    const { planningStatistics } = mount()
+    expect(planningStatistics.value!.plannedExpenses).toBe(90)
+    expect(planningStatistics.value!.freeMoney).not.toBeNull()
+    expect(planningStatistics.value!.remainingToPay).not.toBeNull()
   })
 })

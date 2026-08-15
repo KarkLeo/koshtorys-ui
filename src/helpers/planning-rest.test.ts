@@ -136,7 +136,8 @@ describe('reducePlansByCategory', () => {
     const p = (over: Partial<PreparedPlan>): PreparedPlan => ({
       original: basePlan({}), id: '1', type: 'CATEGORY', amount: 10, currency: '€',
       spent: 0, categoryId: 'food--groceries', categoryName: 'Groceries',
-      mainCategory: 'food', categoryColor: '#f00', repeat: false, linkedCount: 0, ...over,
+      mainCategory: 'food', categoryColor: '#f00', repeat: false, linkedCount: 0,
+      converted: true, ...over,
     })
     const groups = reducePlansByCategory([
       p({ id: '1', mainCategory: 'food', amount: 10 }),
@@ -148,5 +149,28 @@ describe('reducePlansByCategory', () => {
     expect(groups[1].items).toHaveLength(2)
     // Verify intra-group items are sorted by amount desc: p3 (20) before p1 (10)
     expect(groups[1].items.map((i) => i.id)).toEqual(['3', '1'])
+  })
+
+  it('emits a null total (never a mixed-currency sum) when any item in the group is unconverted', () => {
+    const p = (over: Partial<PreparedPlan>): PreparedPlan => ({
+      original: basePlan({}), id: '1', type: 'CATEGORY', amount: 10, currency: '€',
+      spent: 0, categoryId: 'food--groceries', categoryName: 'Groceries',
+      mainCategory: 'food', categoryColor: '#f00', repeat: false, linkedCount: 0,
+      converted: true, ...over,
+    })
+    // One item converted (base currency), one not (rate missing, still in its own currency) —
+    // summing amount fields directly would produce a number that isn't honestly in any currency.
+    const groups = reducePlansByCategory([
+      p({ id: '1', mainCategory: 'food', amount: 10, converted: true }),
+      p({ id: '2', mainCategory: 'food', amount: 90, converted: false }),
+    ])
+    expect(groups).toHaveLength(1)
+    expect(groups[0].total).toBeNull()
+    // A fully-converted group elsewhere is unaffected.
+    const allConverted = reducePlansByCategory([
+      p({ id: '1', mainCategory: 'food', amount: 10, converted: true }),
+      p({ id: '2', mainCategory: 'food', amount: 20, converted: true }),
+    ])
+    expect(allConverted[0].total).toBe(30)
   })
 })

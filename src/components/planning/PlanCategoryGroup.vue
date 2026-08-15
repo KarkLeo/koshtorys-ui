@@ -4,7 +4,7 @@ import type { PreparedPlan } from '@/helpers/planning-rest'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories'
 
 const props = defineProps<{
-  group: { category: string; items: PreparedPlan[]; total: number }
+  group: { category: string; items: PreparedPlan[]; total: number | null }
   currency: string
   variant?: 'plan' | 'suggestion'
   busyId?: string | null
@@ -27,7 +27,7 @@ const categoryColor = () => TRANSACTION_CATEGORIES_COLORS[props.group.category] 
     >
       <div class="category-tint" />
       <span>{{ $t('categories.' + group.category) }}</span>
-      <span>{{ Math.round(group.total) }} {{ currency }}</span>
+      <span>{{ group.total !== null ? `${Math.round(group.total)} ${currency}` : '—' }}</span>
     </div>
     <div class="flex flex-col">
       <PlanCard

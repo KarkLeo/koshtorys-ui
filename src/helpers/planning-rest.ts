@@ -21,6 +21,12 @@ export interface PreparedPlan {
   repeat: boolean
   description?: string | null
   linkedCount: number
+  /**
+   * false → `amount` is unconverted (missing exchange rate) and `spent` (always base-currency,
+   * see DisplayTransaction) is NOT comparable to it. Consumers must not compute a progress bar,
+   * or a base-currency sum, from a plan with `converted: false`.
+   */
+  converted: boolean
 }
 
 /** planned-vs-spent numerator. Both plan types read from the month's transactions. */
@@ -86,7 +92,7 @@ export function filterRepeatingPlans(repeating: Plan[], current: Plan[]): Plan[]
 
 export function reducePlansByCategory(
   plans: PreparedPlan[],
-): { category: string; items: PreparedPlan[]; total: number }[] {
+): { category: string; items: PreparedPlan[]; total: number | null }[] {
   const grouped = plans.reduce(
     (acc, p) => {
       ;(acc[p.mainCategory] ||= []).push(p)
@@ -98,9 +104,14 @@ export function reducePlansByCategory(
     .map(([category, items]) => ({
       category,
       items: [...items].sort((a, b) => b.amount - a.amount),
-      total: items.reduce((acc, i) => acc + i.amount, 0),
+      // A group total in the base currency is only honest if every item summed into it was
+      // actually converted (or already in base currency). A single unconverted item (missing
+      // exchange rate) is still labelled with its OWN currency — summing it with base-currency
+      // amounts would silently produce a number in no currency at all. Emit null instead and let
+      // the UI render a dash, same call as PlanCard suppressing its progress bar in that state.
+      total: items.some((i) => !i.converted) ? null : items.reduce((acc, i) => acc + i.amount, 0),
     }))
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
 }
 
 /** re-export kept for callers that need the main category resolver */

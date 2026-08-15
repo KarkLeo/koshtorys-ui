@@ -23,7 +23,10 @@ const pct = computed(() => {
 const overspent = computed(() => props.plan.spent > props.plan.amount)
 
 // У предложения нет трат в текущем месяце — прогресс-бар для него бессмыслен.
-const showProgress = computed(() => props.variant === 'plan')
+// Когда converted === false, plan.amount — неконвертированная сумма в СВОЕЙ валюте, а
+// plan.spent — всегда в базовой (см. DisplayTransaction); сравнивать их прогресс-баром
+// значит смешивать валюты, поэтому в этом состоянии бар и строка spent/amount не рендерятся.
+const showProgress = computed(() => props.variant === 'plan' && props.plan.converted)
 
 const dateLabel = computed(() => formatPlanDate(props.plan.date))
 </script>

@@ -42,6 +42,7 @@ export const mockPlanningTables: { category: string; items: PreparedPlan[]; tota
         spent: 0,
         originalAmount: null,
         originalCurrency: null,
+        converted: true,
         repeat: false,
         linkedCount: 0,
         original: makePlan(7, 'food--food-delivery'),
@@ -60,6 +61,7 @@ export const mockPlanningTables: { category: string; items: PreparedPlan[]; tota
         spent: 5,
         originalAmount: null,
         originalCurrency: null,
+        converted: true,
         repeat: false,
         // This plan is already linked to a transaction → rendered disabled
         linkedCount: 1,
@@ -85,6 +87,7 @@ export const mockPlanningTables: { category: string; items: PreparedPlan[]; tota
         spent: 0,
         originalAmount: 1500,
         originalCurrency: '₴',
+        converted: true,
         repeat: true,
         linkedCount: 0,
         original: makePlan(9, 'housing--rent'),

@@ -3,7 +3,7 @@ import PlanCategoryGroup from '@/components/planning/PlanCategoryGroup.vue'
 import type { PreparedPlan } from '@/helpers/planning-rest'
 
 defineProps<{
-  groups: { category: string; items: PreparedPlan[]; total: number }[]
+  groups: { category: string; items: PreparedPlan[]; total: number | null }[]
   currency: string
   busyId?: string | null
 }>()
