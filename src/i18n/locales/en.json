@@ -435,7 +435,9 @@
   "planning": {
     "actions": {
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "repeat": "Repeat this month",
+      "cancel_repeat": "Stop suggesting"
     },
     "header": {
       "monthlyBudget": "Monthly Budget",
@@ -448,7 +450,18 @@
       "repeat": "Repeat",
       "empty": "No plannings found"
     },
+    "delete_confirm": {
+      "title": "Delete plan?",
+      "description": "This plan will be removed from the month. Linked transactions are kept.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "suggestions": {
+      "title": "Recurring plans"
+    },
     "form": {
+      "add_title": "New plan",
+      "edit_title": "Edit plan",
       "type": {
         "TRANSACTION": "One-time expense",
         "CATEGORY": "Dynamic budget"
