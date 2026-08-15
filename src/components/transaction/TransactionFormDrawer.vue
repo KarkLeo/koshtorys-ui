@@ -232,10 +232,10 @@ const handleSubmit = async () => {
 }
 
 /**
- * SelectPlanningModal emits the full Planning GraphQL object on submit.
+ * SelectPlanningModal emits the REST `PlanResponseDto` on submit.
  * Shape relevant to PlanningLike:
  *   amount: number, currency: string, description?: string | null,
- *   categoryId: string, date?: DateTime | null (ISO string from GraphQL).
+ *   categoryId: string, date?: string | null (ISO date string from REST).
  */
 const onPlanningSubmit = (plan?: {
   amount?: number
@@ -243,7 +243,7 @@ const onPlanningSubmit = (plan?: {
   description?: string | null
   categoryId?: string
   date?: string | null
-  id?: string
+  id?: number
 }) => {
   if (plan) {
     const planningLike: PlanningLike = {

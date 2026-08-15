@@ -44,6 +44,7 @@ const mockOneOffPlan: PreparedPlan = {
   date: '2026-07-15',
   repeat: false,
   description: 'Weekly groceries',
+  linkedCount: 1,
 }
 
 const mockDynamicPlan: PreparedPlan = {
@@ -69,6 +70,7 @@ const mockDynamicPlan: PreparedPlan = {
   categoryColor: '#4ECDC4',
   repeat: true,
   description: undefined,
+  linkedCount: 0,
 }
 
 const mockOverspentPlan: PreparedPlan = {
@@ -97,6 +99,7 @@ const mockOverspentPlan: PreparedPlan = {
   date: '2026-08-01',
   repeat: false,
   description: 'Monthly rent',
+  linkedCount: 1,
 }
 
 export const OneOff: Story = {

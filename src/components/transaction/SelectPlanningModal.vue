@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { usePlanningList } from '@/hooks/planning-hooks.ts'
-import { usePlanningMapper } from '@/mappers/planning-mapper.ts'
+import { usePlanningMapperRest } from '@/mappers/planning-rest-mapper'
 
 import ResponsiveSheet from '@/components/ui/responsive-sheet/ResponsiveSheet.vue'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -10,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
+import { formatPlanDate } from '@/helpers/plan-form'
 
 const emit = defineEmits(['close', 'submit'])
 const model = defineModel<string | null>()
@@ -17,13 +17,9 @@ const props = defineProps<{
   oldPlanningId?: string | null
 }>()
 
-// ===== Hooks =====
-
-const { planning } = usePlanningList()
-
 // ===== Computed =====
 
-const { planningTables, loading } = usePlanningMapper()
+const { planningTables, loading } = usePlanningMapperRest()
 
 const planningTransactionTable = computed(() => {
   return (planningTables?.value ?? [])
@@ -46,7 +42,8 @@ const cancelHandler = () => {
 const submitHandler = () => {
   emit(
     'submit',
-    planning?.value?.planning.find((plan) => plan.id === model.value),
+    planningTables.value.flatMap((table) => table.items).find((plan) => plan.id === model.value)
+      ?.original,
   )
 }
 
@@ -96,15 +93,12 @@ const isDisabled = (planId: string, transactionCount: number) =>
               :key="plan.id"
               class="flex w-full cursor-pointer items-center gap-4 border-t border-border px-4 py-3 first:border-t-0"
               :class="{
-                'pointer-events-none opacity-50': isDisabled(
-                  plan.id,
-                  plan?.original.transactions?.length || 0,
-                ),
+                'pointer-events-none opacity-50': isDisabled(plan.id, plan.linkedCount),
               }"
             >
               <RadioGroupItem
                 :value="plan.id"
-                :disabled="isDisabled(plan.id, plan?.original.transactions?.length || 0)"
+                :disabled="isDisabled(plan.id, plan.linkedCount)"
               />
 
               <span class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -123,7 +117,7 @@ const isDisabled = (planId: string, transactionCount: number) =>
                 class="flex shrink-0 items-center gap-1 text-sm text-muted-foreground"
               >
                 <IconCalendar class="size-4" />
-                {{ plan.date }}
+                {{ formatPlanDate(plan.date) }}
               </span>
 
               <span class="ml-auto flex shrink-0 flex-row-reverse items-baseline gap-2">

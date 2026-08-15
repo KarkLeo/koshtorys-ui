@@ -9,6 +9,7 @@ import {
   filterRepeatingPlans,
   reducePlansByCategory,
   getMainCategory,
+  countLinkedTransactions,
   type PreparedPlan,
 } from '@/helpers/planning-rest'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories'
@@ -38,6 +39,7 @@ function mapPlan(
     originalAmount: plan.currency === baseCurrency ? null : plan.amount,
     originalCurrency: plan.currency === baseCurrency ? null : formatCurrency(plan.currency),
     spent: Math.round(getPlanSpent(plan, transactions)),
+    linkedCount: countLinkedTransactions(plan, transactions),
     categoryId: plan.categoryId,
     categoryName: t(`categories.${plan.categoryId}`),
     mainCategory,

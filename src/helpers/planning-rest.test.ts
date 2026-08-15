@@ -4,6 +4,7 @@ import {
   getConvertedPlanAmount,
   filterRepeatingPlans,
   reducePlansByCategory,
+  countLinkedTransactions,
   type PreparedPlan,
 } from '@/helpers/planning-rest'
 import type { components } from '@/api/types'
@@ -93,12 +94,34 @@ describe('filterRepeatingPlans', () => {
   })
 })
 
+describe('countLinkedTransactions', () => {
+  it('counts transactions linked to this plan by planningId', () => {
+    const plan = basePlan({ id: 7, type: 'TRANSACTION' })
+    const transactions = [
+      tx({ id: '1', planningId: '7', amount: 10 }),
+      tx({ id: '2', planningId: '7', amount: 20 }),
+      tx({ id: '3', planningId: null, amount: 30 }),
+    ]
+    expect(countLinkedTransactions(plan, transactions)).toBe(2)
+  })
+
+  it('compares ids as strings', () => {
+    const plan = basePlan({ id: 7, type: 'TRANSACTION' })
+    expect(countLinkedTransactions(plan, [tx({ id: '1', planningId: '7', amount: 10 })])).toBe(1)
+  })
+
+  it('returns 0 when nothing is linked', () => {
+    const plan = basePlan({ id: 7, type: 'TRANSACTION' })
+    expect(countLinkedTransactions(plan, [tx({ id: '1', planningId: null, amount: 10 })])).toBe(0)
+  })
+})
+
 describe('reducePlansByCategory', () => {
   it('groups by main category, sums totals, sorts groups by total desc', () => {
     const p = (over: Partial<PreparedPlan>): PreparedPlan => ({
       original: basePlan({}), id: '1', type: 'CATEGORY', amount: 10, currency: '€',
       spent: 0, categoryId: 'food--groceries', categoryName: 'Groceries',
-      mainCategory: 'food', categoryColor: '#f00', repeat: false, ...over,
+      mainCategory: 'food', categoryColor: '#f00', repeat: false, linkedCount: 0, ...over,
     })
     const groups = reducePlansByCategory([
       p({ id: '1', mainCategory: 'food', amount: 10 }),

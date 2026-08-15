@@ -20,6 +20,7 @@ export interface PreparedPlan {
   date?: string | null
   repeat: boolean
   description?: string | null
+  linkedCount: number
 }
 
 /** planned-vs-spent numerator. Both plan types read from the month's transactions. */
@@ -33,6 +34,11 @@ export function getPlanSpent(plan: Plan, transactions: DisplayTransaction[]): nu
   return transactions
     .filter((t) => t.categoryId === plan.categoryId && !t.planningId)
     .reduce((acc, t) => acc + t.amount, 0)
+}
+
+/** Сколько транзакций месяца привязано к этому плану (для disable в SelectPlanningModal). */
+export function countLinkedTransactions(plan: Plan, transactions: DisplayTransaction[]): number {
+  return transactions.filter((t) => String(t.planningId) === String(plan.id)).length
 }
 
 export function getConvertedPlanAmount(

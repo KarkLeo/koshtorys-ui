@@ -1,8 +1,0 @@
-query PlanningExchangeRate($exchangeDate: DateTime!) {
-  exchangeRate(date: $exchangeDate) {
-    id
-    base
-    date
-    rates
-  }
-}

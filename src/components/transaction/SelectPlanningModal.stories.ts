@@ -1,11 +1,11 @@
 /**
  * Stories for SelectPlanningModal.
  *
- * LIMITATION: SelectPlanningModal calls `usePlanningList()` and `usePlanningMapper()` which
- * require a live Apollo client. Storybook has no Apollo provider, so mounting the real component
+ * LIMITATION: SelectPlanningModal calls `usePlanningMapperRest()`, which pulls in REST hooks that
+ * need a live backend and authenticated user. Storybook has neither, so mounting the real component
  * would throw at runtime. Instead, each story renders a thin wrapper component that accepts the
  * same shape of data via props and reproduces the modal's template using the same Shadcn
- * primitives — giving a faithful visual preview without a fragile Apollo mock.
+ * primitives — giving a faithful visual preview without a fragile network mock.
  *
  * The fixture `mockPlanningTables` drives all three states: Empty, WithPlans, WithDisabledLinked.
  */
@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 
-import type { PreparedPlanning } from '@/mappers/planning-mapper.ts'
+import type { PreparedPlan } from '@/helpers/planning-rest'
 import { mockPlanningTables } from './__fixtures__/planning.ts'
 
 // ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ const SelectPlanningModalDemo = defineComponent({
   name: 'SelectPlanningModalDemo',
   props: {
     tables: {
-      type: Array as () => { category: string; items: PreparedPlanning[]; total: number }[],
+      type: Array as () => { category: string; items: PreparedPlan[]; total: number }[],
       default: () => [],
     },
     loading: { type: Boolean, default: false },
@@ -132,7 +132,7 @@ const SelectPlanningModalDemo = defineComponent({
                                   key: plan.id,
                                   class: [
                                     'flex w-full cursor-pointer items-center gap-4 border-t border-border px-4 py-3 first:border-t-0',
-                                    isDisabled(plan.id, plan?.original?.transactions?.length || 0)
+                                    isDisabled(plan.id, plan.linkedCount)
                                       ? 'pointer-events-none opacity-50'
                                       : '',
                                   ],
@@ -140,10 +140,7 @@ const SelectPlanningModalDemo = defineComponent({
                                 [
                                   h(RadioGroupItem, {
                                     value: plan.id,
-                                    disabled: isDisabled(
-                                      plan.id,
-                                      plan?.original?.transactions?.length || 0,
-                                    ),
+                                    disabled: isDisabled(plan.id, plan.linkedCount),
                                   }),
                                   h('span', { class: 'flex min-w-0 flex-1 flex-col gap-0.5' }, [
                                     h(
