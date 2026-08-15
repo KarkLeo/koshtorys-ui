@@ -40,7 +40,8 @@
     "planning": "Planning",
     "statistics": "Statistics",
     "settings": "Settings",
-    "add": "Add"
+    "add": "Add",
+    "add_plan": "Add plan"
   },
   "register": {
     "title": "Sign Up",

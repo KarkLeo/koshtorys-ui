@@ -4,17 +4,18 @@ import { RouterView } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { useAddTransaction } from '@/composables/useAddTransaction'
+import { useGlobalAdd } from '@/composables/useGlobalAdd'
 import MainHeader from '@/components/MainHeader.vue'
 import MainFooter from '@/components/MainFooter.vue'
 import BottomTabBar from '@/components/BottomTabBar.vue'
-import AddTransactionTrigger from '@/components/transaction/AddTransactionTrigger.vue'
+import GlobalAddTrigger from '@/components/GlobalAddTrigger.vue'
 import TransactionFormDrawer from '@/components/transaction/TransactionFormDrawer.vue'
+import PlanFormDrawer from '@/components/planning/PlanFormDrawer.vue'
 import Sonner from '@/components/ui/sonner/Sonner.vue'
 
 const { user } = useMe()
 const { locale } = useI18n()
-const { isOpen } = useAddTransaction()
+const { transactionOpen, planOpen } = useGlobalAdd()
 
 watch(user, (newVal) => {
   if (newVal) {
@@ -30,9 +31,10 @@ watch(user, (newVal) => {
     <MainFooter />
 
     <template v-if="user">
-      <AddTransactionTrigger />
+      <GlobalAddTrigger />
       <BottomTabBar />
-      <TransactionFormDrawer v-model:open="isOpen" mode="add" />
+      <TransactionFormDrawer v-model:open="transactionOpen" mode="add" />
+      <PlanFormDrawer v-model:open="planOpen" mode="add" />
     </template>
 
     <Sonner />

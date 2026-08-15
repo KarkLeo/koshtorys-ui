@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import { NAV_TABS, ONBOARDING_PATHS } from '@/constants/menu'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { useAddTransaction } from '@/composables/useAddTransaction'
+import { useGlobalAdd } from '@/composables/useGlobalAdd'
 
 const route = useRoute()
 const { user } = useMe()
-const { open } = useAddTransaction()
+const { open } = useGlobalAdd()
+
+// На /planning центральная «+» создаёт план.
+const addKind = computed(() => (route.name === 'planning' ? 'plan' : 'transaction'))
 
 // «+» скрыта на вкладке настроек.
 const showAdd = () => route.name !== 'settings'
@@ -27,7 +31,7 @@ const showAdd = () => route.name !== 'settings'
             type="button"
             :aria-label="$t('nav.add')"
             class="-mt-4 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
-            @click="open"
+            @click="open(addKind)"
           >
             <Plus class="size-6" />
           </button>
