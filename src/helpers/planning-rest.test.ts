@@ -54,6 +54,9 @@ describe('getConvertedPlanAmount', () => {
     // 90 EUR → USD with USD:1, EUR:0.9  => (90/0.9)*1 = 100
     expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'EUR' }), { USD: 1, EUR: 0.9 }, 'USD')).toBe(100)
   })
+  it('falls back to the unconverted amount when rates are missing (e.g. exchange-rate fetch failed)', () => {
+    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'USD' }), {}, 'EUR')).toBe(90)
+  })
 })
 
 describe('filterRepeatingPlans', () => {

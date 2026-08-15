@@ -47,7 +47,12 @@ export function getConvertedPlanAmount(
   baseCurrency: string,
 ): number {
   if (plan.currency === baseCurrency) return plan.amount
-  return (plan.amount / rates[plan.currency]) * rates[baseCurrency]
+  const fromRate = rates[plan.currency]
+  const toRate = rates[baseCurrency]
+  // Rates missing (e.g. today's exchange-rate fetch failed) — show the unconverted
+  // amount instead of NaN so the plan still renders.
+  if (!fromRate || !toRate) return plan.amount
+  return (plan.amount / fromRate) * toRate
 }
 
 /** Drop repeating plans already represented this month (same category, or parent/repeated link). */

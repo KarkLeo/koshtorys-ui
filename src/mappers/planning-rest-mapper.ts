@@ -56,7 +56,11 @@ export function usePlanningMapperRest() {
   const { plans, repeating, rates, loading, invalidate, refetch } = useMonthlyPlanning()
   const { transactions } = useMonthlyTransactions()
 
-  const ready = computed(() => !!user.value && Object.keys(rates.value).length > 0)
+  // Раньше здесь ещё требовалось Object.keys(rates.value).length > 0, но курс валют
+  // может быть недоступен (см. exchange-rates 400 для "сегодня" на границе UTC/локального
+  // дня) без того, чтобы список планов вообще переставал приходить — getConvertedPlanAmount
+  // сам умеет отдавать неконвертированную сумму, если курса нет.
+  const ready = computed(() => !!user.value)
 
   const prepared = computed<PreparedPlan[]>(() => {
     if (!ready.value) return []

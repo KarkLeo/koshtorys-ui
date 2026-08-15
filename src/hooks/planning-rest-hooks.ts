@@ -48,10 +48,14 @@ function ensureStarted() {
         // иначе таймзона сдвигает день (см. 1e11c73).
         const d = getExchangeDate(mi, y, monthStartDay.value)
         const exchangeDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        // Курс валют запрашиваем отдельно от списков: если exchange-rates упадёт
+        // (например 400 «Invalid exchange rate date», когда для «сегодня» ещё нет курса —
+        // сервис сравнивает запрошенную дату с UTC-«сейчас», а не с локальным днём), это не
+        // должно проглатывать уже успешно пришедшие plans/repeating внутри одного Promise.all.
         const [list, rep, rate] = await Promise.all([
           planningApi.getList(mi, y),
           planningApi.getRepeating(mi, y),
-          exchangeRateApi.findByDate(exchangeDate),
+          exchangeRateApi.findByDate(exchangeDate).catch(() => null),
         ])
         // Более свежий load() уже стартовал — не затираем его данные устаревшим ответом.
         if (token !== loadToken) return
