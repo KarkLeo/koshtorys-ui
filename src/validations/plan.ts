@@ -14,13 +14,13 @@ export const planSchema = yup.object().shape({
   repeat: yup.boolean().optional(),
 
   description: yup.string().when('type', {
-    is: 'transaction',
+    is: 'TRANSACTION',
     then: (schema) => schema.required('description_required').max(255, 'description_max'),
     otherwise: (schema) => schema.strip(),
   }),
 
   date: yup.date().when('type', {
-    is: 'transaction',
+    is: 'TRANSACTION',
     then: (schema) => schema.optional(),
     otherwise: (schema) => schema.strip(),
   }),
