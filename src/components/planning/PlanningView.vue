@@ -6,82 +6,122 @@ import { toast } from 'vue-sonner'
 import MonthSwitcher from '@/components/MonthSwitcher.vue'
 import PlanningStats from '@/components/planning/PlanningStats.vue'
 import PlanCategoryGroup from '@/components/planning/PlanCategoryGroup.vue'
-import PlanningAddForm from '@/components/planning/PlanningAddForm.vue'
-import PlanningEditForm from '@/components/planning/PlanningEditForm.vue'
+import PlanFormDrawer from '@/components/planning/PlanFormDrawer.vue'
+import RepeatingPlanSuggestions from '@/components/planning/RepeatingPlanSuggestions.vue'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 import { usePlanningMapperRest } from '@/mappers/planning-rest-mapper'
-import { useDeletePlanning } from '@/hooks/planning-hooks'
+import { useDeletePlan, useRepeatPlan, useCancelRepeatPlan } from '@/hooks/planning-write-hooks'
+import { mapApiErrorCodes } from '@/helpers/api-errors'
 import { useStatisticDateStore } from '@/stores/statisticDateStore'
 import { useMe } from '@/hooks/auth-hooks'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies'
-import { PlanningType } from '@/graphql/types'
 
 // ===== Hooks =====
 
 const { t } = useI18n()
 const { statisticDate } = useStatisticDateStore()
 const { user } = useMe()
-const { planningTables, repeatingPlanningTables, planningStatistics, loading, invalidate } =
+const { planningTables, repeatingPlanningTables, planningStatistics, loading } =
   usePlanningMapperRest()
-const { deletePlanning } = useDeletePlanning()
+const { deletePlan, loading: deleteLoading } = useDeletePlan()
+const { repeatPlan } = useRepeatPlan()
+const { cancelRepeatPlan } = useCancelRepeatPlan()
 
 // ===== Refs =====
 
 const editingId = ref<string | null>(null)
+// deletingId держим ОТДЕЛЬНО от confirmOpen: AlertDialogAction синхронно закрывает
+// диалог до пользовательского @click, и id в open-состоянии успел бы сброситься.
+const deletingId = ref<string | null>(null)
+const confirmOpen = ref(false)
+const busySuggestionId = ref<string | null>(null)
 
 // ===== Computed =====
 
-const currency = computed(() => CURRENCIES_SYMBOL[user.value?.currency || ''] || user.value?.currency || '')
+const currency = computed(
+  () => CURRENCIES_SYMBOL[user.value?.currency || ''] || user.value?.currency || '',
+)
 
-// `PlanningEditForm` is still Kit+Apollo and expects the GraphQL `Planning` shape
-// (notably `id: string` and a `PlanningType` enum), while our REST DTO uses
-// `id: number` and a plain string-literal union for `type`. Build a small,
-// explicit adapter for the plan currently being edited instead of forcing the
-// REST DTO through as-is.
-const editingPlan = computed(() => {
-  if (!editingId.value) return null
-  const original = [...planningTables.value, ...repeatingPlanningTables.value]
-    .flatMap((group) => group.items)
-    .find((plan) => plan.id === editingId.value)?.original
-  if (!original) return null
-  return {
-    id: String(original.id),
-    amount: original.amount,
-    currency: original.currency,
-    date: original.date,
-    description: original.description,
-    categoryId: original.categoryId,
-    repeat: original.repeat,
-    type: original.type as PlanningType,
-    year: original.year,
-    monthIndex: original.monthIndex,
-    repeatedPlanningId: original.repeatedPlanningId,
-    parentPlanningId: original.parentPlanningId,
-    transactions: null,
-  }
+const allPlans = computed(() => planningTables.value.flatMap((group) => group.items))
+
+const editingPlan = computed(
+  () => allPlans.value.find((plan) => plan.id === editingId.value)?.original,
+)
+
+const editOpen = computed({
+  get: () => editingId.value !== null,
+  set: (open: boolean) => {
+    if (!open) editingId.value = null
+  },
 })
 
 // ===== Handlers =====
-
-const handleDelete = async (id: string) => {
-  try {
-    await deletePlanning({ planningId: Number(id) })
-    toast.success(t('planning.form.messages.delete_success'))
-    invalidate()
-    // eslint-disable-next-line
-  } catch (e: any) {
-    toast.error(t('common_errors.server_error'))
-  }
-}
 
 const handleEdit = (id: string) => {
   editingId.value = id
 }
 
-const handleCloseEditForm = () => {
-  editingId.value = null
-  invalidate()
+const handleDelete = (id: string) => {
+  deletingId.value = id
+  confirmOpen.value = true
+}
+
+const confirmDelete = async () => {
+  const id = deletingId.value
+  if (id === null) return
+  try {
+    await deletePlan(Number(id))
+    toast.success(t('planning.form.messages.delete_success'))
+  } catch (e) {
+    const codes = mapApiErrorCodes(e)
+    toast.error(
+      codes.form ? t(`planning.form.errors.${codes.form}`) : t('common_errors.server_error'),
+    )
+  } finally {
+    deletingId.value = null
+    confirmOpen.value = false
+  }
+}
+
+const handleRepeat = async (id: string) => {
+  busySuggestionId.value = id
+  try {
+    await repeatPlan(Number(id))
+    toast.success(t('planning.form.messages.repeat_success'))
+  } catch (e) {
+    const codes = mapApiErrorCodes(e)
+    toast.error(
+      codes.form ? t(`planning.form.errors.${codes.form}`) : t('common_errors.server_error'),
+    )
+  } finally {
+    busySuggestionId.value = null
+  }
+}
+
+const handleCancelRepeat = async (id: string) => {
+  busySuggestionId.value = id
+  try {
+    await cancelRepeatPlan(Number(id))
+    toast.success(t('planning.form.messages.cansel_repeat_success'))
+  } catch (e) {
+    const codes = mapApiErrorCodes(e)
+    toast.error(
+      codes.form ? t(`planning.form.errors.${codes.form}`) : t('common_errors.server_error'),
+    )
+  } finally {
+    busySuggestionId.value = null
+  }
 }
 </script>
 
@@ -95,36 +135,56 @@ const handleCloseEditForm = () => {
     </template>
 
     <template v-else>
-      <p v-if="planningTables.length === 0" class="py-6 text-center text-sm italic text-muted-foreground">
+      <PlanningStats v-if="planningStatistics" :stats="planningStatistics" :currency="currency" />
+
+      <p
+        v-if="planningTables.length === 0"
+        class="py-6 text-center text-sm italic text-muted-foreground"
+      >
         {{ t('planning.table.empty') }}
       </p>
 
-      <PlanningStats v-if="planningStatistics" :stats="planningStatistics" :currency="currency" />
+      <PlanCategoryGroup
+        v-for="group in planningTables"
+        :key="group.category"
+        :group="group"
+        :currency="currency"
+        @edit="handleEdit"
+        @delete="handleDelete"
+      />
 
-      <template v-for="group in planningTables" :key="group.category">
-        <PlanningEditForm
-          v-if="editingId && group.items.some((plan) => plan.id === editingId) && editingPlan"
-          :planning="editingPlan"
-          @close-form="handleCloseEditForm"
-        />
-        <PlanCategoryGroup
-          v-else
-          :group="group"
-          :currency="currency"
-          @edit="handleEdit"
-          @delete="handleDelete"
-        />
-      </template>
+      <RepeatingPlanSuggestions
+        :groups="repeatingPlanningTables"
+        :currency="currency"
+        :busy-id="busySuggestionId"
+        @repeat="handleRepeat"
+        @cancel-repeat="handleCancelRepeat"
+      />
     </template>
-
-    <PlanningAddForm />
-
-    <div
-      v-for="group in repeatingPlanningTables"
-      :key="'repeating-' + group.category"
-      class="opacity-50"
-    >
-      <PlanCategoryGroup :group="group" :currency="currency" @edit="() => {}" @delete="() => {}" />
-    </div>
   </div>
+
+  <PlanFormDrawer v-model:open="editOpen" mode="edit" :plan="editingPlan" />
+
+  <AlertDialog v-model:open="confirmOpen">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{{ t('planning.delete_confirm.title') }}</AlertDialogTitle>
+        <AlertDialogDescription>
+          {{ t('planning.delete_confirm.description') }}
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel :disabled="deleteLoading">
+          {{ t('planning.delete_confirm.cancel') }}
+        </AlertDialogCancel>
+        <AlertDialogAction
+          class="bg-destructive text-white hover:bg-destructive/90"
+          :disabled="deleteLoading"
+          @click="confirmDelete"
+        >
+          {{ t('planning.delete_confirm.confirm') }}
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>
