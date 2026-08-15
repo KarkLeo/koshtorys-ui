@@ -34,7 +34,11 @@ watch(user, (newVal) => {
       <GlobalAddTrigger />
       <BottomTabBar />
       <TransactionFormDrawer v-model:open="transactionOpen" mode="add" />
-      <PlanFormDrawer v-model:open="planOpen" mode="add" />
+      <!-- Mounted only while open: setup() calls useMonthlyPlanning(), which fires
+           /plans, /plans/repeating and /exchange-rates. Keeping it always-mounted fired
+           those on every app boot and every statisticDate change, even for users who
+           never open Planning (e.g. paging months on /transactions or /statistics). -->
+      <PlanFormDrawer v-if="planOpen" v-model:open="planOpen" mode="add" />
     </template>
 
     <Sonner />
