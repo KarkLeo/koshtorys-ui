@@ -22,29 +22,6 @@
  *    "Recurring plans" (`planning.suggestions.title`).
  *  - PlanCard action buttons in the suggestion variant expose aria-labels
  *    "Repeat this month" and "Stop suggesting" (`planning.actions.*`).
- *
- * BLOCKED — backend bug, not a selector problem (see task-11-report.md for
- * full repro): `GET /api/plans/repeating` always returns `[]` for the
- * genuinely CURRENT financial month on any server whose local timezone is
- * ahead of UTC (this dev box runs EEST/UTC+3). Root cause is in
- * `koshtorys-api/src/planning/planning.service.ts::getRepeatingPlanningList`:
- * it compares `getStartMonthDate(...)` (built with local-time `new
- * Date(y, m, d)`) against `getMonthPeriod(...)[0]` (built with
- * `Date.UTC(y, m, d)`) via `startOfCurrentPeriod > selectedDate`. For the
- * exact current month these two "same calendar day" instants differ by the
- * server's UTC offset, so the guard spuriously treats the current month as
- * "in the past" and short-circuits to `[]` — verified directly against the
- * running API: a freshly seeded, valid, repeat=true plan is confirmed to
- * exist via `GET /api/plans?monthIndex=<prev>&year=<prev>`, yet
- * `GET /api/plans/repeating?monthIndex=<current>&year=<current>` returns
- * `[]`, while the same query for a FUTURE month correctly returns the plan.
- * This means `RepeatingPlanSuggestions.vue` can never render for the actual
- * current month in this deployment, independent of any frontend code. Since
- * this task's scope is the frontend (koshtorys-ui) and the servers must not
- * be restarted, the tests below are written for the intended behaviour and
- * left in place, but skipped, so the suite stays honest: they will start
- * exercising real coverage the moment the backend guard is fixed (or the
- * server runs in a UTC/UTC-behind timezone) and the skip is removed.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -120,12 +97,6 @@ async function seedRepeatingPlan(
 }
 
 test.describe.serial('Recurring plan suggestions', () => {
-  // See the file header: GET /api/plans/repeating always returns [] for the
-  // current month on this server's timezone, a backend bug unrelated to the
-  // frontend under test. Remove once koshtorys-api's getRepeatingPlanningList
-  // compares same-basis (local-vs-local or UTC-vs-UTC) dates.
-  test.skip(true, 'Blocked by backend bug in getRepeatingPlanningList (see file header)')
-
   const user = newUser()
 
   test.beforeAll(async ({ browser }) => {
