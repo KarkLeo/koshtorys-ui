@@ -29,15 +29,21 @@ function mapPlan(
   t: (k: string) => string,
 ): PreparedPlan {
   const mainCategory = getMainCategory(plan.categoryId)
-  const converted = Math.round(getConvertedPlanAmount(plan, rates, baseCurrency))
+  const { amount: convertedAmount, converted } = getConvertedPlanAmount(plan, rates, baseCurrency)
+  // When conversion didn't happen (missing rate), the figure is still in the plan's own
+  // currency — label it that way instead of claiming it's baseCurrency. Only show the
+  // secondary "original" amount when we actually converted into a different currency; in the
+  // fallback path the primary figure already *is* the original, so a second copy would be
+  // redundant at best and misleading at worst.
+  const showsOriginal = converted && plan.currency !== baseCurrency
   return {
     original: plan,
     id: String(plan.id),
     type: plan.type,
-    amount: converted,
-    currency: formatCurrency(baseCurrency),
-    originalAmount: plan.currency === baseCurrency ? null : plan.amount,
-    originalCurrency: plan.currency === baseCurrency ? null : formatCurrency(plan.currency),
+    amount: Math.round(convertedAmount),
+    currency: formatCurrency(converted ? baseCurrency : plan.currency),
+    originalAmount: showsOriginal ? plan.amount : null,
+    originalCurrency: showsOriginal ? formatCurrency(plan.currency) : null,
     spent: Math.round(getPlanSpent(plan, transactions)),
     linkedCount: countLinkedTransactions(plan, transactions),
     categoryId: plan.categoryId,

@@ -41,18 +41,29 @@ export function countLinkedTransactions(plan: Plan, transactions: DisplayTransac
   return transactions.filter((t) => String(t.planningId) === String(plan.id)).length
 }
 
+export interface ConvertedPlanAmount {
+  amount: number
+  /**
+   * true  → `amount` is denominated in `baseCurrency` (converted, or already the same currency).
+   * false → a required rate was missing, so `amount` is the plan's own, unconverted amount and is
+   *         still denominated in `plan.currency`. Callers MUST label it with `plan.currency`, not
+   *         `baseCurrency`, or the figure silently lies about what currency it's in.
+   */
+  converted: boolean
+}
+
 export function getConvertedPlanAmount(
   plan: Plan,
   rates: Record<string, number>,
   baseCurrency: string,
-): number {
-  if (plan.currency === baseCurrency) return plan.amount
+): ConvertedPlanAmount {
+  if (plan.currency === baseCurrency) return { amount: plan.amount, converted: true }
   const fromRate = rates[plan.currency]
   const toRate = rates[baseCurrency]
-  // Rates missing (e.g. today's exchange-rate fetch failed) — show the unconverted
-  // amount instead of NaN so the plan still renders.
-  if (!fromRate || !toRate) return plan.amount
-  return (plan.amount / fromRate) * toRate
+  // Rates missing (e.g. today's exchange-rate fetch failed) — report the unconverted amount
+  // instead of NaN so the plan still renders, but flag it so callers don't mislabel it.
+  if (!fromRate || !toRate) return { amount: plan.amount, converted: false }
+  return { amount: (plan.amount / fromRate) * toRate, converted: true }
 }
 
 /** Drop repeating plans already represented this month (same category, or parent/repeated link). */

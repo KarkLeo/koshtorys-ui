@@ -44,18 +44,30 @@ describe('getPlanSpent', () => {
 
 describe('getConvertedPlanAmount', () => {
   it('returns amount unchanged when plan currency == base', () => {
-    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'EUR' }), { EUR: 0.9, USD: 1 }, 'EUR')).toBe(100)
+    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'EUR' }), { EUR: 0.9, USD: 1 }, 'EUR')).toEqual({
+      amount: 100,
+      converted: true,
+    })
   })
   it('converts via rates when currencies differ', () => {
     // 100 USD → EUR with USD:1, EUR:0.9  => (100/1)*0.9 = 90
-    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'USD' }), { USD: 1, EUR: 0.9 }, 'EUR')).toBe(90)
+    expect(getConvertedPlanAmount(basePlan({ amount: 100, currency: 'USD' }), { USD: 1, EUR: 0.9 }, 'EUR')).toEqual({
+      amount: 90,
+      converted: true,
+    })
   })
   it('converts in reverse direction (EUR → USD)', () => {
     // 90 EUR → USD with USD:1, EUR:0.9  => (90/0.9)*1 = 100
-    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'EUR' }), { USD: 1, EUR: 0.9 }, 'USD')).toBe(100)
+    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'EUR' }), { USD: 1, EUR: 0.9 }, 'USD')).toEqual({
+      amount: 100,
+      converted: true,
+    })
   })
-  it('falls back to the unconverted amount when rates are missing (e.g. exchange-rate fetch failed)', () => {
-    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'USD' }), {}, 'EUR')).toBe(90)
+  it('falls back to the unconverted amount and reports converted:false when rates are missing (e.g. exchange-rate fetch failed)', () => {
+    expect(getConvertedPlanAmount(basePlan({ amount: 90, currency: 'USD' }), {}, 'EUR')).toEqual({
+      amount: 90,
+      converted: false,
+    })
   })
 })
 
