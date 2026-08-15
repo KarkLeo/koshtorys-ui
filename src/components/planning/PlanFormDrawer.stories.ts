@@ -12,6 +12,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { within, userEvent } from 'storybook/test'
 import PlanFormDrawer from './PlanFormDrawer.vue'
 import type { components } from '@/api/types'
 
@@ -41,11 +42,23 @@ export const AddOneOff: Story = {
   },
 }
 
-/** Add drawer with the toggle switched to a dynamic (category budget) plan. */
+/**
+ * Add drawer with the toggle switched to a dynamic (category budget) plan.
+ * The component always mounts in the one-off state and exposes no prop to
+ * seed `type`, so the `play` function clicks the "Dynamic budget" toggle
+ * item after mount to actually land the story in the dynamic state.
+ */
 export const AddDynamic: Story = {
   args: {
     mode: 'add',
     open: true,
+  },
+  play: async ({ canvasElement }) => {
+    // ResponsiveSheet renders its Dialog/Drawer content through a portal to
+    // document.body, outside canvasElement — query the full document instead.
+    const body = within(canvasElement.ownerDocument.body)
+    const dynamicToggle = await body.findByRole('button', { name: 'Dynamic budget' })
+    await userEvent.click(dynamicToggle)
   },
 }
 
