@@ -13,6 +13,7 @@ import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 import { useUserStore } from '@/stores/userStore'
 import { ONBOARDING_UPDATED_AT } from '@/constants/meta.ts'
 import { setInNavigationGuard } from '@/api/navigation-guard-flag'
+import { useGlobalAdd } from '@/composables/useGlobalAdd'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -107,6 +108,13 @@ router.beforeEach(async (to) => {
   } else {
     return true
   }
+})
+
+// `kind` (which global add drawer is open) is a module singleton, so it survives navigation
+// on its own — e.g. the mobile back button would otherwise leave the add drawer open over
+// whatever route it lands on. Close it on every route change.
+router.afterEach(() => {
+  useGlobalAdd().close()
 })
 
 export default router
