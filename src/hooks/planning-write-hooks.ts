@@ -6,15 +6,29 @@ import { useMe } from '@/hooks/auth-hooks'
 import { getMonthIndex, getIndexedYear } from '@/helpers/date'
 import type { CreatePlanDto, UpdatePlanDto } from '@/helpers/plan-form'
 
+/**
+ * Выполняет мутацию и рефрешит список планов. Успешная запись с упавшим
+ * рефрешем всё равно должна вернуться успехом — иначе вызывающая форма
+ * покажет "ошибка сервера" для операции, которая на самом деле прошла,
+ * и пользователь создаст дубликат.
+ */
+async function withPlanningInvalidate<T>(op: () => Promise<T>): Promise<T> {
+  const result = await op()
+  try {
+    await invalidatePlanning()
+  } catch (err) {
+    console.error('[planning] failed to refresh plans after write', err)
+  }
+  return result
+}
+
 export function useCreatePlan() {
   const loading = ref(false)
 
   const createPlan = async (dto: CreatePlanDto) => {
     loading.value = true
     try {
-      const created = await planningApi.create(dto)
-      await invalidatePlanning()
-      return created
+      return await withPlanningInvalidate(() => planningApi.create(dto))
     } finally {
       loading.value = false
     }
@@ -29,9 +43,7 @@ export function useUpdatePlan() {
   const updatePlan = async (id: number, dto: UpdatePlanDto) => {
     loading.value = true
     try {
-      const updated = await planningApi.update(id, dto)
-      await invalidatePlanning()
-      return updated
+      return await withPlanningInvalidate(() => planningApi.update(id, dto))
     } finally {
       loading.value = false
     }
@@ -46,9 +58,7 @@ export function useDeletePlan() {
   const deletePlan = async (id: number) => {
     loading.value = true
     try {
-      const deleted = await planningApi.delete(id)
-      await invalidatePlanning()
-      return deleted
+      return await withPlanningInvalidate(() => planningApi.delete(id))
     } finally {
       loading.value = false
     }
@@ -67,12 +77,12 @@ export function useRepeatPlan() {
     loading.value = true
     try {
       const monthStartDay = user.value?.monthStartDay ?? 1
-      const repeated = await planningApi.repeat(id, {
-        monthIndex: getMonthIndex(statisticDate.value, monthStartDay),
-        year: getIndexedYear(statisticDate.value, monthStartDay),
-      })
-      await invalidatePlanning()
-      return repeated
+      return await withPlanningInvalidate(() =>
+        planningApi.repeat(id, {
+          monthIndex: getMonthIndex(statisticDate.value, monthStartDay),
+          year: getIndexedYear(statisticDate.value, monthStartDay),
+        }),
+      )
     } finally {
       loading.value = false
     }
@@ -87,9 +97,7 @@ export function useCancelRepeatPlan() {
   const cancelRepeatPlan = async (id: number) => {
     loading.value = true
     try {
-      const cancelled = await planningApi.cancelRepeat(id)
-      await invalidatePlanning()
-      return cancelled
+      return await withPlanningInvalidate(() => planningApi.cancelRepeat(id))
     } finally {
       loading.value = false
     }

@@ -20,6 +20,11 @@ const loading = ref(false)
 let scope: EffectScope | null = null
 let load: () => Promise<void> = async () => {}
 
+// Монотонный токен вызова load(): месяц можно переключить (или инвалидировать)
+// быстрее, чем успевает вернуться предыдущий запрос. Без него более старый
+// ответ может прилететь позже и молча перезаписать более свежие данные.
+let loadToken = 0
+
 function ensureStarted() {
   if (scope) return
   scope = effectScope(true)
@@ -35,6 +40,7 @@ function ensureStarted() {
 
     load = async () => {
       if (!user.value) return
+      const token = ++loadToken
       loading.value = true
       try {
         const { mi, y } = key.value
@@ -47,11 +53,15 @@ function ensureStarted() {
           planningApi.getRepeating(mi, y),
           exchangeRateApi.findByDate(exchangeDate),
         ])
+        // Более свежий load() уже стартовал — не затираем его данные устаревшим ответом.
+        if (token !== loadToken) return
         plans.value = list
         repeating.value = rep
         rates.value = (rate?.rates as Record<string, number>) ?? {}
       } finally {
-        loading.value = false
+        // Только самый свежий вызов может снять loading; иначе поздний устаревший
+        // ответ погасит индикатор, пока актуальный запрос ещё летит.
+        if (token === loadToken) loading.value = false
       }
     }
 
