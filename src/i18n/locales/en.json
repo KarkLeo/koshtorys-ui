@@ -9,6 +9,8 @@
   },
   "calendar": {
     "placeholder": "Select date",
+    "prev_month": "Previous month",
+    "next_month": "Next month",
     "months": {
       "1": "January",
       "2": "February",
@@ -33,9 +35,13 @@
       "7": "Sun"
     }
   },
-  "mainMenu": {
-    "dashboard": "Dashboard",
-    "settings": "Settings"
+  "nav": {
+    "transactions": "Transactions",
+    "planning": "Planning",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "add": "Add",
+    "add_plan": "Add plan"
   },
   "register": {
     "title": "Sign Up",
@@ -154,7 +160,14 @@
       "general": "General",
       "statistics": "Statistics"
     },
+    "signOut": "Sign out",
     "fields": {
+      "theme": {
+        "label": "Theme",
+        "description": "Choose a light or dark interface theme.",
+        "light": "Light",
+        "dark": "Dark"
+      },
       "lang": {
         "label": "Language",
         "placeholder": "Select language",
@@ -334,12 +347,19 @@
   },
   "transaction": {
     "form": {
+      "title": "Add new transaction",
+      "edit_title": "Edit transaction",
+      "actions": {
+        "scan": "Scan receipt",
+        "planning": "Planning"
+      },
       "fields": {
         "amount": {
           "placeholder": "Enter transaction"
         },
         "category": {
-          "placeholder": "Select category"
+          "placeholder": "Select category",
+          "search": "Search category..."
         },
         "description": {
           "placeholder": "Enter description"
@@ -371,9 +391,16 @@
         "delete_success": "Transaction successfully deleted"
       }
     },
+    "delete_confirm": {
+      "title": "Delete transaction?",
+      "description": "This action cannot be undone. The transaction will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
     "selectPlanning": {
       "title": "Add Transaction",
       "subtitle": "Select a planning to add a transaction",
+      "alreadyLinked": "Already used",
       "buttons": {
         "submit": "Save",
         "cancel": "Remove"
@@ -381,9 +408,47 @@
     },
     "table": {
       "empty": "No transactions found"
+    },
+    "list": {
+      "search_placeholder": "Search by description...",
+      "empty": "No transactions this month",
+      "empty_filtered": "Nothing found",
+      "reset_filters": "Reset filters",
+      "error": "Failed to load transactions",
+      "retry": "Retry",
+      "menu": {
+        "trigger": "Transaction actions",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "button": "Filters",
+        "categories": "Categories",
+        "plan": "Plan link",
+        "plan_all": "All",
+        "plan_linked": "Linked to a plan",
+        "plan_unlinked": "Not linked",
+        "chip_plan_linked": "with plan",
+        "chip_plan_unlinked": "no plan",
+        "reset_all": "Reset all"
+      },
+      "sort": {
+        "date-desc": "Date ↓",
+        "date-asc": "Date ↑",
+        "amount-desc": "Amount ↓",
+        "amount-asc": "Amount ↑",
+        "category": "Category"
+      }
     }
   },
   "planning": {
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "repeat": "Repeat this month",
+      "cancel_repeat": "Stop suggesting",
+      "menu": "Plan actions"
+    },
     "header": {
       "monthlyBudget": "Monthly Budget",
       "plannedExpenses": "Planned Expenses",
@@ -393,9 +458,22 @@
     "table": {
       "paid": "Paid",
       "repeat": "Repeat",
-      "empty": "No plannings found"
+      "empty": "No plannings found",
+      "error": "Failed to load plans",
+      "retry": "Retry"
+    },
+    "delete_confirm": {
+      "title": "Delete plan?",
+      "description": "This plan will be removed from the month. Linked transactions are kept.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "suggestions": {
+      "title": "Recurring plans"
     },
     "form": {
+      "add_title": "New plan",
+      "edit_title": "Edit plan",
       "type": {
         "TRANSACTION": "One-time expense",
         "CATEGORY": "Dynamic budget"
@@ -405,7 +483,8 @@
           "placeholder": "Enter amount"
         },
         "category": {
-          "placeholder": "Select category"
+          "placeholder": "Select category",
+          "search": "Search category..."
         },
         "description": {
           "placeholder": "Enter description"
@@ -453,6 +532,11 @@
     }
   },
   "statistics": {
+    "titles": {
+      "dynamics": "Spending dynamics",
+      "byCategory": "By category",
+      "comparison": "Categories vs average"
+    },
     "chart": {
       "amount": "Current amount",
       "average": "Average"

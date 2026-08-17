@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import VChart from 'vue-echarts'
-import { use, graphic } from 'echarts/core'
+import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart } from 'echarts/charts'
 import {
@@ -15,6 +15,7 @@ import { useTransactionStatisticsMapper } from '@/mappers/transaction-statistics
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useI18n } from 'vue-i18n'
+import { useChartTheme } from '@/composables/useChartTheme'
 
 use([
   CanvasRenderer,
@@ -28,12 +29,13 @@ use([
 ])
 
 const { transactionAmountByDate } = useTransactionStatisticsMapper()
-const { me } = useMe()
+const { user } = useMe()
 const { t } = useI18n()
+const theme = useChartTheme()
 
 const option = computed(() => {
-  const formatedCurrency =
-    CURRENCIES_SYMBOL[me.value?.me?.currency as string] || me?.value?.me.currency
+  const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const c = theme.value
 
   return {
     backgroundColor: 'transparent',
@@ -46,11 +48,11 @@ const option = computed(() => {
     },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#222',
-      borderColor: '#444',
+      backgroundColor: c.card,
+      borderColor: c.border,
       borderWidth: 1,
       textStyle: {
-        color: '#fff',
+        color: c.foreground,
       },
       axisPointer: {
         type: 'none',
@@ -79,7 +81,7 @@ const option = computed(() => {
         return index
       }),
       axisLabel: {
-        color: '#94979C',
+        color: c.mutedForeground,
         // eslint-disable-next-line
         formatter(value: any) {
           const parsedDate = new Date(transactionAmountByDate.value[value].date)
@@ -88,7 +90,7 @@ const option = computed(() => {
       },
       axisLine: {
         lineStyle: {
-          color: '#373A41',
+          color: c.border,
         },
       },
       offset: 0,
@@ -115,33 +117,21 @@ const option = computed(() => {
           tooltip: ['Amount'],
         },
         lineStyle: {
-          color: '#7F56D9',
+          color: c.primary,
           width: 2,
         },
         itemStyle: {
-          color: '#0C111D',
-          borderColor: '#7F56D9',
+          color: c.card,
+          borderColor: c.primary,
           borderWidth: 2,
         },
-        emphasis: {
-          itemStyle: {
-            color: '#0C111D',
-            borderColor: '#7F56D9',
-            borderWidth: 2,
-          },
-        },
+        // Hovering with an axis tooltip otherwise puts non-focused marks into ECharts' blur state,
+        // which fades the whole line/area out. Disabling emphasis keeps the line drawn; the tooltip
+        // (independent of emphasis) still shows.
+        emphasis: { disabled: true },
         areaStyle: {
-          opacity: 1,
-          color: new graphic.LinearGradient(0, 0, 0, 1, [
-            {
-              offset: 0,
-              color: 'rgba(127,86,217,0.05)',
-            },
-            {
-              offset: 1,
-              color: 'rgba(127,86,217,0)',
-            },
-          ]),
+          opacity: 0.08,
+          color: c.primary,
         },
       },
       {
@@ -157,19 +147,10 @@ const option = computed(() => {
         },
         itemStyle: {
           borderRadius: 4,
-          color: new graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(55,58,65,0.8)' },
-            { offset: 1, color: 'rgba(55,58,65,0.2)' },
-          ]),
+          color: c.muted,
+          opacity: 0.6,
         },
-        emphasis: {
-          itemStyle: {
-            color: new graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#7F56D9' },
-              { offset: 1, color: 'rgba(127,86,217,0.2)' },
-            ]),
-          },
-        },
+        emphasis: { disabled: true },
         z: -12,
       },
       {
@@ -188,15 +169,16 @@ const option = computed(() => {
           tooltip: ['Amount'],
         },
         lineStyle: {
-          color: '#373A41',
+          color: c.mutedForeground,
           width: 2,
           type: 'dotted',
         },
         itemStyle: {
-          color: '#0C111D',
-          borderColor: '#373A41',
+          color: c.card,
+          borderColor: c.mutedForeground,
           borderWidth: 2,
         },
+        emphasis: { disabled: true },
       },
     ],
   }

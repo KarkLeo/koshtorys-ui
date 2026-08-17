@@ -1,0 +1,36 @@
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import TransactionsView from './TransactionsView.vue'
+import { mockTransactions, MOCK_USER_CONTEXT } from './__fixtures__/transactions'
+
+const meta = {
+  title: 'Transactions/TransactionsView',
+  component: TransactionsView,
+  parameters: { layout: 'padded' },
+  args: {
+    transactions: mockTransactions,
+    monthStartDay: MOCK_USER_CONTEXT.monthStartDay,
+    monthlyBudget: MOCK_USER_CONTEXT.monthlyBudget,
+    currency: MOCK_USER_CONTEXT.currency,
+    month: new Date(2026, 4, 20),
+  },
+} satisfies Meta<typeof TransactionsView>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+// Полный экран «Витрати» с данными со скриншота.
+export const Default: Story = {}
+
+// Загрузка: skeleton-карточки.
+export const Loading: Story = { args: { loading: true, transactions: [] } }
+
+// Пустой месяц.
+export const EmptyMonth: Story = { args: { transactions: [] } }
+
+// Фильтры ничего не нашли: сообщение + кнопка сброса.
+export const EmptyByFilters: Story = {
+  args: { initialFilters: { search: 'неіснуючий запит', categories: [], plan: 'all' } },
+}
+
+// Ошибка загрузки: сообщение + кнопка «Повторити».
+export const LoadError: Story = { args: { error: true, transactions: [] } }

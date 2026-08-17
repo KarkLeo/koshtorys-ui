@@ -9,6 +9,8 @@
   },
   "calendar": {
     "placeholder": "Оберіть дату",
+    "prev_month": "Попередній місяць",
+    "next_month": "Наступний місяць",
     "months": {
       "1": "Січень",
       "2": "Лютий",
@@ -33,9 +35,13 @@
       "7": "Нд"
     }
   },
-  "mainMenu": {
-    "dashboard": "Панель",
-    "settings": "Налаштування"
+  "nav": {
+    "transactions": "Транзакції",
+    "planning": "Планування",
+    "statistics": "Статистика",
+    "settings": "Налаштування",
+    "add": "Додати",
+    "add_plan": "Додати план"
   },
   "register": {
     "title": "Реєстрація",
@@ -154,7 +160,14 @@
       "general": "Загальні",
       "statistics": "Статистика"
     },
+    "signOut": "Вийти",
     "fields": {
+      "theme": {
+        "label": "Тема",
+        "description": "Оберіть світлу або темну тему інтерфейсу.",
+        "light": "Світла",
+        "dark": "Темна"
+      },
       "lang": {
         "label": "Мова",
         "placeholder": "Виберіть мову",
@@ -334,12 +347,19 @@
   },
   "transaction": {
     "form": {
+      "title": "Додати нову транзакцію",
+      "edit_title": "Редагувати транзакцію",
+      "actions": {
+        "scan": "Сканувати чек",
+        "planning": "Планування"
+      },
       "fields": {
         "amount": {
           "placeholder": "Введіть транзакцію"
         },
         "category": {
-          "placeholder": "Оберіть категорію"
+          "placeholder": "Оберіть категорію",
+          "search": "Пошук категорії..."
         },
         "description": {
           "placeholder": "Додайте опис"
@@ -371,19 +391,64 @@
         "delete_success": "Транзакція успішно видалена"
       }
     },
+    "delete_confirm": {
+      "title": "Видалити транзакцію?",
+      "description": "Цю дію не можна скасувати. Транзакцію буде видалено назавжди.",
+      "cancel": "Скасувати",
+      "confirm": "Видалити"
+    },
     "selectPlanning": {
       "title": "Оберіть планування",
       "subtitle": "Оберіть планування для витрати",
-        "buttons": {
-            "submit": "Зберегти",
-            "cancel": "Видалити"
-        }
+      "alreadyLinked": "Вже використано",
+      "buttons": {
+        "submit": "Зберегти",
+        "cancel": "Видалити"
+      }
     },
     "table": {
       "empty": "Транзакції відсутні"
+    },
+    "list": {
+      "search_placeholder": "Пошук за описом...",
+      "empty": "Транзакцій за цей місяць немає",
+      "empty_filtered": "Нічого не знайдено",
+      "reset_filters": "Скинути фільтри",
+      "error": "Не вдалося завантажити транзакції",
+      "retry": "Повторити",
+      "menu": {
+        "trigger": "Дії транзакції",
+        "edit": "Редагувати",
+        "delete": "Видалити"
+      },
+      "filters": {
+        "button": "Фільтри",
+        "categories": "Категорії",
+        "plan": "Звʼязок з планом",
+        "plan_all": "Всі",
+        "plan_linked": "Звʼязані з планом",
+        "plan_unlinked": "Без плану",
+        "chip_plan_linked": "з планом",
+        "chip_plan_unlinked": "без плану",
+        "reset_all": "Скинути все"
+      },
+      "sort": {
+        "date-desc": "Дата ↓",
+        "date-asc": "Дата ↑",
+        "amount-desc": "Сума ↓",
+        "amount-asc": "Сума ↑",
+        "category": "Категорія"
+      }
     }
   },
   "planning": {
+    "actions": {
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "repeat": "Повторити цього місяця",
+      "cancel_repeat": "Більше не пропонувати",
+      "menu": "Дії плану"
+    },
     "header": {
       "monthlyBudget": "Місячний бюджет",
       "plannedExpenses": "Заплановані витрати",
@@ -393,9 +458,22 @@
     "table": {
       "paid": "Оплачено",
       "repeat": "Повторювається",
-      "empty": "Планування відсутні"
+      "empty": "Планування відсутні",
+      "error": "Не вдалося завантажити плани",
+      "retry": "Повторити"
+    },
+    "delete_confirm": {
+      "title": "Видалити план?",
+      "description": "План буде прибрано з місяця. Пов'язані транзакції залишаться.",
+      "cancel": "Скасувати",
+      "confirm": "Видалити"
+    },
+    "suggestions": {
+      "title": "Повторювані плани"
     },
     "form": {
+      "add_title": "Новий план",
+      "edit_title": "Редагувати план",
       "type": {
         "TRANSACTION": "Разова витрата",
         "CATEGORY": "Динамічний бюджет"
@@ -405,7 +483,8 @@
           "placeholder": "Введіть суму"
         },
         "category": {
-          "placeholder": "Оберіть категорію"
+          "placeholder": "Оберіть категорію",
+          "search": "Пошук категорії..."
         },
         "description": {
           "placeholder": "Додайте опис"
@@ -455,6 +534,11 @@
     }
   },
   "statistics": {
+    "titles": {
+      "dynamics": "Динаміка витрат",
+      "byCategory": "Розподіл за категоріями",
+      "comparison": "Категорії та середнє"
+    },
     "chart": {
       "amount": "Поточні витрати",
       "average": "Середні витрати"

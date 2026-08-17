@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { useMe, useSignOut } from '@/hooks/auth-hooks.ts'
 import { useRouter } from 'vue-router'
+import { Sun, Moon, LogOut } from 'lucide-vue-next'
 
 import MainMenu from '@/components/MainMenu.vue'
-import KitIconButton from '@/components/kit/KitIconButton.vue'
-import IconLogout from '@/components/icons/IconLogout.vue'
 import LangSwitcher from '@/components/LangSwitcher.vue'
+import { Button } from '@/components/ui/button'
+import { useTheme } from '@/hooks/use-theme'
 
-const { refreshMe, me } = useMe()
+const { user } = useMe()
 const { signOut } = useSignOut()
 const router = useRouter()
+const { theme, toggleTheme } = useTheme()
 
 const handleSignOut = async () => {
   try {
     await signOut()
-    refreshMe()
   } catch (error) {
     console.error(error)
   } finally {
@@ -24,44 +25,29 @@ const handleSignOut = async () => {
 </script>
 
 <template>
-  <header class="header">
-    <div class="header-inner">
-      <div class="left-side">
-        <MainMenu />
+  <!-- Logged in on mobile the header would be empty (nav lives in BottomTabBar, theme/logout moved
+       to Settings), so hide the whole bar there; on desktop it still carries the nav. -->
+  <header
+    class="items-center justify-center border-b border-border px-4 py-4 md:px-8"
+    :class="user ? 'hidden md:flex' : 'flex'"
+  >
+    <div class="flex w-full max-w-screen-xl items-center justify-between">
+      <div>
+        <span v-if="!user" class="text-lg font-semibold"
+          ><span class="mr-1">&#x1F911;</span>Koshtorys</span
+        >
+        <MainMenu v-else />
       </div>
-      <div class="right-side">
-        <KitIconButton v-if="me?.me" @click="handleSignOut">
-          <IconLogout />
-        </KitIconButton>
+      <div class="flex items-center gap-2">
+        <Button variant="ghost" size="icon" @click="toggleTheme">
+          <Sun v-if="theme === 'dark'" class="size-4" />
+          <Moon v-else class="size-4" />
+        </Button>
+        <Button v-if="user" variant="ghost" size="icon" @click="handleSignOut">
+          <LogOut class="size-4" />
+        </Button>
         <LangSwitcher v-else />
       </div>
     </div>
   </header>
 </template>
-
-<style scoped>
-.header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-
-  border-bottom: 1px solid var(--border-secondary);
-}
-
-.header-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  max-width: var(--container-max-width-desktop);
-  width: 100%;
-}
-
-@media screen and (min-width: 768px) {
-  .header {
-    padding: var(--spacing-xl) var(--spacing-4xl);
-  }
-}
-</style>

@@ -10,12 +10,10 @@ const model = defineModel<Date>({
   default: new Date(),
 })
 
-const { me } = useMe()
+const { user } = useMe()
 
 const showedMonth = computed(() => {
-  const monthStartDay = me.value?.me?.monthStartDay
-
-  return getMonthIndex(model.value, monthStartDay) + 1
+  return getMonthIndex(model.value, user.value?.monthStartDay) + 1
 })
 
 const handlePrevMonth = () => {
@@ -34,7 +32,7 @@ const handleNextMonth = () => {
 }
 
 const currentPeriod = computed(() => {
-  return getMonthPeriod(me.value?.me?.monthStartDay, model.value)
+  return getMonthPeriod(user.value?.monthStartDay, model.value)
 })
 </script>
 

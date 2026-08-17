@@ -6,21 +6,27 @@ import { ValidationError } from 'yup'
 import { useMe, usesSettingsStatistics } from '@/hooks/auth-hooks.ts'
 import { onboardingSchema } from '@/validations/onboarding.ts'
 import { CURRENCIES } from '@/constants/currencies.ts'
+import { toast } from 'vue-sonner'
+import { ApiError } from '@/api/client'
 
-import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
-import KitDropdown from '@/components/kit/KitDropdown.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitButton from '@/components/kit/KitButton.vue'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import SettingsField from '@/components/settings/SettingsField.vue'
 
-const { me, refreshMe } = useMe()
-const { settingsStatistics } = usesSettingsStatistics()
-const toastStore = useToastStore()
+const { user } = useMe()
+const { settingsStatistics, loading } = usesSettingsStatistics()
 const { t } = useI18n()
 
-const currency = ref(me.value?.me.currency || '')
-const monthStartDay = ref(me.value?.me.monthStartDay || '')
-const monthlyBudget = ref(me.value?.me.monthlyBudget || '')
+const currency = ref(user.value?.currency || '')
+const monthStartDay = ref(user.value?.monthStartDay ?? '')
+const monthlyBudget = ref(user.value?.monthlyBudget ?? '')
 
 const errors = ref<Record<string, string>>({})
 
@@ -62,48 +68,48 @@ const update = async () => {
     })
 
     if (data) {
-      refreshMe()
-      toastStore.success(t('settings.success'))
+      toast.success(t('settings.success'))
     }
-
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
 
 const isChanged = computed(() => {
   return (
-    currency.value !== me.value?.me.currency ||
-    monthStartDay.value !== me.value?.me.monthStartDay ||
-    monthlyBudget.value !== me.value?.me.monthlyBudget
+    currency.value !== user.value?.currency ||
+    Number(monthStartDay.value) !== user.value?.monthStartDay ||
+    Number(monthlyBudget.value) !== user.value?.monthlyBudget
   )
 })
 </script>
 
 <template>
-  <form @submit.prevent="update" class="form">
-    <KitSettingsFieldWrapper
+  <form @submit.prevent="update" class="flex flex-col px-4 md:px-6">
+    <SettingsField
       :label="$t('settings.fields.currency.label')"
       :description="$t('settings.fields.currency.description')"
       :error="Boolean(errors?.currency)"
       :message="errors?.currency ? $t(`settings.fields.currency.errors.${errors.currency}`) : ''"
     >
-      <KitDropdown
-        :options="CURRENCIES"
-        :placeholder="$t('settings.fields.currency.placeholder')"
-        v-model="currency"
-      />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+      <Select v-model="currency">
+        <SelectTrigger class="w-full" :aria-invalid="Boolean(errors?.currency)">
+          <SelectValue :placeholder="$t('settings.fields.currency.placeholder')" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="option in CURRENCIES" :key="option" :value="option">
+            {{ option }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.monthStartDay.label')"
       :description="$t('settings.fields.monthStartDay.description')"
       :error="Boolean(errors?.monthStartDay)"
@@ -113,14 +119,15 @@ const isChanged = computed(() => {
           : ''
       "
     >
-      <KitInput
+      <Input
         v-model="monthStartDay"
         type="number"
         :placeholder="$t('settings.fields.monthStartDay.placeholder')"
-        :error="Boolean(errors?.monthStartDay)"
+        :aria-invalid="Boolean(errors?.monthStartDay)"
       />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.monthlyBudget.label')"
       :description="$t('settings.fields.monthlyBudget.description')"
       :error="Boolean(errors?.monthlyBudget)"
@@ -130,44 +137,18 @@ const isChanged = computed(() => {
           : ''
       "
     >
-      <KitInput
+      <Input
         v-model="monthlyBudget"
         type="number"
         :placeholder="$t('settings.fields.monthlyBudget.placeholder')"
-        :error="Boolean(errors?.monthlyBudget)"
+        :aria-invalid="Boolean(errors?.monthlyBudget)"
       />
-    </KitSettingsFieldWrapper>
-    <div class="buttons">
-      <KitButton type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</KitButton>
+    </SettingsField>
+
+    <div class="flex justify-end border-t border-border py-5 md:py-6">
+      <Button type="submit" :disabled="!isChanged || loading">
+        {{ $t('settings.submit') }}
+      </Button>
     </div>
   </form>
 </template>
-
-<style scoped>
-.form :deep(.texts),
-.form :deep(.control) {
-  padding-inline: var(--spacing-2xl);
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-
-  border-top: 1px solid var(--border-secondary);
-}
-
-@media screen and (min-width: 768px) {
-  .form :deep(.texts) {
-    padding-inline: var(--spacing-2xl) 0;
-  }
-  .form :deep(.control) {
-    padding-inline: 0 var(--spacing-2xl);
-  }
-
-  .buttons {
-    padding: var(--spacing-2xl);
-  }
-}
-</style>

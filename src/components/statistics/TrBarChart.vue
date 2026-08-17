@@ -11,12 +11,14 @@ import { getMainCategory } from '@/helpers/category.ts'
 import { useI18n } from 'vue-i18n'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
+import { useChartTheme } from '@/composables/useChartTheme'
 
 use([CanvasRenderer, BarChart, TitleComponent, TooltipComponent, LegendComponent])
 
 const { transactionsByAllCategory } = useTransactionStatisticsMapper()
-const { me } = useMe()
+const { user } = useMe()
 const { t } = useI18n()
+const theme = useChartTheme()
 
 const getCategoriesLabel = (category: string) => t(`categories.${category}`)
 const getCategoryStyle = (category: string) =>
@@ -27,8 +29,8 @@ const option = computed(() => {
     getCategoryStyle(category.categoryId),
   )
 
-  const formatedCurrency =
-    CURRENCIES_SYMBOL[me.value?.me?.currency as string] || me?.value?.me.currency
+  const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const c = theme.value
 
   const options = {
     backgroundColor: 'transparent',
@@ -37,11 +39,11 @@ const option = computed(() => {
       axisPointer: {
         type: 'none',
       },
-      backgroundColor: '#222',
-      borderColor: '#444',
+      backgroundColor: c.card,
+      borderColor: c.border,
       borderWidth: 1,
       textStyle: {
-        color: '#fff',
+        color: c.foreground,
       },
       // eslint-disable-next-line
       formatter: function (params: any) {
@@ -85,7 +87,7 @@ const option = computed(() => {
         barGap: 0,
         label: {
           show: true,
-          color: '#F5F5F6',
+          color: c.foreground,
           fontFamily: `'Inter', sans-serif`,
           // eslint-disable-next-line
           formatter: function (params: any) {

@@ -3,22 +3,35 @@ import { computed, ref } from 'vue'
 import { ValidationError } from 'yup'
 import { useI18n } from 'vue-i18n'
 
+import { Sun, Moon } from 'lucide-vue-next'
 import { useMe, usesSettingsGeneral } from '@/hooks/auth-hooks.ts'
+import { useTheme } from '@/hooks/use-theme'
 import settingsGeneralSchema from '@/validations/settings.general.ts'
-import KitSettingsFieldWrapper from '@/components/kit/KitSettingsFieldWrapper.vue'
-import KitDropdown from '@/components/kit/KitDropdown.vue'
-import KitInput from '@/components/kit/KitInput.vue'
-import KitButton from '@/components/kit/KitButton.vue'
-import { useToastStore } from '@/stores/toastStore.ts'
+import { toast } from 'vue-sonner'
+import { ApiError } from '@/api/client'
+import type { components } from '@/api/types'
 
-const { me, refreshMe } = useMe()
-const { settingsGeneral } = usesSettingsGeneral()
+type UpdateProfileDto = components['schemas']['UpdateProfileDto']
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import SettingsField from '@/components/settings/SettingsField.vue'
+
+const { user } = useMe()
+const { theme, toggleTheme } = useTheme()
+const { settingsGeneral, loading } = usesSettingsGeneral()
 const { locale, availableLocales, t } = useI18n()
-const toastStore = useToastStore()
 
-const name = ref(me.value?.me.name || '')
-const email = ref(me.value?.me.email || '')
-const lang = ref(me.value?.me.lang || '')
+const name = ref(user.value?.name || '')
+const email = ref(user.value?.email || '')
+const lang = ref(user.value?.lang || '')
 const newPassword = ref('')
 const confirmNewPassword = ref('')
 const oldPassword = ref('')
@@ -70,30 +83,31 @@ const update = async () => {
     const isValid = await validateForm()
     if (!isValid) return
 
-    const data = await settingsGeneral({
+    // Only send password fields when a new password is actually entered —
+    // an empty newPassword string fails the backend's @MinLength(6) validation.
+    const payload: UpdateProfileDto = {
       name: name.value,
       lang: lang.value,
-      newPassword: newPassword.value,
-      oldPassword: oldPassword.value,
-    })
+    }
+    if (newPassword.value) {
+      payload.newPassword = newPassword.value
+      payload.oldPassword = oldPassword.value
+    }
+
+    const data = await settingsGeneral(payload)
 
     if (data) {
-      refreshMe()
       if (data.lang === 'en' || data.lang === 'uk-UA') {
         locale.value = data.lang
       }
-      toastStore.success(t('settings.success'))
+      toast.success(t('settings.success'))
     }
     // eslint-disable-next-line
   } catch (e: any) {
-    try {
-      const errorCodes = e.cause.extensions.originalError.errorCodes
-      if (errorCodes) {
-        errors.value = errorCodes
-      }
-      // eslint-disable-next-line
-    } catch (e: any) {
-      toastStore.error(t('common_errors.server_error'))
+    if (e instanceof ApiError && e.errorCodes) {
+      errors.value = e.errorCodes
+    } else {
+      toast.error(t('common_errors.server_error'))
     }
   }
 }
@@ -111,10 +125,14 @@ const passwordMessage = computed(() => {
   return ''
 })
 
+const passwordError = computed(() =>
+  Boolean(errors.value.oldPassword || errors.value.newPassword || errors.value.confirmNewPassword),
+)
+
 const isChanged = computed(() => {
   return (
-    name.value !== me.value?.me.name ||
-    lang.value !== me.value?.me.lang ||
+    name.value !== user.value?.name ||
+    lang.value !== user.value?.lang ||
     newPassword.value !== '' ||
     confirmNewPassword.value !== '' ||
     oldPassword.value !== ''
@@ -123,98 +141,89 @@ const isChanged = computed(() => {
 </script>
 
 <template>
-  <form @submit.prevent="update" class="form">
-    <KitSettingsFieldWrapper
+  <form @submit.prevent="update" class="flex flex-col px-4 md:px-6">
+    <SettingsField
+      :label="$t('settings.fields.theme.label')"
+      :description="$t('settings.fields.theme.description')"
+    >
+      <Button type="button" variant="outline" class="w-full justify-start gap-2" @click="toggleTheme">
+        <Moon v-if="theme === 'dark'" class="size-4" />
+        <Sun v-else class="size-4" />
+        {{ theme === 'dark' ? $t('settings.fields.theme.dark') : $t('settings.fields.theme.light') }}
+      </Button>
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.lang.label')"
       :description="$t('settings.fields.lang.description')"
       :error="Boolean(errors?.lang)"
-      :message="errors?.lang ? $t(`settings.fields.lang.errors.${errors?.lang}`) : ''"
+      :message="errors?.lang ? $t(`settings.fields.lang.errors.${errors.lang}`) : ''"
     >
-      <KitDropdown v-model="lang" :options="availableLocales" :getOptionLabel="getLangLabel" />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+      <Select v-model="lang">
+        <SelectTrigger class="w-full" :aria-invalid="Boolean(errors?.lang)">
+          <SelectValue :placeholder="getLangLabel(lang)" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="loc in availableLocales" :key="loc" :value="loc">
+            {{ getLangLabel(loc) }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.name.label')"
       :description="$t('settings.fields.name.description')"
       :error="Boolean(errors?.name)"
-      :message="errors?.name ? $t(`settings.fields.name.errors.${errors?.name}`) : ''"
+      :message="errors?.name ? $t(`settings.fields.name.errors.${errors.name}`) : ''"
     >
-      <KitInput
+      <Input
         v-model="name"
         type="text"
         :placeholder="$t('settings.fields.name.placeholder')"
-        :error="Boolean(errors?.name)"
+        :aria-invalid="Boolean(errors?.name)"
       />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.email.label')"
       :description="$t('settings.fields.email.description')"
     >
-      <KitInput v-model="email" type="email" disabled />
-    </KitSettingsFieldWrapper>
-    <KitSettingsFieldWrapper
+      <Input v-model="email" type="email" disabled />
+    </SettingsField>
+
+    <SettingsField
       :label="$t('settings.fields.newPassword.label')"
       :description="$t('settings.fields.newPassword.description')"
-      :error="Boolean(errors?.newPassword || errors?.confirmNewPassword || errors?.oldPassword)"
+      :error="passwordError"
       :message="passwordMessage"
     >
-      <div class="inputs">
-        <KitInput
+      <div class="flex flex-col gap-3">
+        <Input
           v-model="newPassword"
           type="password"
           :placeholder="$t('settings.fields.newPassword.placeholder')"
-          :error="Boolean(errors?.newPassword)"
+          :aria-invalid="Boolean(errors?.newPassword)"
         />
-        <KitInput
+        <Input
           v-model="confirmNewPassword"
           type="password"
           :placeholder="$t('settings.fields.confirmNewPassword.placeholder')"
-          :error="Boolean(errors?.confirmNewPassword)"
+          :aria-invalid="Boolean(errors?.confirmNewPassword)"
         />
-        <KitInput
+        <Input
           v-model="oldPassword"
           type="password"
           :placeholder="$t('settings.fields.oldPassword.placeholder')"
-          :error="Boolean(errors?.oldPassword)"
+          :aria-invalid="Boolean(errors?.oldPassword)"
         />
       </div>
-    </KitSettingsFieldWrapper>
-    <div class="buttons">
-      <KitButton type="submit" :disabled="!isChanged">{{ $t('settings.submit') }}</KitButton>
+    </SettingsField>
+
+    <div class="flex justify-end border-t border-border py-5 md:py-6">
+      <Button type="submit" :disabled="!isChanged || loading">
+        {{ $t('settings.submit') }}
+      </Button>
     </div>
   </form>
 </template>
-
-<style scoped>
-.form :deep(.texts),
-.form :deep(.control) {
-  padding-inline: var(--spacing-2xl);
-}
-
-.inputs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-
-  border-top: 1px solid var(--border-secondary);
-}
-
-@media screen and (min-width: 768px) {
-  .form :deep(.texts) {
-    padding-inline: var(--spacing-2xl) 0;
-  }
-  .form :deep(.control) {
-    padding-inline: 0 var(--spacing-2xl);
-  }
-
-  .buttons {
-    padding: var(--spacing-2xl);
-  }
-}
-</style>
