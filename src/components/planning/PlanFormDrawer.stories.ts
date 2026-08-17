@@ -1,11 +1,16 @@
 /**
  * Stories for PlanFormDrawer.
  *
- * The real component mounts cleanly in Storybook because:
+ * The real component renders in Storybook because:
  * - `useMe` reads from Pinia `userStore`, populated via `parameters.mockUser`
  *   in the global Storybook decorator (see .storybook/preview.ts).
- * - `useCreatePlan` / `useUpdatePlan` use Pinia + REST (`planningApi.*`) — no
- *   Apollo dependency at mount time; the network call only happens on submit.
+ * - `useCreatePlan` / `useUpdatePlan` only touch the network on submit.
+ *
+ * It does NOT mount network-free, though: `useMonthlyPlanning()` in setup fires
+ * `/plans`, `/plans/repeating` and `/exchange-rates` (it feeds the parent-plan
+ * picker). With no API behind the test run those 401. That is harmless here —
+ * the hook catches the failure and raises its `error` flag — but it does mean
+ * the parent-plan picker renders empty in these stories.
  *
  * The `mockUser` shape matches `UserResponseDto` from the API types. The
  * plan mocks match `PlanResponseDto`.

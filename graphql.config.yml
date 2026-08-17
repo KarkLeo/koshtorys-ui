@@ -1,5 +1,0 @@
-schema: './src/graphql/schema.graphql'
-documents: '**/*.graphql'
-extensions:
-  endpoints:
-    default: '${VITE_GRAPHQL_ENDPOINT}'

@@ -1,23 +1,17 @@
-import { ref, computed, watch } from 'vue'
-import { useQuery } from '@vue/apollo-composable'
+import { ref, computed, watch, onMounted } from 'vue'
 
 import { useStatisticDateStore } from '@/stores/statisticDateStore.ts'
 import { useMe } from '@/hooks/auth-hooks.ts'
-import { getDateRangeByDate } from '@/helpers/date.ts'
 
-import type {
-  TransactionsQuery,
-  TransactionsQueryVariables,
-  TransactionStatisticQuery,
-  TransactionStatisticQueryVariables,
-} from '@/graphql/types.ts'
-import TRANSACTIONS from '@/graphql/transactions.graphql'
-import TRANSACTIONS_STATISTIC from '@/graphql/transaction-statistic.graphql'
 import { transactionApi } from '@/api/services/transaction.service'
 import type { CreateTransactionDto, UpdateTransactionDto } from '@/helpers/transaction-form'
 import { useTransactionsStore, monthKeyOf } from '@/stores/transactionsStore.ts'
 import { toDisplayTransaction } from '@/mappers/transaction-mapper.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
+import type { components } from '@/api/types'
+
+type TransactionsByCategoryResponseDto = components['schemas']['TransactionsByCategoryResponseDto']
+type TransactionsByMonthDayResponseDto = components['schemas']['TransactionsByMonthDayResponseDto']
 
 export function useCreateTransaction() {
   const { user } = useMe()
@@ -80,44 +74,31 @@ export function useUpdateTransaction() {
   return { updateTransaction, loading }
 }
 
-export function useTransactionList() {
-  const { statisticDate } = useStatisticDateStore()
-  const { user } = useMe()
-
-  const variables = computed(() =>
-    getDateRangeByDate(statisticDate.value, user.value?.monthStartDay || 1),
-  )
-
-  const { result, loading } = useQuery<TransactionsQuery, TransactionsQueryVariables>(
-    TRANSACTIONS,
-    variables,
-    {
-      fetchPolicy: 'cache-and-network',
-    },
-  )
-
-  return {
-    transactions: result,
-    loading,
-  }
-}
-
+/**
+ * Cross-month spending averages (per category and per day-of-month) for the statistics charts.
+ * These endpoints take no date — they are global averages over all months, so we fetch once.
+ */
 export function useTransactionsStatistic() {
-  const { result, loading } = useQuery<
-    TransactionStatisticQuery,
-    TransactionStatisticQueryVariables
-  >(
-    TRANSACTIONS_STATISTIC,
-    {},
-    {
-      fetchPolicy: 'cache-first',
-    },
-  )
+  const byCategory = ref<TransactionsByCategoryResponseDto[]>([])
+  const byMonthDay = ref<TransactionsByMonthDayResponseDto[]>([])
+  const loading = ref(false)
 
-  return {
-    transactionsStatistic: result,
-    loading,
-  }
+  onMounted(async () => {
+    loading.value = true
+    try {
+      const [categories, monthDays] = await Promise.all([
+        transactionApi.statisticsByCategory(),
+        transactionApi.statisticsByMonthDay(),
+      ])
+      byCategory.value = categories
+      // The line chart consumes the daily averages in day order.
+      byMonthDay.value = [...monthDays].sort((a, b) => a.period_index - b.period_index)
+    } finally {
+      loading.value = false
+    }
+  })
+
+  return { byCategory, byMonthDay, loading }
 }
 
 export function useMonthlyTransactions() {

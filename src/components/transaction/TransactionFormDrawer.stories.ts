@@ -4,11 +4,11 @@
  * The real component mounts cleanly in Storybook because:
  * - `useMe` reads from Pinia `userStore`, populated via `parameters.mockUser`
  *   in the global Storybook decorator (see .storybook/preview.ts).
- * - `useCreateTransaction` uses Pinia + REST (`transactionApi.create`) — no Apollo
- *   dependency at mount time; the network call only happens on form submit.
+ * - `useCreateTransaction` uses Pinia + REST (`transactionApi.create`) — no network
+ *   dependency at mount time; the request only happens on form submit.
  * - `SelectPlanningModal` (v-if="isPlanningOpen") is NOT rendered initially,
- *   so its Apollo-dependent hooks (`usePlanningList`, `usePlanningMapper`) are
- *   not invoked when the story first mounts.
+ *   so its data hook (`usePlanningMapperRest`) is not invoked when the story
+ *   first mounts.
  *
  * The `mockUser` shape matches `UserResponseDto` from the API types.
  */

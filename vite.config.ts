@@ -5,7 +5,6 @@ import { readFileSync } from 'fs';
 import { VitePWA } from 'vite-plugin-pwa';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import vue from '@vitejs/plugin-vue';
-import graphql from '@rollup/plugin-graphql';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
@@ -15,9 +14,16 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const buildDate = new Date().toISOString();
 
+// The Vue devtools plugin injects a client that reaches for the devtools app context on
+// teardown. Inside the headless-browser storybook project that context does not exist, so every
+// story file ended its run with an unhandled `Cannot read properties of undefined (reading 'app')`
+// rejection — 35 of them, enough to fail the vitest run even though all stories passed.
+// Devtools are a dev-server convenience, so they are simply left out under test.
+const isTest = Boolean(process.env.VITEST);
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), tailwindcss(), graphql(), VitePWA({
+  plugins: [vue(), ...(isTest ? [] : [vueDevTools()]), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
     includeAssets: ['favicon.ico', 'icons/*.png'],
     manifest: {

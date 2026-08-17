@@ -55,16 +55,16 @@ npm run lint
 # Format code
 npm run format
 
-# Generate GraphQL types from schema
-npm run generate
+# Regenerate REST API types from the running API's Swagger JSON
+npm run generate:rest
 ```
 
 ## Architecture
 
 ### Tech Stack
 - **Frontend**: Vue 3 with Composition API, TypeScript
-- **State Management**: Pinia stores (minimal usage)
-- **Data Fetching**: Apollo Client with GraphQL
+- **State Management**: Pinia stores
+- **Data Fetching**: Axios against the REST API (`src/api/`)
 - **Routing**: Vue Router with authentication guards
 - **Validation**: Yup schemas
 - **I18n**: vue-i18n (Ukrainian/English)
@@ -75,44 +75,45 @@ npm run generate
 
 ```
 src/
-├── @types/          # TypeScript type definitions
+├── api/             # REST layer: axios client, auth calls, services/, generated types.ts
 ├── assets/          # Static assets (CSS, images)
 ├── components/      # Vue components
-│   ├── kit/         # Reusable UI components (KitButton, KitModal, KitDatePicker, etc.)
+│   ├── ui/          # Shadcn-vue primitives (button, dialog, drawer, select, …)
+│   ├── kit/         # Legacy custom components (KitButton, KitModal, …) — being replaced by ui/
 │   ├── icons/       # Icon components
 │   ├── planning/    # Planning-specific components
 │   ├── settings/    # Settings-specific components
 │   ├── statistics/  # Statistics/charts components
 │   └── transaction/ # Transaction-specific components
+├── composables/     # Reusable composables (useGlobalAdd, useChartTheme)
 ├── constants/       # App constants (menu, currencies, categories, etc.)
-├── graphql/         # GraphQL queries/mutations (.graphql files) and generated types
 ├── helpers/         # Utility functions (date calculations, planning logic, category helpers)
-├── hooks/           # Vue composables (auth-hooks, transaction-hooks, planning-hooks)
+├── hooks/           # Data hooks (auth-hooks, transaction-hooks, planning-rest-hooks, …)
 ├── i18n/            # Internationalization setup and locale files
 ├── layouts/         # Layout components
+├── lib/             # Shadcn `cn()` helper
 ├── mappers/         # Data transformation functions
 ├── router/          # Vue Router configuration
-├── services/        # Business logic services (auth-service, tokens-service)
-├── stores/          # Pinia stores (toastStore, statisticDateStore)
+├── stores/          # Pinia stores (userStore, transactionsStore, statisticDateStore)
 ├── validations/     # Yup validation schemas
 └── views/           # Page-level components
 ```
 
 ### Key Patterns
 
-**GraphQL Integration:**
-- GraphQL schema and queries live in `src/graphql/`
-- Code generation via `@graphql-codegen/cli` creates TypeScript types in `src/graphql/types.ts`
-- Run `npm run generate` after schema changes to update types
-- Apollo Client configured in `apolloClient.ts` with:
-  - Automatic token refresh on UNAUTHENTICATED errors
-  - Auth link that adds Bearer tokens to requests
-  - Error handling link for GraphQL errors
+**REST Integration:**
+- Axios instance in `api/client.ts` (`baseURL: VITE_API_ENDPOINT`, `withCredentials: true`)
+- Endpoint wrappers in `api/auth.ts` and `api/services/*.service.ts`
+- `api/types.ts` is generated from the API's Swagger JSON — run `npm run generate:rest`
+  with the API running on `localhost:3000`; never hand-edit it
+- Failed responses carrying `errorCodes` are rethrown as `ApiError`
 
 **Authentication:**
-- JWT tokens stored in localStorage via `TokensService`
+- JWT access/refresh tokens live in httpOnly cookies — the client never reads them,
+  it just sends credentials with every request
+- A 401 response interceptor calls `POST /auth/refresh` once, queues the concurrent
+  requests, replays them on success, and redirects to `login` on failure
 - Router guards in `router/index.ts` check auth state and onboarding completion
-- Automatic token refresh logic in `apolloClient.ts` handles expired access tokens
 - Routes marked with `meta: { requiresAuth: true }` or `meta: { requiresNoAuth: true }`
 
 **Financial Month Calculations:**
@@ -122,13 +123,14 @@ src/
 - All date operations must use these helpers to maintain consistency
 
 **State Management:**
-- Minimal Pinia usage (toast notifications, statistic date selection)
-- Most state managed via Apollo Client cache and Vue Composition API refs
+- Pinia stores hold server state: `userStore` (current user), `transactionsStore`
+  (per-month transaction cache), `statisticDateStore` (selected period)
+- Hooks in `hooks/` wrap the stores and API services for components
+- Toasts go through `vue-sonner`
 
-**Component Library ("Kit"):**
-- Custom component library in `components/kit/`
-- Prefixed with "Kit" (KitButton, KitModal, KitInput, etc.)
-- Not using any external component library (custom-built)
+**Component Library:**
+- `components/ui/` — Shadcn-vue primitives (reka-ui based), the target for all new UI
+- `components/kit/` — legacy custom "Kit*" components, replaced incrementally
 
 **Validation:**
 - Yup schemas in `validations/` directory
@@ -141,14 +143,14 @@ src/
 ### Environment Variables
 
 Required in `.env`:
-- `VITE_GRAPHQL_ENDPOINT`: GraphQL API endpoint URL
+- `VITE_API_ENDPOINT`: REST API base URL (e.g. `http://localhost:3000/api`)
 
 ### Docker Deployment
 
 Multi-stage Dockerfile:
 1. Build stage: Node 22 Alpine, runs `npm ci` and `npm run build`
 2. Runtime stage: nginx serving static files from `/usr/share/nginx/html`
-3. Build arg: `VITE_GRAPHQL_ENDPOINT` must be provided at build time
+3. Build arg: `VITE_API_ENDPOINT` must be provided at build time
 
 ### PWA Configuration
 
@@ -166,17 +168,20 @@ Multi-stage Dockerfile:
 
 ## Testing
 
-Tests use Vitest (configured but minimal coverage currently).
-Run tests with:
+Three layers, all configured in `vite.config.ts` / `playwright.config.ts`:
+
 ```bash
-npm run test
+npx vitest run --project unit        # unit tests (src/**/*.test.ts, node env)
+npx vitest run --project storybook   # story tests in a headless chromium
+npx playwright test                  # e2e specs in e2e/ (needs API + DB running)
 ```
 
 ## Key Considerations
 
 1. **Date handling is critical**: Always use helpers from `helpers/date.ts` when working with financial months
 2. **Month start day affects everything**: All date calculations must account for user's custom month start day
-3. **Type safety**: GraphQL types are auto-generated - regenerate after schema changes
+3. **Type safety**: `src/api/types.ts` is generated from Swagger — regenerate with
+   `npm run generate:rest` after API DTO changes instead of editing it
 4. **Token management**: Authentication uses refresh token rotation - don't break the token refresh flow
 5. **Onboarding version**: Updating `ONBOARDING_UPDATED_AT` forces all users to re-onboard
 6. **Plan types matter**: One-off vs dynamic plans have different logic for calculating "spent" amounts

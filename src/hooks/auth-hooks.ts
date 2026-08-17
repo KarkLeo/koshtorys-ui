@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 
 import { authApi } from '@/api/auth'
 import { useUserStore } from '@/stores/userStore'
-import apolloClient from '@/apolloClient'
 
 import type { components } from '@/api/types'
 
@@ -61,7 +60,6 @@ export const useSignOut = () => {
     try {
       const result = await authApi.signOut()
       userStore.clearUser()
-      await apolloClient.clearStore()
       return result
     } finally {
       loading.value = false
