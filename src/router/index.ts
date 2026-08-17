@@ -8,7 +8,6 @@ import PlanningView from '@/components/planning/PlanningView.vue'
 import StatisticsTab from '@/components/statistics/StatisticsTab.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
 import SettingsView from '@/views/SettingsView.vue'
-import ShadcnDemoView from '@/views/ShadcnDemoView.vue'
 
 import { useUserStore } from '@/stores/userStore'
 import { ONBOARDING_UPDATED_AT } from '@/constants/meta.ts'
@@ -65,11 +64,6 @@ const router = createRouter({
       name: 'settings',
       component: SettingsView,
       meta: { requiresAuth: true },
-    },
-    {
-      path: '/shadcn-demo',
-      name: 'shadcn-demo',
-      component: ShadcnDemoView,
     },
   ],
 })
