@@ -12,6 +12,7 @@ import {
   countLinkedTransactions,
   type PreparedPlan,
 } from '@/helpers/planning-rest'
+import { computePlanningStats } from '@/helpers/planning-stats'
 import { TRANSACTION_CATEGORIES_COLORS } from '@/constants/transaction-categories'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies'
 import type { components } from '@/api/types'
@@ -60,7 +61,7 @@ function mapPlan(
 export function usePlanningMapperRest() {
   const { t } = useI18n()
   const { user } = useMe()
-  const { plans, repeating, rates, loading, invalidate, refetch } = useMonthlyPlanning()
+  const { plans, repeating, rates, loading, error, invalidate, refetch } = useMonthlyPlanning()
   const { transactions } = useMonthlyTransactions()
 
   // Раньше здесь ещё требовалось Object.keys(rates.value).length > 0, но курс валют
@@ -90,33 +91,7 @@ export function usePlanningMapperRest() {
   const planningStatistics = computed(() => {
     if (!ready.value) return null
     const monthlyBudget = user.value!.monthlyBudget ?? 0
-    const items = prepared.value
-    // Any unconverted item (missing exchange rate) is labelled with its OWN currency, not
-    // baseCurrency — folding it into a base-currency sum below would silently mix currencies.
-    // Same call as reducePlansByCategory's group total: emit null and let the UI show a dash
-    // rather than a confidently wrong figure.
-    const hasUnconverted = items.some((p) => !p.converted)
-    const plannedExpenses = hasUnconverted ? null : items.reduce((acc, p) => acc + p.amount, 0)
-    // free money = budget - (spent-or-planned per plan) - free (unplanned) transactions
-    const plannedCategoryIds = new Set(
-      plans.value.filter((p) => p.type === 'CATEGORY').map((p) => p.categoryId),
-    )
-    const freeTx = transactions.value
-      .filter((tx) => !tx.planningId && !plannedCategoryIds.has(tx.categoryId))
-      .reduce((acc, tx) => acc + tx.amount, 0)
-    const usedByPlans = items.reduce(
-      (acc, p) => acc + (p.type === 'TRANSACTION' && p.spent ? p.spent : p.amount),
-      0,
-    )
-    const freeMoney = hasUnconverted ? null : monthlyBudget - usedByPlans - freeTx
-    const remainingToPay = hasUnconverted
-      ? null
-      : items.reduce((acc, p) => {
-          if (p.type === 'TRANSACTION' && p.spent) return acc
-          if (p.type === 'CATEGORY' && p.spent) return acc + Math.max(0, p.amount - p.spent)
-          return acc + p.amount
-        }, 0)
-    return { monthlyBudget, plannedExpenses, freeMoney, remainingToPay }
+    return computePlanningStats(monthlyBudget, prepared.value, transactions.value)
   })
 
   return {
@@ -124,6 +99,7 @@ export function usePlanningMapperRest() {
     repeatingPlanningTables,
     planningStatistics,
     loading,
+    error,
     invalidate,
     refetch,
   }

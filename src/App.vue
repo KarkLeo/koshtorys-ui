@@ -27,7 +27,9 @@ watch(user, (newVal) => {
 <template>
   <div class="flex min-h-screen flex-col bg-background text-foreground">
     <MainHeader />
-    <router-view class="flex-1" />
+    <div class="flex flex-1 flex-col">
+      <router-view />
+    </div>
     <MainFooter />
 
     <template v-if="user">

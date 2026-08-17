@@ -22,6 +22,11 @@
  *    "Recurring plans" (`planning.suggestions.title`).
  *  - PlanCard action buttons in the suggestion variant expose aria-labels
  *    "Repeat this month" and "Stop suggesting" (`planning.actions.*`).
+ *  - PlanCategoryGroup draws the two lists with different borders: real plans get
+ *    `rounded-xl border border-border bg-card`, suggestions get
+ *    `rounded-xl border-2 border-dashed`. A suggestion therefore does NOT match
+ *    `.rounded-xl.border`, which is what the `planGroup` / `suggestionGroup`
+ *    helpers below rely on to tell the two apart.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -96,6 +101,14 @@ async function seedRepeatingPlan(
   expect(res.ok(), `seed plan failed: ${res.status()} ${await res.text()}`).toBeTruthy()
 }
 
+/** A category group in the current month's plan list (solid border). */
+const planGroup = (page: Page, category: string) =>
+  page.locator('.rounded-xl.border-border', { hasText: category })
+
+/** A category group inside the recurring-plan suggestions (dashed border). */
+const suggestionGroup = (page: Page, category: string) =>
+  page.locator('.rounded-xl.border-dashed', { hasText: category })
+
 test.describe.serial('Recurring plan suggestions', () => {
   const user = newUser()
 
@@ -113,11 +126,11 @@ test.describe.serial('Recurring plan suggestions', () => {
 
     const suggestions = page.locator('section', { hasText: 'Recurring plans' })
     await expect(suggestions).toBeVisible({ timeout: 10000 })
-    const housingSuggestion = suggestions.locator('.rounded-xl.border', { hasText: 'Housing' })
+    const housingSuggestion = suggestionGroup(page, 'Housing')
     await expect(housingSuggestion).toBeVisible({ timeout: 10000 })
 
     // Not in the current month's list yet.
-    await expect(page.locator('.rounded-xl.border', { hasText: 'Housing' })).toHaveCount(1)
+    await expect(planGroup(page, 'Housing')).toHaveCount(0)
 
     await housingSuggestion.getByRole('button', { name: 'Repeat this month' }).click()
 
@@ -126,7 +139,7 @@ test.describe.serial('Recurring plan suggestions', () => {
     await expect(suggestions).toBeHidden({ timeout: 10000 })
 
     // ...and appears in the current month's plan list.
-    const housingGroup = page.locator('.rounded-xl.border', { hasText: 'Housing' })
+    const housingGroup = planGroup(page, 'Housing')
     await expect(housingGroup).toBeVisible({ timeout: 10000 })
     await expect(housingGroup.getByText('300 €').first()).toBeVisible()
   })
@@ -139,7 +152,7 @@ test.describe.serial('Recurring plan suggestions', () => {
 
     const suggestions = page.locator('section', { hasText: 'Recurring plans' })
     await expect(suggestions).toBeVisible({ timeout: 10000 })
-    const taxiSuggestion = suggestions.locator('.rounded-xl.border', { hasText: 'Transportation' })
+    const taxiSuggestion = suggestionGroup(page, 'Transportation')
     await expect(taxiSuggestion).toBeVisible({ timeout: 10000 })
 
     await taxiSuggestion.getByRole('button', { name: 'Stop suggesting' }).click()
@@ -149,6 +162,6 @@ test.describe.serial('Recurring plan suggestions', () => {
     await expect(suggestions).toBeHidden({ timeout: 10000 })
 
     // ...and never shows up in the current month's plan list either.
-    await expect(page.locator('.rounded-xl.border', { hasText: 'Transportation' })).toHaveCount(0)
+    await expect(planGroup(page, 'Transportation')).toHaveCount(0)
   })
 })

@@ -11,12 +11,14 @@ import { getMainCategory } from '@/helpers/category.ts'
 import { useI18n } from 'vue-i18n'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { CURRENCIES_SYMBOL } from '@/constants/currencies.ts'
+import { useChartTheme } from '@/composables/useChartTheme'
 
 use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent])
 
 const { reducedTransactionsByCategory } = useTransactionStatisticsMapper()
 const { user } = useMe()
 const { t } = useI18n()
+const theme = useChartTheme()
 
 const getCategoriesLabel = (category: string) => t(`categories.${category}`)
 const getCategoryStyle = (category: string) =>
@@ -24,6 +26,7 @@ const getCategoryStyle = (category: string) =>
 
 const option = computed(() => {
   const formatedCurrency = CURRENCIES_SYMBOL[user.value?.currency as string] || user.value?.currency
+  const c = theme.value
 
   return {
     backgroundColor: 'transparent',
@@ -36,14 +39,14 @@ const option = computed(() => {
     },
     textStyle: {
       fontFamily: `'Inter', sans-serif`,
-      color: `#F5F5F6`,
+      color: c.foreground,
     },
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#0C111D',
+      backgroundColor: c.card,
       textStyle: {
         fontFamily: `'Inter', sans-serif`,
-        color: `#F5F5F6`,
+        color: c.foreground,
       },
       // eslint-disable-next-line
       formatter(params: any) {
@@ -61,7 +64,7 @@ const option = computed(() => {
           position: 'center',
           backgroundColor: 'transparent',
           fontFamily: `'Inter', sans-serif`,
-          color: `#F5F5F6`,
+          color: c.foreground,
         },
         emphasis: {
           label: {
@@ -69,7 +72,7 @@ const option = computed(() => {
             fontSize: 40,
             fontWeight: 'regular',
             fontFamily: `'Inter', sans-serif`,
-            color: `#F5F5F6`,
+            color: c.foreground,
           },
         },
         labelLine: {
@@ -81,7 +84,7 @@ const option = computed(() => {
         })),
         itemStyle: {
           borderRadius: 2,
-          borderColor: '#0C111D',
+          borderColor: c.card,
           borderWidth: 1,
           // eslint-disable-next-line
           color: function (params: any) {

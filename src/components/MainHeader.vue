@@ -25,7 +25,12 @@ const handleSignOut = async () => {
 </script>
 
 <template>
-  <header class="flex items-center justify-center border-b border-border px-4 py-4 md:px-8">
+  <!-- Logged in on mobile the header would be empty (nav lives in BottomTabBar, theme/logout moved
+       to Settings), so hide the whole bar there; on desktop it still carries the nav. -->
+  <header
+    class="items-center justify-center border-b border-border px-4 py-4 md:px-8"
+    :class="user ? 'hidden md:flex' : 'flex'"
+  >
     <div class="flex w-full max-w-screen-xl items-center justify-between">
       <div>
         <span v-if="!user" class="text-lg font-semibold"

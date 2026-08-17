@@ -3,7 +3,9 @@ import { computed, ref } from 'vue'
 import { ValidationError } from 'yup'
 import { useI18n } from 'vue-i18n'
 
+import { Sun, Moon } from 'lucide-vue-next'
 import { useMe, usesSettingsGeneral } from '@/hooks/auth-hooks.ts'
+import { useTheme } from '@/hooks/use-theme'
 import settingsGeneralSchema from '@/validations/settings.general.ts'
 import { toast } from 'vue-sonner'
 import { ApiError } from '@/api/client'
@@ -23,6 +25,7 @@ import {
 import SettingsField from '@/components/settings/SettingsField.vue'
 
 const { user } = useMe()
+const { theme, toggleTheme } = useTheme()
 const { settingsGeneral, loading } = usesSettingsGeneral()
 const { locale, availableLocales, t } = useI18n()
 
@@ -139,6 +142,17 @@ const isChanged = computed(() => {
 
 <template>
   <form @submit.prevent="update" class="flex flex-col px-4 md:px-6">
+    <SettingsField
+      :label="$t('settings.fields.theme.label')"
+      :description="$t('settings.fields.theme.description')"
+    >
+      <Button type="button" variant="outline" class="w-full justify-start gap-2" @click="toggleTheme">
+        <Moon v-if="theme === 'dark'" class="size-4" />
+        <Sun v-else class="size-4" />
+        {{ theme === 'dark' ? $t('settings.fields.theme.dark') : $t('settings.fields.theme.light') }}
+      </Button>
+    </SettingsField>
+
     <SettingsField
       :label="$t('settings.fields.lang.label')"
       :description="$t('settings.fields.lang.description')"

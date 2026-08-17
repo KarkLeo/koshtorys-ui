@@ -66,7 +66,7 @@ const hasActiveFilters = computed(
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-[600px] flex-col gap-4">
+  <div class="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 pb-4 pt-4">
     <MonthSwitcher v-model="month" :month-start-day="monthStartDay" />
 
     <BudgetProgress :current="spent" :max="monthlyBudget" :currency="currency" />

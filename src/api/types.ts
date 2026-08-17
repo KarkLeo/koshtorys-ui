@@ -389,7 +389,7 @@ export interface paths {
      * Cancel recurring plan
      * @description Stop a plan from repeating in future months
      */
-    post: operations['PlanningController_canselRepeatingPlanning']
+    post: operations['PlanningController_cancelRepeatingPlanning']
     delete?: never
     options?: never
     head?: never
@@ -705,8 +705,8 @@ export interface components {
        */
       type: 'TRANSACTION' | 'CATEGORY'
       /**
-       * @description Financial month index (1-12)
-       * @example 1
+       * @description Financial month index (0-based, matches JS Date#getMonth())
+       * @example 0
        */
       monthIndex: number
       /**
@@ -752,7 +752,10 @@ export interface components {
     UpdatePlanDto: {
       /** @enum {string} */
       type?: 'TRANSACTION' | 'CATEGORY'
-      /** @example 1 */
+      /**
+       * @description Financial month index (0-based, matches JS Date#getMonth())
+       * @example 0
+       */
       monthIndex?: number
       /** @example 2026 */
       year?: number
@@ -775,8 +778,8 @@ export interface components {
     }
     RepeatPlanDto: {
       /**
-       * @description Target financial month index (1-12)
-       * @example 2
+       * @description Target financial month index (0-based, matches JS Date#getMonth())
+       * @example 0
        */
       monthIndex: number
       /**
@@ -1323,7 +1326,7 @@ export interface operations {
   PlanningController_getPlanningList: {
     parameters: {
       query: {
-        /** @description Financial month index (1-12) */
+        /** @description Financial month index (0-based, matches JS Date#getMonth()) */
         monthIndex: number
         /** @description Year */
         year: number
@@ -1398,7 +1401,7 @@ export interface operations {
   PlanningController_getRepeatingPlanning: {
     parameters: {
       query: {
-        /** @description Financial month index (1-12) */
+        /** @description Financial month index (0-based, matches JS Date#getMonth()) */
         monthIndex: number
         /** @description Year */
         year: number
@@ -1438,7 +1441,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        id: string
+        id: number
       }
       cookie?: never
     }
@@ -1459,6 +1462,24 @@ export interface operations {
         }
         content?: never
       }
+      /** @description User does not own this plan */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Plan not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
     }
   }
   PlanningController_updatePlanning: {
@@ -1466,7 +1487,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        id: string
+        id: number
       }
       cookie?: never
     }
@@ -1498,6 +1519,24 @@ export interface operations {
         }
         content?: never
       }
+      /** @description User does not own this plan */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Plan not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
     }
   }
   PlanningController_repeatPlanning: {
@@ -1505,7 +1544,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        id: string
+        id: number
       }
       cookie?: never
     }
@@ -1537,14 +1576,32 @@ export interface operations {
         }
         content?: never
       }
+      /** @description User does not own this plan */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Plan not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
     }
   }
-  PlanningController_canselRepeatingPlanning: {
+  PlanningController_cancelRepeatingPlanning: {
     parameters: {
       query?: never
       header?: never
       path: {
-        id: string
+        id: number
       }
       cookie?: never
     }
@@ -1564,6 +1621,24 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+      /** @description User does not own this plan */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Plan not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
       }
     }
   }

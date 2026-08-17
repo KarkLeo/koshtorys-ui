@@ -381,6 +381,7 @@ const clearPlanning = () => {
   <SelectPlanningModal
     v-if="isPlanningOpen"
     v-model="selectedPlanning"
+    :old-planning-id="transaction?.planningId != null ? String(transaction.planningId) : null"
     @close="onPlanningClose"
     @submit="onPlanningSubmit"
   />

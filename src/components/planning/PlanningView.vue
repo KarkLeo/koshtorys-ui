@@ -9,6 +9,7 @@ import PlanCategoryGroup from '@/components/planning/PlanCategoryGroup.vue'
 import PlanFormDrawer from '@/components/planning/PlanFormDrawer.vue'
 import RepeatingPlanSuggestions from '@/components/planning/RepeatingPlanSuggestions.vue'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +33,7 @@ import { CURRENCIES_SYMBOL } from '@/constants/currencies'
 const { t } = useI18n()
 const { statisticDate } = useStatisticDateStore()
 const { user } = useMe()
-const { planningTables, repeatingPlanningTables, planningStatistics, loading } =
+const { planningTables, repeatingPlanningTables, planningStatistics, loading, error, refetch } =
   usePlanningMapperRest()
 const { deletePlan, loading: deleteLoading } = useDeletePlan()
 const { repeatPlan } = useRepeatPlan()
@@ -69,7 +70,12 @@ const editOpen = computed({
 // ===== Handlers =====
 
 const handleEdit = (id: string) => {
-  editingId.value = id
+  // Opening the vaul edit Drawer synchronously from the dropdown-menu tap lets that tap's trailing
+  // (compat/focus) event reach the just-mounted Drawer and dismiss it instantly on touch. Defer the
+  // open to the next macrotask so the Drawer mounts after the tap's event sequence has flushed.
+  setTimeout(() => {
+    editingId.value = id
+  }, 0)
 }
 
 const handleDelete = (id: string) => {
@@ -126,13 +132,28 @@ const handleCancelRepeat = async (id: string) => {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-3xl flex-col gap-6">
+  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pb-4 pt-4">
     <MonthSwitcher v-model="statisticDate" :month-start-day="user?.monthStartDay ?? 1" />
 
     <template v-if="loading">
       <Skeleton class="h-24 w-full" />
       <Skeleton class="h-48 w-full" />
     </template>
+
+    <!-- The load failed and there is nothing to show: same treatment as the transaction list —
+         an error with a retry instead of the empty state, otherwise a broken /plans reads as
+         "no plans". Data already on screen from a previous month is left alone. -->
+    <div
+      v-else-if="error && planningTables.length === 0"
+      class="mt-6 flex flex-col items-center gap-3"
+    >
+      <p class="text-center text-sm italic text-muted-foreground">
+        {{ t('planning.table.error') }}
+      </p>
+      <Button variant="outline" size="sm" @click="refetch">
+        {{ t('planning.table.retry') }}
+      </Button>
+    </div>
 
     <template v-else>
       <PlanningStats v-if="planningStatistics" :stats="planningStatistics" :currency="currency" />

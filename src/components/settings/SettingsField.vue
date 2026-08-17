@@ -8,7 +8,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="border-t border-border py-5 md:py-6">
+  <!-- border-t is the between-fields divider; drop it on the first field so the card doesn't open with a stray line. -->
+  <div class="border-t border-border py-5 first:border-t-0 md:py-6">
     <div class="flex w-full flex-col gap-3 md:grid md:grid-cols-[6fr_4fr] md:gap-10">
       <div class="flex flex-col gap-1">
         <h3 class="text-sm font-semibold text-foreground md:text-base">{{ label }}</h3>

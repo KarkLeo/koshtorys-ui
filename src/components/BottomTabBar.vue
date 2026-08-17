@@ -39,7 +39,7 @@ const showAdd = () => route.name !== 'settings'
         <li class="list-none">
           <router-link
             :to="item.path"
-            class="flex flex-col items-center gap-0.5 px-3 py-2 text-xs text-muted-foreground no-underline [&.active]:text-foreground [&_svg]:size-5"
+            class="flex flex-col items-center gap-0.5 whitespace-nowrap px-2 py-2 text-[10px] leading-tight text-muted-foreground no-underline [&.active]:text-foreground [&_svg]:size-5"
             active-class="active"
           >
             <component :is="item.icon" />

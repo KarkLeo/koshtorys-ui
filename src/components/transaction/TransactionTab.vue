@@ -43,7 +43,13 @@ const deletingId = ref<string | null>(null)
 const confirmOpen = ref(false)
 
 const handleEdit = (id: string) => {
-  editing.value = transactions.value.find((tx) => tx.id === id) ?? null
+  const tx = transactions.value.find((tx) => tx.id === id) ?? null
+  // Opening the vaul edit Drawer synchronously from the dropdown-menu tap lets that tap's trailing
+  // (compat/focus) event reach the just-mounted Drawer and dismiss it instantly on touch. Defer the
+  // open to the next macrotask so the Drawer mounts after the tap's event sequence has flushed.
+  setTimeout(() => {
+    editing.value = tx
+  }, 0)
 }
 
 const handleDelete = (id: string) => {

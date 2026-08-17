@@ -60,6 +60,10 @@ const sheetOpen = computed({
 
 const isDisabled = (planId: string, transactionCount: number) =>
   planId !== props.oldPlanningId && transactionCount > 0
+
+// The badge colour already encodes the parent category, so the pill shows only the
+// subcategory — same treatment as the plan cards.
+const subcategory = (categoryName: string) => categoryName.split(':')[1]?.trim() || categoryName
 </script>
 
 <template>
@@ -85,49 +89,58 @@ const isDisabled = (planId: string, transactionCount: number) =>
       </p>
 
       <!-- Plan list -->
-      <RadioGroup v-else v-model="model" class="gap-0">
+      <RadioGroup v-else v-model="model" class="gap-3">
         <template v-for="table in planningTransactionTable" :key="table.category">
           <div class="overflow-hidden rounded-xl border border-border">
             <label
               v-for="plan in table.items"
               :key="plan.id"
-              class="flex w-full cursor-pointer items-center gap-4 border-t border-border px-4 py-3 first:border-t-0"
+              class="flex w-full cursor-pointer items-center gap-3 border-t border-border px-4 py-3 first:border-t-0"
               :class="{
                 'pointer-events-none opacity-50': isDisabled(plan.id, plan.linkedCount),
               }"
             >
               <RadioGroupItem
+                class="shrink-0"
                 :value="plan.id"
                 :disabled="isDisabled(plan.id, plan.linkedCount)"
               />
 
-              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="flex min-w-0 flex-1 flex-col gap-1">
                 <span class="truncate text-sm font-medium">{{ plan.description }}</span>
-                <Badge
-                  variant="outline"
-                  class="w-fit"
-                  :style="{ color: plan.categoryColor, borderColor: plan.categoryColor }"
-                >
-                  {{ plan.categoryName }}
-                </Badge>
+                <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <Badge
+                    variant="outline"
+                    class="max-w-full rounded-full"
+                    :style="{ color: plan.categoryColor, borderColor: plan.categoryColor }"
+                    :title="plan.categoryName"
+                  >
+                    <span class="truncate">{{ subcategory(plan.categoryName) }}</span>
+                  </Badge>
+                  <span
+                    v-if="plan.date"
+                    class="flex items-center gap-1 text-xs text-muted-foreground"
+                  >
+                    <IconCalendar class="size-3.5 shrink-0" />
+                    {{ formatPlanDate(plan.date) }}
+                  </span>
+                  <span
+                    v-if="isDisabled(plan.id, plan.linkedCount)"
+                    class="text-xs italic text-muted-foreground"
+                  >
+                    · {{ $t('transaction.selectPlanning.alreadyLinked') }}
+                  </span>
+                </span>
               </span>
 
-              <span
-                v-if="plan.date"
-                class="flex shrink-0 items-center gap-1 text-sm text-muted-foreground"
-              >
-                <IconCalendar class="size-4" />
-                {{ formatPlanDate(plan.date) }}
-              </span>
-
-              <span class="ml-auto flex shrink-0 flex-row-reverse items-baseline gap-2">
-                <span class="text-sm font-medium">{{ plan.amount }} {{ plan.currency }}</span>
+              <span class="shrink-0 text-right text-sm font-medium">
                 <span
                   v-if="plan.originalAmount && plan.originalCurrency"
-                  class="text-xs text-muted-foreground"
+                  class="text-xs font-normal text-muted-foreground"
                 >
                   {{ plan.originalAmount }} {{ plan.originalCurrency }} /
                 </span>
+                {{ plan.amount }} {{ plan.currency }}
               </span>
             </label>
           </div>
@@ -135,7 +148,7 @@ const isDisabled = (planId: string, transactionCount: number) =>
       </RadioGroup>
 
       <!-- Action buttons -->
-      <div class="flex justify-end gap-2">
+      <div class="grid grid-cols-2 gap-3">
         <Button variant="outline" @click="cancelHandler">
           {{ $t('transaction.selectPlanning.buttons.cancel') }}
         </Button>

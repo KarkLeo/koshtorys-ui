@@ -26,7 +26,9 @@
  *    substring instead.
  *  - Plan type toggle items are buttons named "One-time expense" /
  *    "Dynamic budget" (`planning.form.type.*`).
- *  - PlanCard action buttons expose aria-labels "Edit" / "Delete".
+ *  - PlanCard's Edit/Delete live behind a DropdownMenu, not as flat icon buttons:
+ *    the trigger is a button labelled "Plan actions" (`planning.actions.menu`) and
+ *    the entries are `menuitem`s. Use `openPlanMenu()` below.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -92,6 +94,16 @@ async function pickCategory(
   await page.getByRole('option', { name: new RegExp(optionSubstring, 'i') }).click()
 }
 
+/**
+ * Opens a PlanCard's action dropdown and waits for the menu to be on screen.
+ * The menu content is portalled to the body, so the returned menu items are
+ * looked up on `page`, not inside the card's locator.
+ */
+async function openPlanMenu(page: Page, card: ReturnType<Page['locator']>) {
+  await card.getByRole('button', { name: 'Plan actions' }).first().click()
+  await expect(page.getByRole('menu')).toBeVisible({ timeout: 5000 })
+}
+
 test.describe.serial('Plan create / edit / delete on REST', () => {
   const user = newUser()
 
@@ -124,7 +136,8 @@ test.describe.serial('Plan create / edit / delete on REST', () => {
     await expect(foodGroup.getByText('200 €').first()).toBeVisible()
 
     // --- edit -----------------------------------------------------------
-    await foodGroup.getByRole('button', { name: 'Edit' }).first().click()
+    await openPlanMenu(page, foodGroup)
+    await page.getByRole('menuitem', { name: 'Edit' }).click()
     const editDialog = page.getByRole('dialog')
     await expect(editDialog).toBeVisible({ timeout: 5000 })
     await editDialog.locator('input[type="number"]').first().fill('350')
@@ -135,10 +148,10 @@ test.describe.serial('Plan create / edit / delete on REST', () => {
     await expect(foodGroup.getByText('200 €')).toHaveCount(0)
 
     // --- delete -----------------------------------------------------------
-    // The confirmation is scoped to `alertdialog`: the PlanCard's own "Delete"
-    // icon button stays mounted (just visually covered) behind the overlay,
-    // so an unscoped "Delete" lookup would match two buttons.
-    await foodGroup.getByRole('button', { name: 'Delete' }).first().click()
+    // The confirmation is scoped to `alertdialog` because its own action button is
+    // also named "Delete" — an unscoped lookup would be ambiguous.
+    await openPlanMenu(page, foodGroup)
+    await page.getByRole('menuitem', { name: 'Delete' }).click()
     const confirmDialog = page.getByRole('alertdialog')
     await expect(confirmDialog.getByText('Delete plan?')).toBeVisible()
     await confirmDialog.getByRole('button', { name: /^Delete$/ }).click()

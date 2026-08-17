@@ -14,6 +14,7 @@ const plans = ref<Plan[]>([])
 const repeating = ref<Plan[]>([])
 const rates = ref<Record<string, number>>({})
 const loading = ref(false)
+const error = ref(false)
 
 // Detached scope: watch создаётся один раз и переживает unmount компонента,
 // который первым дёрнул useMonthlyPlanning().
@@ -62,6 +63,15 @@ function ensureStarted() {
         plans.value = list
         repeating.value = rep
         rates.value = (rate?.rates as Record<string, number>) ?? {}
+        error.value = false
+      } catch (e) {
+        // load() is invoked from watch(..., { immediate: true }), which ignores the returned
+        // promise — without this catch any /plans or /plans/repeating failure escaped as an
+        // unhandled rejection and the list silently stayed empty. Surface a flag instead, the
+        // way transactionsStore does, so PlanningView can show an error and a retry button.
+        if (token !== loadToken) return
+        console.error('[planning-rest-hooks] load failed:', e)
+        error.value = true
       } finally {
         // Только самый свежий вызов может снять loading; иначе поздний устаревший
         // ответ погасит индикатор, пока актуальный запрос ещё летит.
@@ -86,6 +96,7 @@ export function useMonthlyPlanning() {
     repeating,
     rates,
     loading,
+    error,
     refetch: () => load(),
     invalidate: () => load(),
   }

@@ -160,7 +160,14 @@
       "general": "General",
       "statistics": "Statistics"
     },
+    "signOut": "Sign out",
     "fields": {
+      "theme": {
+        "label": "Theme",
+        "description": "Choose a light or dark interface theme.",
+        "light": "Light",
+        "dark": "Dark"
+      },
       "lang": {
         "label": "Language",
         "placeholder": "Select language",
@@ -393,6 +400,7 @@
     "selectPlanning": {
       "title": "Add Transaction",
       "subtitle": "Select a planning to add a transaction",
+      "alreadyLinked": "Already used",
       "buttons": {
         "submit": "Save",
         "cancel": "Remove"
@@ -438,7 +446,8 @@
       "edit": "Edit",
       "delete": "Delete",
       "repeat": "Repeat this month",
-      "cancel_repeat": "Stop suggesting"
+      "cancel_repeat": "Stop suggesting",
+      "menu": "Plan actions"
     },
     "header": {
       "monthlyBudget": "Monthly Budget",
@@ -449,7 +458,9 @@
     "table": {
       "paid": "Paid",
       "repeat": "Repeat",
-      "empty": "No plannings found"
+      "empty": "No plannings found",
+      "error": "Failed to load plans",
+      "retry": "Retry"
     },
     "delete_confirm": {
       "title": "Delete plan?",
@@ -521,6 +532,11 @@
     }
   },
   "statistics": {
+    "titles": {
+      "dynamics": "Spending dynamics",
+      "byCategory": "By category",
+      "comparison": "Categories vs average"
+    },
     "chart": {
       "amount": "Current amount",
       "average": "Average"

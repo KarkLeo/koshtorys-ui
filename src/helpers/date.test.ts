@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   getMonthIndex,
   getIndexedYear,
@@ -54,15 +54,51 @@ describe('getIndexedYear', () => {
   })
 })
 
+/**
+ * `getExchangeDate` compares the requested financial month against "now", so the
+ * cases that expect today's date back cannot use hard-coded years — they rot as
+ * soon as that year is in the past, which is exactly what happened to the 2025
+ * ones. The clock is frozen three days before the test run instead: the months
+ * under test stay relative to the real calendar, and `new Date()` inside the
+ * helper matches the expectation exactly (the old `toEqual(new Date())` compared
+ * two separate calls and could have raced on the millisecond).
+ *
+ * The cases that expect a computed past date keep their hard-coded years — those
+ * are permanently in the past and stay stable.
+ */
 describe('getExchangeDate', () => {
+  const anchor = new Date()
+  anchor.setDate(anchor.getDate() - 3)
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(anchor)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  /** Financial month holding `anchor`, shifted by `delta` months. */
+  const monthAt = (delta: number, monthStartDay: number): [number, number] => {
+    const shifted = new Date(
+      getIndexedYear(anchor, monthStartDay),
+      getMonthIndex(anchor, monthStartDay) + delta,
+      1,
+    )
+    return [shifted.getMonth(), shifted.getFullYear()]
+  }
+
   it('should return the current date for the current month', () => {
-    const result = getExchangeDate(1, 2030, 5)
-    expect(result).toEqual(new Date())
+    const [monthIndex, year] = monthAt(0, 5)
+    const result = getExchangeDate(monthIndex, year, 5)
+    expect(result).toEqual(anchor)
   })
 
   it('should return the current date for the next month', () => {
-    const result = getExchangeDate(2, 2025, 5)
-    expect(result).toEqual(new Date())
+    const [monthIndex, year] = monthAt(1, 5)
+    const result = getExchangeDate(monthIndex, year, 5)
+    expect(result).toEqual(anchor)
   })
 
   it('should return the last day of the previous month', () => {
@@ -70,9 +106,16 @@ describe('getExchangeDate', () => {
     expect(result).toEqual(new Date(2025, 1, 4))
   })
 
+  it('should return the current date for the current month, monthStartDay > 15', () => {
+    const [monthIndex, year] = monthAt(0, 20)
+    const result = getExchangeDate(monthIndex, year, 20)
+    expect(result).toEqual(anchor)
+  })
+
   it('should return the current date for the next month, monthStartDay > 15', () => {
-    const result = getExchangeDate(2, 2025, 20)
-    expect(result).toEqual(new Date())
+    const [monthIndex, year] = monthAt(1, 20)
+    const result = getExchangeDate(monthIndex, year, 20)
+    expect(result).toEqual(anchor)
   })
 
   it('should return the last day of the previous month, monthStartDay > 15', () => {

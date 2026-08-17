@@ -43,8 +43,8 @@ const shortDate = computed(() =>
 </script>
 
 <template>
-  <article class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border bg-card px-4 py-3">
-    <div class="flex items-end gap-1.5">
+  <article class="flex flex-nowrap items-center gap-x-3 rounded-xl border bg-card px-4 py-3">
+    <div class="flex shrink-0 items-end gap-1.5">
       <p class="text-xl font-semibold leading-none">
         {{ formatAmount(transaction.amount) }}&nbsp;{{ symbol(transaction.currency) }}
       </p>
@@ -61,7 +61,7 @@ const shortDate = computed(() =>
 
     <Badge
       variant="outline"
-      class="max-w-44 rounded-full"
+      class="max-w-[45%] rounded-full"
       :style="{ color: categoryColor, borderColor: categoryColor }"
       :title="categoryFullName"
     >
@@ -70,10 +70,12 @@ const shortDate = computed(() =>
 
     <Link2 v-if="transaction.planningId" class="size-4 shrink-0 text-primary" />
 
-    <div class="ml-auto flex items-center gap-1.5">
+    <div class="ml-auto flex shrink-0 items-center gap-1.5">
       <p v-if="showDate" class="text-xs text-muted-foreground">{{ shortDate }}</p>
 
-      <DropdownMenu>
+      <!-- modal=false: a modal dropdown locks body pointer-events and runs an aggressive dismiss
+           layer that instantly closes the vaul edit Drawer opened from a menu item on touch. -->
+      <DropdownMenu :modal="false">
         <DropdownMenuTrigger as-child>
           <Button
             variant="ghost"

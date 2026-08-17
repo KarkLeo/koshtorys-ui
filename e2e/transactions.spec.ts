@@ -9,12 +9,10 @@
  *  5. Delete            — "⋮" menu → Delete → card gone, empty state, budget "0 / 3400 €"
  *  6. Load error+retry  — abort network → error state; unroute → Retry → list loads
  *
- * Transaction creation path: REST API via page.request (not the old GraphQL AddTransactionForm).
- * Reason: AddTransactionForm uses Apollo GraphQL mutation which updates the Apollo cache, but the
- * TransactionsView reads from transactionsStore (REST-based). The two caches are independent, so
- * creating via the UI form would require a manual page reload to see the transaction — which is
- * functionally correct but makes the test fragile.  Using page.request.post keeps the test fast
- * and deterministic.
+ * Transaction creation path: REST API via page.request, not the UI form. Reason: this spec covers
+ * the list, filters, month switching and delete — driving the create form as well would add drawer
+ * interactions to every setup step and make the test slow and fragile. The create form itself is
+ * covered by create-transaction.spec.ts.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -209,6 +207,13 @@ test.describe.serial('Transactions list', () => {
 
     // Click "Delete" in the dropdown.
     await page.getByRole('menuitem', { name: /delete/i }).click()
+
+    // Deleting is guarded by an AlertDialog — the menu item only opens it, so the row
+    // survives until the red confirm button is pressed. See delete-transaction.spec.ts,
+    // which covers this confirmation flow in full.
+    const confirmDialog = page.getByRole('alertdialog')
+    await expect(confirmDialog.getByText('Delete transaction?')).toBeVisible({ timeout: 5000 })
+    await confirmDialog.getByRole('button', { name: /^Delete$/ }).click()
 
     // Card is gone, empty state appears, budget bar shows 0 / 3400 €.
     await expect(page.getByText('52 €')).not.toBeVisible({ timeout: 5000 })
