@@ -34,3 +34,7 @@ coverage
 keys/
 *storybook.log
 storybook-static
+
+# Playwright output (generated)
+playwright-report
+test-results
