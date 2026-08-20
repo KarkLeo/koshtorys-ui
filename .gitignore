@@ -38,3 +38,7 @@ storybook-static
 # Playwright output (generated)
 playwright-report
 test-results
+
+# Local environment
+.env
+.env.local
