@@ -148,7 +148,7 @@ Required in `.env`:
 ### Docker Deployment
 
 Multi-stage Dockerfile:
-1. Build stage: Node 22 Alpine, pins `npm@11.6.2`, then runs `npm ci` and `npm run build`
+1. Build stage: Node 24 Alpine, pins `npm@11.6.2`, then runs `npm ci` and `npm run build`
 2. Runtime stage: nginx serving static files from `/usr/share/nginx/html`
 3. Build arg: `VITE_API_ENDPOINT` must be provided at build time (it replaced
    `VITE_GRAPHQL_ENDPOINT`; a stale value in Caprover ships a build pointing nowhere)
@@ -156,12 +156,14 @@ Multi-stage Dockerfile:
 **Why npm is pinned.** `package-lock.json` is npm-version-sensitive: npm 10 and npm 11 disagree
 about whether the wasm-fallback subtree (`@emnapi/runtime`, the nested
 `@tailwindcss/oxide-wasm32-wasi/*` nodes) belongs in the lock, so a lock written by one is rejected
-as "out of sync" by the other. `node:22-alpine` bundles npm 10.9.3, and a lock regenerated locally
-under npm 11 broke the deploy on 2026-08-17 with `Missing: @emnapi/runtime@1.11.3 from lock file`.
-Keep the pin in step with your local npm, and after changing dependencies check both:
+as "out of sync" by the other. The image used to be `node:22-alpine`, which bundles npm 10.9.3, and
+a lock regenerated locally under npm 11 broke the deploy on 2026-08-17 with
+`Missing: @emnapi/runtime@1.11.3 from lock file`. Since 0.2.0 the image is `node:24-alpine`, which
+ships npm 11, so the pin is now a reproducibility measure. Keep it in step with your local npm, and
+after changing dependencies still check both — anyone on Node 22 locally is on npm 10:
 
 ```bash
-npx -y npm@10.9.3 ci --dry-run   # what the base image bundles
+npx -y npm@10.9.3 ci --dry-run   # npm 10, what Node 22 bundles
 npm ci --dry-run                 # local npm
 ```
 

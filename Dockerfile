@@ -1,14 +1,13 @@
 # ---- Build stage ----
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 RUN apk add --no-cache libc6-compat
 
-# Pin npm to the version we generate package-lock.json with. node:22-alpine ships npm 10.9.3,
-# and npm 10 and 11 disagree about which wasm-fallback packages belong in the lock file
-# (@emnapi/runtime, @tailwindcss/oxide-wasm32-wasi/*): a lock written by one is rejected as
-# "out of sync" by the other, which is exactly how a deploy broke on 2026-08-17. Keep this
-# version and the one in the developers' npm in step.
+# node:24-alpine already ships npm 11, so this pin no longer bridges the npm 10-vs-11 lockfile
+# split that broke the deploy on 2026-08-17 (npm 10 and 11 disagree about the wasm-fallback
+# packages @emnapi/runtime and @tailwindcss/oxide-wasm32-wasi/*). It is about reproducibility:
+# an exact npm version keeps builds identical across machines and future base-image bumps.
 RUN npm i -g npm@11.6.2
 
 ARG VITE_API_ENDPOINT
