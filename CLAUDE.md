@@ -8,7 +8,7 @@ Koshtorys is a home expense-tracking Vue 3 application with a distinctive approa
 
 - **Expense-only tracking**: No income tracking - focuses purely on managing expenses
 - **Financial month concept**: Users set a custom month start day (e.g., payday). The financial month runs from that day to the same day next month minus one day
-- **Month indexing rule**: If start day < 15, index matches the calendar month; if start day >= 15, index corresponds to the next calendar month
+- **Month indexing rule**: If start day <= 15, index matches the calendar month; if start day > 15, index corresponds to the next calendar month
 - **Budget tracking**: Users set a monthly budget representing salary or desired spending level
 - **Multi-currency support**: Transactions can be in different currencies with exchange rate tracking
 - **Bilingual**: Ukrainian and English interface
@@ -119,7 +119,7 @@ src/
 **Financial Month Calculations:**
 - Critical date logic in `helpers/date.ts`
 - Functions account for custom month start day (1-31)
-- Month index shifts by +1 when start day >= 15
+- Month index shifts by +1 when start day > 15
 - All date operations must use these helpers to maintain consistency
 
 **State Management:**

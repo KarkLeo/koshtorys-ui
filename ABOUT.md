@@ -5,7 +5,7 @@ The app is similar to typical expense trackers but has several distinguishing fe
 - The app works with monthly financial cycles.
 - There is a concept of a budget — it can represent a salary or a desired level of monthly spending.
 - The concept of a financial month is introduced. A user can set the start day (for example, a payday), and a financial month runs from that day to the same day of the next calendar month minus one day.
-- When computing the month index: if the start day is less than 15, the index matches the calendar month; if the start day is >= 15, the index corresponds to the next calendar month. In effect, the financial month index corresponds to the calendar month that contains the majority of days (this is a fixed rule that does not depend on month length).
+- When computing the month index: if the start day is 15 or less, the index matches the calendar month; if the start day is greater than 15, the index corresponds to the next calendar month. In effect, the financial month index corresponds to the calendar month that contains the majority of days (this is a fixed rule that does not depend on month length).
 - All application logic is built on these concepts.
 
 Transaction history:
