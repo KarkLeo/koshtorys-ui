@@ -45,7 +45,11 @@ const colorOf = (id: string) => TRANSACTION_CATEGORIES_COLORS[getMainCategory(id
     </ComboboxAnchor>
 
     <ComboboxList class="w-[var(--reka-popper-anchor-width)] p-0">
-      <ComboboxInput :placeholder="t('transaction.form.fields.category.search')" />
+      <!-- Without display-value the input shows the raw category id; the trigger already shows the label -->
+      <ComboboxInput
+        :display-value="() => ''"
+        :placeholder="t('transaction.form.fields.category.search')"
+      />
       <ComboboxEmpty>{{ t('transaction.list.empty_filtered') }}</ComboboxEmpty>
       <div class="max-h-[300px] overflow-y-auto p-1">
         <ComboboxItem v-for="id in items" :key="id" :value="id">
