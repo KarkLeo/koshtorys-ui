@@ -6,6 +6,7 @@ import {
   getMonthPeriod,
   getStartMonthDate,
   getChangedDateByMonthIndex,
+  toLocalDateKey,
 } from './date'
 
 describe('getMonthIndex', () => {
@@ -222,5 +223,12 @@ describe('getChangedDateByMonthIndex', () => {
   it('should return the correct date with monthStartDay, monthStartDay > 15, date > monthStartDay', () => {
     const result = getChangedDateByMonthIndex(new Date('2025-01-25T00:00:00.000Z'), 2025, 5, 20)
     expect(result).toEqual(new Date(2025, 4, 25))
+  })
+})
+
+describe('toLocalDateKey', () => {
+  it('formats the local calendar day as YYYY-MM-DD', () => {
+    expect(toLocalDateKey(new Date(2026, 9, 20))).toBe('2026-10-20')
+    expect(toLocalDateKey(new Date(2026, 0, 5, 23, 59))).toBe('2026-01-05')
   })
 })

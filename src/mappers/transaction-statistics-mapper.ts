@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { useMe } from '@/hooks/auth-hooks.ts'
 import { useMonthlyTransactions, useTransactionsStatistic } from '@/hooks/transaction-hooks.ts'
 import { getMainCategory } from '@/helpers/category.ts'
-import { getDateRangeByDate } from '@/helpers/date.ts'
+import { getDateRangeByDate, toLocalDateKey } from '@/helpers/date.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
 
 // The month's transactions already come from REST converted to the user's currency
@@ -32,7 +32,7 @@ const reduceTransactionsByCategory = (transactions: ExtendedTransaction[]) =>
 const reduceTransactionsByDate = (transactions: ExtendedTransaction[]) =>
   transactions.reduce(
     (acc, transaction) => {
-      const date = transaction.date.toISOString().split('T')[0]
+      const date = toLocalDateKey(transaction.date)
 
       if (!acc[date]) {
         acc[date] = transaction.amount
@@ -79,12 +79,13 @@ export const useTransactionStatisticsMapper = () => {
     let currentDate = startDate
     let averageIndex = 0
 
-    while (currentDate <= endDate) {
+    // endDate is the first day of the next financial month, so it is excluded.
+    while (currentDate < endDate) {
       if (averageIndex > 0 && averageByDate[averageIndex] < averageByDate[averageIndex - 1]) {
         averageByDate[averageIndex] = averageByDate[averageIndex - 1]
       }
 
-      const day = currentDate.toISOString().split('T')[0]
+      const day = toLocalDateKey(currentDate)
       const amount = amountByDate[day] || 0
       const average = averageByDate[averageIndex] || averageByDate[averageIndex - 1] || 0
       delta += amount
