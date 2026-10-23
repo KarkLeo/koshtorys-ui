@@ -91,4 +91,16 @@ test.describe.serial('Adaptive navigation', () => {
     await page.goto('/dashboard')
     await expect(page).toHaveURL(/\/transactions/, { timeout: 8000 })
   })
+
+  test('signed-in: / redirects to /transactions', async ({ page }) => {
+    await login(page, user)
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/transactions/, { timeout: 8000 })
+  })
+
+  test('signed-out: / stays on the home page', async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.getByRole('link', { name: /sign in/i })).toBeVisible()
+  })
 })
