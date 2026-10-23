@@ -6,7 +6,8 @@ import { getLocalTimeZone, today } from '@internationalized/date'
 import { createReusableTemplate, reactiveOmit, useVModel } from '@vueuse/core'
 import { CalendarRoot, useDateFormatter, useForwardPropsEmits } from 'reka-ui'
 import { createYear, createYearRange, toDate } from 'reka-ui/date'
-import { computed, toRaw } from 'vue'
+import { computed, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { cn } from '@/lib/utils'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import {
@@ -38,14 +39,26 @@ const props = withDefaults(
 )
 const emits = defineEmits<CalendarRootEmits>()
 
-const delegatedProps = reactiveOmit(props, 'class', 'layout', 'placeholder')
+const delegatedProps = reactiveOmit(
+  props,
+  'class',
+  'layout',
+  'placeholder',
+  'locale',
+  'weekdayFormat',
+)
 
 const placeholder = useVModel(props, 'placeholder', emits, {
   passive: true,
   defaultValue: props.defaultPlaceholder ?? today(getLocalTimeZone()),
 }) as Ref<DateValue>
 
-const formatter = useDateFormatter(props.locale ?? 'en')
+// Follows the interface language unless a caller pins one; reka-ui derives the week start from it.
+const { locale: interfaceLocale } = useI18n()
+const locale = computed(() => props.locale ?? interfaceLocale.value)
+
+const formatter = useDateFormatter(locale.value)
+watch(locale, (value) => formatter.setLocale(value))
 
 const yearRange = computed(() => {
   return (
@@ -137,6 +150,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     v-slot="{ grid, weekDays, date }"
     v-bind="forwarded"
     v-model:placeholder="placeholder"
+    :locale="locale"
+    :weekday-format="props.weekdayFormat ?? 'short'"
     data-slot="calendar"
     :class="cn('p-3', props.class)"
   >
