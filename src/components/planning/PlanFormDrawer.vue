@@ -10,12 +10,20 @@ import { CURRENCIES } from '@/constants/currencies'
 import { TRANSACTION_CATEGORIES } from '@/constants/transaction-categories'
 import { useMe } from '@/hooks/auth-hooks'
 import { useStatisticDateStore } from '@/stores/statisticDateStore'
-import { useMonthlyPlanning } from '@/hooks/planning-rest-hooks'
+import { useMonthlyPlanning, useMonthPlans } from '@/hooks/planning-rest-hooks'
 import { useCreatePlan, useUpdatePlan } from '@/hooks/planning-write-hooks'
 import { planSchema } from '@/validations/plan'
 import { mapApiErrorCodes } from '@/helpers/api-errors'
-import { buildCreatePlanDto, buildUpdatePlanDto, type PlanFormState } from '@/helpers/plan-form'
-import { getMonthIndex, getIndexedYear, getMonthPeriod } from '@/helpers/date'
+import {
+  buildCreatePlanDto,
+  buildUpdatePlanDto,
+  isPlanMonthLocked,
+  planDateBounds,
+  planMonthOf,
+  planMonthWindow,
+  type PlanFormState,
+} from '@/helpers/plan-form'
+import type { PlanMonth } from '@/helpers/transaction-form'
 import type { components } from '@/api/types'
 
 import { ResponsiveSheet } from '@/components/ui/responsive-sheet'
@@ -26,6 +34,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Calendar } from '@/components/ui/calendar'
+import { MonthPicker } from '@/components/ui/month-picker'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import IconCalendar from '@/components/icons/IconCalendar.vue'
 
@@ -35,7 +44,8 @@ type Plan = components['schemas']['PlanResponseDto']
 // Props / emits
 // ---------------------------------------------------------------------------
 
-const props = defineProps<{ mode: 'add' | 'edit'; plan?: Plan }>()
+// linkedCount: how many transactions are linked to the plan being edited; it keeps the plan in its month.
+const props = defineProps<{ mode: 'add' | 'edit'; plan?: Plan; linkedCount?: number }>()
 const open = defineModel<boolean>('open', { default: false })
 const emit = defineEmits<{ created: []; updated: [] }>()
 
@@ -85,6 +95,14 @@ const categoryId = ref('')
 const repeat = ref(false)
 const errors = ref<Record<string, string>>({})
 
+const monthStartDay = computed(() => user.value?.monthStartDay ?? 1)
+const viewedMonth = (): PlanMonth => planMonthOf(statisticDate.value, monthStartDay.value)
+const sameMonth = (a: PlanMonth, b: PlanMonth) => a.monthIndex === b.monthIndex && a.year === b.year
+
+// The financial month the plan is saved into: the month being viewed for a new plan, its own month
+// when editing. A one-off plan with a date takes it from the date.
+const month = ref<PlanMonth>(viewedMonth())
+
 const clearForm = () => {
   type.value = 'TRANSACTION'
   amount.value = ''
@@ -93,6 +111,7 @@ const clearForm = () => {
   categoryId.value = ''
   date.value = null
   repeat.value = false
+  month.value = viewedMonth()
   errors.value = {}
 }
 
@@ -111,6 +130,7 @@ const fillFromPlan = (plan: Plan) => {
   }
   categoryId.value = plan.categoryId || ''
   repeat.value = plan.repeat || false
+  month.value = { monthIndex: plan.monthIndex, year: plan.year }
   errors.value = {}
 }
 
@@ -123,12 +143,61 @@ watch(
 )
 
 // ---------------------------------------------------------------------------
+// Month: a plan may be placed in any month of the window, unless it is locked to its own
+// ---------------------------------------------------------------------------
+
+const monthLocked = computed(
+  () =>
+    props.mode === 'edit' &&
+    !!props.plan &&
+    isPlanMonthLocked(
+      { monthIndex: props.plan.monthIndex, year: props.plan.year },
+      props.linkedCount ?? 0,
+      monthStartDay.value,
+      new Date(),
+    ),
+)
+const lockedByTransaction = computed(() => monthLocked.value && (props.linkedCount ?? 0) > 0)
+
+// With a date the calendar picks the month; without one the month pill does.
+const showMonthPill = computed(() => !(type.value === 'TRANSACTION' && date.value))
+
+const isMonthOpen = ref(false)
+
+const toMonthValue = (m: PlanMonth) => new CalendarDate(m.year, m.monthIndex + 1, 1)
+
+const monthValue = computed<DateValue | undefined>({
+  get: () => toMonthValue(month.value),
+  set: (value) => {
+    if (value) {
+      month.value = { monthIndex: value.month - 1, year: value.year }
+      // A date kept from the one-off type would contradict the new month once the type is switched back.
+      if (date.value && !sameMonth(planMonthOf(date.value, monthStartDay.value), month.value)) {
+        date.value = null
+      }
+      isMonthOpen.value = false
+    }
+  },
+})
+
+const monthWindow = computed(() => planMonthWindow(monthStartDay.value, new Date()))
+
+const monthLabel = (m: PlanMonth) => `${t(`calendar.months.${m.monthIndex + 1}`)} ${m.year}`
+
+// ---------------------------------------------------------------------------
 // Category filter: динамический план на категорию в месяце может быть только один
 // ---------------------------------------------------------------------------
 
+// The viewed month's plans are already loaded; any other month is fetched for dynamic plans only.
+const otherMonth = computed(() =>
+  type.value === 'CATEGORY' && !sameMonth(month.value, viewedMonth()) ? month.value : null,
+)
+const { monthPlans } = useMonthPlans(otherMonth)
+const targetPlans = computed(() => (otherMonth.value ? monthPlans.value : plans.value))
+
 const availableCategories = computed<string[]>(() => {
   if (type.value !== 'CATEGORY') return TRANSACTION_CATEGORIES
-  const used = plans.value
+  const used = targetPlans.value
     .filter((plan) => plan.type === 'CATEGORY' && plan.id !== props.plan?.id)
     .map((plan) => plan.categoryId)
   return TRANSACTION_CATEGORIES.filter((category) => !used.includes(category))
@@ -140,8 +209,6 @@ const availableCategories = computed<string[]>(() => {
 
 const isDateOpen = ref(false)
 
-const currentPeriod = computed(() => getMonthPeriod(user.value?.monthStartDay, statisticDate.value))
-
 const toDateValue = (d: Date) => new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
 
 const calendarDate = computed<DateValue | undefined>({
@@ -149,13 +216,21 @@ const calendarDate = computed<DateValue | undefined>({
   set: (value) => {
     if (value) {
       date.value = value.toDate(getLocalTimeZone())
+      month.value = planMonthOf(date.value, monthStartDay.value)
       isDateOpen.value = false
     }
   },
 })
 
-const minDate = computed<DateValue>(() => toDateValue(currentPeriod.value[0]))
-const maxDate = computed<DateValue>(() => toDateValue(currentPeriod.value[1]))
+const dateBounds = computed(() =>
+  planDateBounds(month.value, monthLocked.value, monthStartDay.value, new Date()),
+)
+const minDate = computed<DateValue>(() => toDateValue(dateBounds.value.min))
+const maxDate = computed<DateValue>(() => toDateValue(dateBounds.value.max))
+// The calendar opens on the plan's date, or without one on the plan's month rather than today.
+const datePlaceholder = computed<DateValue>(() =>
+  toDateValue(date.value ?? planDateBounds(month.value, true, monthStartDay.value, new Date()).min),
+)
 
 const datePillLabel = computed(() =>
   date.value
@@ -205,23 +280,32 @@ const validateForm = async (): Promise<boolean> => {
 
 const handleSubmit = async () => {
   if (!(await validateForm())) return
+  // The target month's plans may have arrived after the category was picked.
+  if (type.value === 'CATEGORY' && !availableCategories.value.includes(categoryId.value)) {
+    errors.value = { categoryId: 'category_plan_exists' }
+    return
+  }
 
-  const monthStartDay = user.value?.monthStartDay
-  const monthIndex = getMonthIndex(statisticDate.value, monthStartDay)
-  const year = getIndexedYear(statisticDate.value, monthStartDay)
+  const { monthIndex, year } = month.value
+  // A plan saved outside the month on screen drops out of view, so the toast says where it went.
+  const savedElsewhere = !sameMonth(month.value, viewedMonth())
+  const successMessage = (fallback: string) =>
+    savedElsewhere
+      ? t('planning.form.messages.saved_to_month', { month: monthLabel(month.value) })
+      : t(fallback)
 
   try {
     if (props.mode === 'edit') {
       if (!props.plan) return
       await updatePlan(props.plan.id, buildUpdatePlanDto(formState(), monthIndex, year))
-      toast.success(t('planning.form.messages.update_success'))
+      toast.success(successMessage('planning.form.messages.update_success'))
       open.value = false
       emit('updated')
       return
     }
 
     await createPlan(buildCreatePlanDto(formState(), monthIndex, year))
-    toast.success(t('planning.form.messages.add_success'))
+    toast.success(successMessage('planning.form.messages.add_success'))
     clearForm()
     open.value = false
     emit('created')
@@ -303,6 +387,7 @@ const handleSubmit = async () => {
           <PopoverContent class="w-auto p-0" align="start">
             <Calendar
               v-model="calendarDate"
+              :default-placeholder="datePlaceholder"
               :min-value="minDate"
               :max-value="maxDate"
               initial-focus
@@ -313,6 +398,35 @@ const handleSubmit = async () => {
           {{ t(`planning.form.errors.${errors.date}`) }}
         </p>
       </div>
+
+      <!-- Month pill (a plan without a date) -->
+      <div v-if="showMonthPill">
+        <Popover v-model:open="isMonthOpen">
+          <PopoverTrigger as-child>
+            <button
+              type="button"
+              data-testid="plan-month-pill"
+              :disabled="monthLocked"
+              class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium transition hover:bg-accent disabled:cursor-default disabled:opacity-60 disabled:hover:bg-transparent"
+            >
+              <IconCalendar class="size-4 shrink-0" />
+              <span>{{ monthLabel(month) }}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent class="w-auto p-0" align="start">
+            <MonthPicker
+              v-model="monthValue"
+              :min-value="toMonthValue(monthWindow.min)"
+              :max-value="toMonthValue(monthWindow.max)"
+              initial-focus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <p v-if="lockedByTransaction" class="-mt-4 text-xs text-muted-foreground">
+        {{ t('planning.form.fields.month.locked') }}
+      </p>
 
       <!-- Repeat -->
       <label class="flex cursor-pointer items-center gap-3 text-sm">

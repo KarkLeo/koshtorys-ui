@@ -1,10 +1,11 @@
-import { ref, computed, watch, effectScope, type EffectScope } from 'vue'
+import { ref, computed, watch, effectScope, type EffectScope, type Ref } from 'vue'
 import { planningApi } from '@/api/services/planning.service'
 import { exchangeRateApi } from '@/api/services/exchange-rate.service'
 import { useStatisticDateStore } from '@/stores/statisticDateStore'
 import { useMe } from '@/hooks/auth-hooks'
 import { getMonthIndex, getIndexedYear, getExchangeDate } from '@/helpers/date'
 import type { components } from '@/api/types'
+import type { PlanMonth } from '@/helpers/transaction-form'
 
 type Plan = components['schemas']['PlanResponseDto']
 
@@ -100,4 +101,36 @@ export function useMonthlyPlanning() {
     refetch: () => load(),
     invalidate: () => load(),
   }
+}
+
+/**
+ * The plans of any one month, for a form that places a plan outside the month being viewed.
+ * Loads whenever `month` changes; a null month clears the list without a request.
+ */
+export function useMonthPlans(month: Ref<PlanMonth | null>) {
+  const monthPlans = ref<Plan[]>([])
+  let token = 0
+
+  watch(
+    () => (month.value ? `${month.value.year}-${month.value.monthIndex}` : null),
+    async () => {
+      const current = ++token
+      const target = month.value
+      if (!target) {
+        monthPlans.value = []
+        return
+      }
+      try {
+        const list = await planningApi.getList(target.monthIndex, target.year)
+        if (current === token) monthPlans.value = list
+      } catch (e) {
+        // The API checks the category again on save, so an empty list only loosens the picker.
+        console.error('[planning-rest-hooks] month plans failed:', e)
+        if (current === token) monthPlans.value = []
+      }
+    },
+    { immediate: true },
+  )
+
+  return { monthPlans }
 }

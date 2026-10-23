@@ -499,6 +499,9 @@
         },
         "repeat": {
           "label": "Repeat the plan"
+        },
+        "month": {
+          "locked": "Linked to a transaction, so the month can't change"
         }
       },
       "buttons": {
@@ -518,14 +521,19 @@
         "description_required": "Description is required",
         "description_max": "Description must be less then 255 characters",
         "planning_not_found": "Planning not found",
-        "forbidden": "You are not allowed to perform this action"
+        "forbidden": "You are not allowed to perform this action",
+        "month_out_of_range": "A plan can be placed from 11 months back to 12 months ahead",
+        "plan_has_transactions": "This plan is linked to a transaction, so its month can't change",
+        "date_outside_plan_month": "The date is outside the plan's month",
+        "category_plan_exists": "This month already has a dynamic budget for this category"
       },
       "messages": {
         "add_success": "Planning successfully added",
         "update_success": "Planning successfully updated",
         "delete_success": "Planning successfully deleted",
         "repeat_success": "Planning successfully repeated",
-        "cansel_repeat_success": "Planning repeat successfully canceled"
+        "cansel_repeat_success": "Planning repeat successfully canceled",
+        "saved_to_month": "Plan saved to {month}"
       }
     }
   },

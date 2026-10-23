@@ -9,6 +9,7 @@
  *  3. Create a one-off (TRANSACTION) plan with a description.
  *  4. Assert a one-off plan submitted without a description is rejected
  *     client-side (no round-trip to the API — the message is a yup error).
+ *  5. Move a dynamic plan to the next month through the month pill.
  *
  * Selector notes (verified against the running app, see task-11 brief corrections):
  *  - "+ Add plan" button: `getByRole('button', { name: /add plan/i })`.
@@ -194,5 +195,50 @@ test.describe.serial('Plan create / edit / delete on REST', () => {
     // and the field-level error renders instead of a new plan appearing.
     await expect(addDialog.getByText('Description is required')).toBeVisible()
     await expect(addDialog).toBeVisible()
+  })
+
+  test('moves a dynamic plan to the next month', async ({ page }) => {
+    await login(page, user)
+    await page.goto('/planning')
+
+    await page.getByRole('button', { name: /add plan/i }).click()
+    const addDialog = page.getByRole('dialog')
+    await addDialog.getByRole('button', { name: 'Dynamic budget' }).click()
+    await addDialog.locator('input[type="number"]').first().fill('75')
+    await pickCategory(page, addDialog, 'Coffee')
+    await addDialog.getByRole('button', { name: /^Add$/ }).click()
+    await expect(addDialog).toBeHidden({ timeout: 10000 })
+
+    // The plan's own row, matched by its category: the stats cards repeat the amount, and the
+    // Food group also holds the one-off plan created above.
+    const coffee = page.locator('.border-t', { hasText: 'Coffee/Tea' })
+    await expect(coffee).toBeVisible({ timeout: 10000 })
+
+    await openPlanMenu(page, coffee)
+    await page.getByRole('menuitem', { name: 'Edit' }).click()
+    const editDialog = page.getByRole('dialog')
+    await expect(editDialog).toBeVisible({ timeout: 5000 })
+
+    // The user's month starts on the 1st, so the next financial month is the next calendar one.
+    const now = new Date()
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+    const nextValue = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-01`
+    const nextLabel = `${next.toLocaleString('en', { month: 'long' })} ${next.getFullYear()}`
+
+    await editDialog.getByTestId('plan-month-pill').click()
+    // The picker opens on the plan's year; December rolls the next month into the next one.
+    if (next.getFullYear() !== now.getFullYear()) {
+      await page.locator('[data-slot="month-picker-next"]').click()
+    }
+    await page.locator(`[data-slot="month-picker-cell-trigger"][data-value="${nextValue}"]`).click()
+    await expect(editDialog.getByTestId('plan-month-pill')).toHaveText(nextLabel)
+
+    await editDialog.getByRole('button', { name: /^Update$/ }).click()
+    await expect(editDialog).toBeHidden({ timeout: 10000 })
+    await expect(page.getByText(`Plan saved to ${nextLabel}`)).toBeVisible()
+    await expect(coffee).toBeHidden({ timeout: 10000 })
+
+    await page.getByRole('button', { name: 'Next month' }).click()
+    await expect(coffee).toBeVisible({ timeout: 10000 })
   })
 })

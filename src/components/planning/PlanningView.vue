@@ -60,6 +60,11 @@ const editingPlan = computed(
   () => allPlans.value.find((plan) => plan.id === editingId.value)?.original,
 )
 
+// Linked transactions must stay in the plan's month, so the form keeps such a plan in place.
+const editingLinkedCount = computed(
+  () => allPlans.value.find((plan) => plan.id === editingId.value)?.linkedCount ?? 0,
+)
+
 const editOpen = computed({
   get: () => editingId.value !== null,
   set: (open: boolean) => {
@@ -184,7 +189,12 @@ const handleCancelRepeat = async (id: string) => {
     </template>
   </div>
 
-  <PlanFormDrawer v-model:open="editOpen" mode="edit" :plan="editingPlan" />
+  <PlanFormDrawer
+    v-model:open="editOpen"
+    mode="edit"
+    :plan="editingPlan"
+    :linked-count="editingLinkedCount"
+  />
 
   <AlertDialog v-model:open="confirmOpen">
     <AlertDialogContent>
