@@ -378,6 +378,7 @@
         "description_max": "Description must be less then 255 characters",
         "date_required": "Date is required",
         "date_max": "Date cannot be in the future",
+        "date_min": "The date can't be more than 12 months back",
         "category_required": "Category is required",
         "category_invalid": "Invalid category",
         "invalid_exchange_rate_data": "Invalid exchange rate, please try again later",
@@ -385,6 +386,7 @@
         "transaction_not_found": "Transaction not found",
         "forbidden": "You are not allowed to perform this action",
         "plan_month_not_started": "This plan's month hasn't started yet, and a transaction can't be dated in the future",
+        "plan_month_too_old": "This plan's month is more than 12 months back, and a transaction can't be dated that far",
         "planning_not_found": "This plan no longer exists",
         "date_outside_plan_month": "The date has to fall within the plan's month"
       },
