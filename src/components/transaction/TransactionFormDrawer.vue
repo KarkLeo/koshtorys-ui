@@ -15,7 +15,7 @@ import {
   clampToBounds,
   transactionDateBounds,
 } from '@/helpers/transaction-form'
-import { getIndexedYear, getMonthIndex } from '@/helpers/date'
+import { getIndexedYear, getMonthIndex, getStartMonthDate } from '@/helpers/date'
 import { mapApiErrorCodes } from '@/helpers/api-errors'
 import type { PlanMonth, PlanningLike } from '@/helpers/transaction-form'
 import type { DisplayTransaction } from '@/components/transaction/types'
@@ -150,12 +150,16 @@ const calendarDate = computed<DateValue>({
 
 const toDateValue = (d: Date) => new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
 
-/** Up to today (mirrors yup date_max), and inside the linked plan's month when there is one. */
+/**
+ * Up to today (mirrors yup date_max), no further back than the last 12 financial months, and
+ * inside the linked plan's month when there is one. A transaction already older than that keeps
+ * its date: it shows, but no other old day can be picked — the API rejects a changed old date.
+ */
 const dateBounds = computed(() =>
   transactionDateBounds(planMonth.value, user.value?.monthStartDay ?? 1, new Date()),
 )
 const minDate = computed<DateValue | undefined>(() =>
-  dateBounds.value?.min ? toDateValue(dateBounds.value.min) : undefined,
+  dateBounds.value ? toDateValue(dateBounds.value.min) : undefined,
 )
 const maxDate = computed<DateValue>(() =>
   dateBounds.value ? toDateValue(dateBounds.value.max) : today(getLocalTimeZone()),
@@ -279,10 +283,19 @@ const onPlanningSubmit = (plan?: {
       plan.monthIndex != null && plan.year != null
         ? { monthIndex: plan.monthIndex, year: plan.year }
         : null
-    const bounds = transactionDateBounds(month, user.value?.monthStartDay ?? 1, new Date())
+    const monthStartDay = user.value?.monthStartDay ?? 1
+    const bounds = transactionDateBounds(month, monthStartDay, new Date())
     if (!bounds) {
-      // No transaction date can fall in a month that hasn't started: keep the previous link.
-      toast.error(t('transaction.form.errors.plan_month_not_started'))
+      // No transaction date can fall in a month that hasn't started, or that is older than the
+      // window: keep the previous link.
+      const planStart = month && getStartMonthDate(month.year, month.monthIndex, monthStartDay)
+      toast.error(
+        t(
+          planStart && planStart > new Date()
+            ? 'transaction.form.errors.plan_month_not_started'
+            : 'transaction.form.errors.plan_month_too_old',
+        ),
+      )
       selectedPlanning.value = planningBeforePicker.value
       isPlanningOpen.value = false
       return
@@ -355,7 +368,8 @@ const clearPlanning = () => {
           <PopoverTrigger as-child>
             <button
               type="button"
-              class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition hover:bg-accent"
+              :disabled="!dateBounds"
+              class="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               :class="errors.date ? 'border-destructive text-destructive' : 'border-border'"
             >
               <IconCalendar class="size-4 shrink-0" />
