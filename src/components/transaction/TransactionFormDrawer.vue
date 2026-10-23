@@ -12,9 +12,12 @@ import {
   applyPlanningToForm,
   buildCreateTransactionDto,
   buildUpdateTransactionDto,
+  clampToBounds,
+  transactionDateBounds,
 } from '@/helpers/transaction-form'
+import { getIndexedYear, getMonthIndex } from '@/helpers/date'
 import { mapApiErrorCodes } from '@/helpers/api-errors'
-import type { PlanningLike } from '@/helpers/transaction-form'
+import type { PlanMonth, PlanningLike } from '@/helpers/transaction-form'
 import type { DisplayTransaction } from '@/components/transaction/types'
 
 import { CalendarDate, getLocalTimeZone, today, type DateValue } from '@internationalized/date'
@@ -82,9 +85,15 @@ interface SelectedPlan {
 }
 const selectedPlan = ref<SelectedPlan | null>(null)
 
+/** Financial month of the linked plan; the transaction's date has to stay inside it. */
+const planMonth = ref<PlanMonth | null>(null)
+
 // Когда привязка снимается (cancel в модалке, clearForm, «×» в блоке) — чистим и сводку.
 watch(selectedPlanning, (val) => {
-  if (!val) selectedPlan.value = null
+  if (!val) {
+    selectedPlan.value = null
+    planMonth.value = null
+  }
 })
 
 /**
@@ -99,6 +108,14 @@ const fillFromTransaction = (tx: DisplayTransaction) => {
   date.value = new Date(tx.date)
   categoryId.value = tx.categoryId || ''
   selectedPlanning.value = tx.planningId ? String(tx.planningId) : null
+  // The linked plan itself isn't loaded here; a linked transaction sits in its plan's month.
+  const monthStartDay = user.value?.monthStartDay ?? 1
+  planMonth.value = tx.planningId
+    ? {
+        monthIndex: getMonthIndex(date.value, monthStartDay),
+        year: getIndexedYear(date.value, monthStartDay),
+      }
+    : null
   errors.value = {}
 }
 
@@ -131,8 +148,18 @@ const calendarDate = computed<DateValue>({
   },
 })
 
-/** Максимум — сегодня (запрет будущих дат, дублирует yup date_max). */
-const maxDate = computed<DateValue>(() => today(getLocalTimeZone()))
+const toDateValue = (d: Date) => new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
+
+/** Up to today (mirrors yup date_max), and inside the linked plan's month when there is one. */
+const dateBounds = computed(() =>
+  transactionDateBounds(planMonth.value, user.value?.monthStartDay ?? 1, new Date()),
+)
+const minDate = computed<DateValue | undefined>(() =>
+  dateBounds.value?.min ? toDateValue(dateBounds.value.min) : undefined,
+)
+const maxDate = computed<DateValue>(() =>
+  dateBounds.value ? toDateValue(dateBounds.value.max) : today(getLocalTimeZone()),
+)
 
 /** Human-readable date label for the pill button */
 const datePillLabel = computed(() => {
@@ -244,8 +271,23 @@ const onPlanningSubmit = (plan?: {
   categoryId?: string
   date?: string | null
   id?: number
+  monthIndex?: number
+  year?: number
 }) => {
   if (plan) {
+    const month =
+      plan.monthIndex != null && plan.year != null
+        ? { monthIndex: plan.monthIndex, year: plan.year }
+        : null
+    const bounds = transactionDateBounds(month, user.value?.monthStartDay ?? 1, new Date())
+    if (!bounds) {
+      // No transaction date can fall in a month that hasn't started: keep the previous link.
+      toast.error(t('transaction.form.errors.plan_month_not_started'))
+      selectedPlanning.value = planningBeforePicker.value
+      isPlanningOpen.value = false
+      return
+    }
+
     const planningLike: PlanningLike = {
       amount: plan.amount,
       currency: plan.currency,
@@ -268,7 +310,10 @@ const onPlanningSubmit = (plan?: {
     currency.value = next.currency
     description.value = next.description
     categoryId.value = next.categoryId
-    date.value = next.date
+    // applyPlanningToForm keeps a filled-in form as is, date included, so the date is moved
+    // into the plan's month separately.
+    date.value = clampToBounds(next.date, bounds)
+    planMonth.value = month
 
     // Сохраняем сводку для блока выбранного плана.
     selectedPlan.value = {
@@ -281,12 +326,18 @@ const onPlanningSubmit = (plan?: {
   isPlanningOpen.value = false
 }
 
+/** The link as it was when the picker opened, restored if the picker closes without a choice. */
+const planningBeforePicker = ref<string | null>(null)
+
 const onPlanningClose = () => {
+  // The picker's own "unlink" clears the selection before closing; that one stays cleared.
+  if (selectedPlanning.value !== null) selectedPlanning.value = planningBeforePicker.value
   isPlanningOpen.value = false
 }
 
 /** Карточка «Планування» всегда открывает выбор (сменить план); отвязка — через «×» в блоке. */
 const onPlanningCardClick = () => {
+  planningBeforePicker.value = selectedPlanning.value
   isPlanningOpen.value = true
 }
 
@@ -312,7 +363,12 @@ const clearPlanning = () => {
             </button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0" align="start">
-            <Calendar v-model="calendarDate" :max-value="maxDate" initial-focus />
+            <Calendar
+              v-model="calendarDate"
+              :min-value="minDate"
+              :max-value="maxDate"
+              initial-focus
+            />
           </PopoverContent>
         </Popover>
         <p v-if="errors.date" class="mt-1 text-xs text-destructive">

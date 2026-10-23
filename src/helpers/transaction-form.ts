@@ -1,4 +1,5 @@
 import type { components } from '@/api/types'
+import { getStartMonthDate, toLocalDateKey } from '@/helpers/date'
 
 export type CreateTransactionDto = components['schemas']['CreateTransactionDto']
 export type UpdateTransactionDto = components['schemas']['UpdateTransactionDto']
@@ -33,6 +34,43 @@ export function applyPlanningToForm(
     categoryId: plan.categoryId || '',
     date: plan.date ? new Date(plan.date) : new Date(),
   }
+}
+
+/** The financial month a plan belongs to, as the API stores it. */
+export interface PlanMonth {
+  monthIndex: number
+  year: number
+}
+
+export interface DateBounds {
+  min: Date | null
+  max: Date
+}
+
+/**
+ * The days a transaction may take: never after today, and once it is linked to a plan, only
+ * inside that plan's financial month. Null when the plan's month has not started yet.
+ */
+export function transactionDateBounds(
+  planMonth: PlanMonth | null,
+  monthStartDay: number,
+  now: Date,
+): DateBounds | null {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  if (!planMonth) return { min: null, max: today }
+
+  const start = getStartMonthDate(planMonth.year, planMonth.monthIndex, monthStartDay)
+  if (start > today) return null
+  const end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate() - 1)
+  return { min: start, max: end < today ? end : today }
+}
+
+/** Moves a date into the bounds by calendar day; a date that already fits comes back as is. */
+export function clampToBounds(date: Date, bounds: DateBounds): Date {
+  const day = toLocalDateKey(date)
+  if (bounds.min && day < toLocalDateKey(bounds.min)) return bounds.min
+  if (day > toLocalDateKey(bounds.max)) return bounds.max
+  return date
 }
 
 /** Собирает payload для POST /transactions из состояния формы. */
