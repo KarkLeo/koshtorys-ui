@@ -4,8 +4,14 @@ import {
   formatPlanDate,
   buildCreatePlanDto,
   buildUpdatePlanDto,
+  isPlanMonthLocked,
+  planDateBounds,
+  planMonthOf,
+  planMonthPeriod,
+  planMonthWindow,
   type PlanFormState,
 } from '@/helpers/plan-form'
+import { toLocalDateKey } from '@/helpers/date'
 
 const oneOffState: PlanFormState = {
   type: 'TRANSACTION',
@@ -106,5 +112,92 @@ describe('buildUpdatePlanDto', () => {
     expect(buildUpdatePlanDto(dynamicState, 7, 2026)).toEqual(
       buildCreatePlanDto(dynamicState, 7, 2026),
     )
+  })
+})
+
+// 23 October 2026, local noon.
+const now = new Date(2026, 9, 23, 12)
+const days = (bounds: { min: Date; max: Date }) => [
+  toLocalDateKey(bounds.min),
+  toLocalDateKey(bounds.max),
+]
+
+describe('planMonthOf', () => {
+  it('is the calendar month when the month starts on the 1st', () => {
+    expect(planMonthOf(new Date(2026, 9, 23), 1)).toEqual({ monthIndex: 9, year: 2026 })
+  })
+
+  it('is indexed by the next month once a start day > 15 is reached', () => {
+    expect(planMonthOf(new Date(2026, 9, 23), 20)).toEqual({ monthIndex: 10, year: 2026 })
+    expect(planMonthOf(new Date(2026, 9, 10), 20)).toEqual({ monthIndex: 9, year: 2026 })
+  })
+
+  it('crosses into the next year', () => {
+    expect(planMonthOf(new Date(2026, 11, 25), 20)).toEqual({ monthIndex: 0, year: 2027 })
+  })
+})
+
+describe('planMonthWindow', () => {
+  it('spans 11 months back and 12 ahead of the current month', () => {
+    expect(planMonthWindow(1, now)).toEqual({
+      min: { monthIndex: 10, year: 2025 },
+      max: { monthIndex: 9, year: 2027 },
+    })
+  })
+
+  it('counts from the current month index for start days > 15', () => {
+    expect(planMonthWindow(20, now)).toEqual({
+      min: { monthIndex: 11, year: 2025 },
+      max: { monthIndex: 10, year: 2027 },
+    })
+  })
+})
+
+describe('planMonthPeriod', () => {
+  it('runs from the start day to the day before it next month', () => {
+    expect(days(planMonthPeriod({ monthIndex: 2, year: 2026 }, 20))).toEqual([
+      '2026-02-20',
+      '2026-03-19',
+    ])
+  })
+
+  it('is the calendar month when the month starts on the 1st', () => {
+    expect(days(planMonthPeriod({ monthIndex: 1, year: 2028 }, 1))).toEqual([
+      '2028-02-01',
+      '2028-02-29',
+    ])
+  })
+})
+
+describe('isPlanMonthLocked', () => {
+  it('locks a plan with a linked transaction', () => {
+    expect(isPlanMonthLocked({ monthIndex: 9, year: 2026 }, 1, 1, now)).toBe(true)
+  })
+
+  it('leaves a plan in the window free', () => {
+    expect(isPlanMonthLocked({ monthIndex: 9, year: 2026 }, 0, 1, now)).toBe(false)
+    expect(isPlanMonthLocked({ monthIndex: 10, year: 2025 }, 0, 1, now)).toBe(false)
+    expect(isPlanMonthLocked({ monthIndex: 9, year: 2027 }, 0, 1, now)).toBe(false)
+  })
+
+  it('locks a plan whose month is already outside the window', () => {
+    expect(isPlanMonthLocked({ monthIndex: 9, year: 2025 }, 0, 1, now)).toBe(true)
+    expect(isPlanMonthLocked({ monthIndex: 10, year: 2027 }, 0, 1, now)).toBe(true)
+  })
+})
+
+describe('planDateBounds', () => {
+  it('spans the whole window while the month is free', () => {
+    expect(days(planDateBounds({ monthIndex: 9, year: 2026 }, false, 1, now))).toEqual([
+      '2025-11-01',
+      '2027-10-31',
+    ])
+  })
+
+  it('keeps a locked plan inside its own month', () => {
+    expect(days(planDateBounds({ monthIndex: 9, year: 2026 }, true, 1, now))).toEqual([
+      '2026-10-01',
+      '2026-10-31',
+    ])
   })
 })

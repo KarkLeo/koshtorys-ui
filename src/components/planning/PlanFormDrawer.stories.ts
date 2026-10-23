@@ -17,7 +17,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { within, userEvent } from 'storybook/test'
+import { expect, within, userEvent } from 'storybook/test'
 import PlanFormDrawer from './PlanFormDrawer.vue'
 import type { components } from '@/api/types'
 
@@ -114,5 +114,43 @@ export const EditDynamic: Story = {
     mode: 'edit',
     open: true,
     plan: dynamicPlan,
+  },
+  // A plan without a date picks its month from the pill, which opens on the plan's own month.
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    const pill = await body.findByTestId('plan-month-pill')
+    await expect(pill).toHaveTextContent('August 2026')
+    await expect(pill).toBeEnabled()
+  },
+}
+
+/** A one-off plan with a date takes its month from the date, so there is no month pill. */
+export const EditOneOffHasNoMonthPill: Story = {
+  args: {
+    mode: 'edit',
+    open: true,
+    plan: oneOffPlan,
+  },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    await body.findByText('Edit plan')
+    await expect(body.queryByTestId('plan-month-pill')).toBeNull()
+  },
+}
+
+/** A linked transaction must stay inside the plan's month, so the month can't change. */
+export const EditLinkedKeepsItsMonth: Story = {
+  args: {
+    mode: 'edit',
+    open: true,
+    plan: { ...oneOffPlan, date: null },
+    linkedCount: 1,
+  },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    await expect(await body.findByTestId('plan-month-pill')).toBeDisabled()
+    await expect(
+      body.getByText("Linked to a transaction, so the month can't change"),
+    ).toBeInTheDocument()
   },
 }
