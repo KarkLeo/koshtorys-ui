@@ -384,7 +384,9 @@
         "invalid_exchange_rate_date": "Invalid exchange rate date, please use a date in the past",
         "transaction_not_found": "Transaction not found",
         "forbidden": "You are not allowed to perform this action",
-        "plan_month_not_started": "This plan's month hasn't started yet, and a transaction can't be dated in the future"
+        "plan_month_not_started": "This plan's month hasn't started yet, and a transaction can't be dated in the future",
+        "planning_not_found": "This plan no longer exists",
+        "date_outside_plan_month": "The date has to fall within the plan's month"
       },
       "messages": {
         "add_success": "Transaction successfully added",
