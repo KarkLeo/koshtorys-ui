@@ -21,6 +21,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { requiresNoAuth: true },
     },
     {
       path: '/register',

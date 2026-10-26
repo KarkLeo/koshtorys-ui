@@ -4,8 +4,109 @@ import {
   applyPlanningToForm,
   buildCreateTransactionDto,
   buildUpdateTransactionDto,
+  clampToBounds,
+  transactionDateBounds,
+  transactionHistoryStart,
 } from '@/helpers/transaction-form'
 import { mapApiErrorCodes } from '@/helpers/api-errors'
+import { toLocalDateKey } from '@/helpers/date'
+
+const keys = (bounds: { min: Date; max: Date } | null) =>
+  bounds && { min: toLocalDateKey(bounds.min), max: toLocalDateKey(bounds.max) }
+
+describe('transactionHistoryStart', () => {
+  // The current financial month and the 11 before it.
+  it('goes back 11 months from the start of the current month', () => {
+    expect(toLocalDateKey(transactionHistoryStart(1, new Date(2026, 9, 23, 15)))).toBe('2025-11-01')
+  })
+
+  it('counts from the previous month start before the start day is reached', () => {
+    expect(toLocalDateKey(transactionHistoryStart(20, new Date(2026, 9, 10)))).toBe('2025-10-20')
+  })
+
+  it('counts from this month once the start day is reached', () => {
+    expect(toLocalDateKey(transactionHistoryStart(20, new Date(2026, 9, 23)))).toBe('2025-11-20')
+  })
+
+  it('crosses the year boundary', () => {
+    // 3 January is still in the month that started on 5 December.
+    expect(toLocalDateKey(transactionHistoryStart(5, new Date(2027, 0, 3)))).toBe('2026-01-05')
+  })
+})
+
+describe('transactionDateBounds', () => {
+  // Month starts on the 20th, so the index shifts: Oct 20 – Nov 19 is month 10 (November).
+  const now = new Date(2026, 9, 23, 15, 0)
+
+  it('without a plan, allows the last 12 financial months up to today', () => {
+    expect(keys(transactionDateBounds(null, 20, now))).toEqual({
+      min: '2025-11-20',
+      max: '2026-10-23',
+    })
+  })
+
+  it("with a plan in the current month, allows that month's days up to today", () => {
+    expect(keys(transactionDateBounds({ monthIndex: 10, year: 2026 }, 20, now))).toEqual({
+      min: '2026-10-20',
+      max: '2026-10-23',
+    })
+  })
+
+  it("with a plan in a past month, allows exactly that month's days", () => {
+    expect(keys(transactionDateBounds({ monthIndex: 9, year: 2026 }, 20, now))).toEqual({
+      min: '2026-09-20',
+      max: '2026-10-19',
+    })
+  })
+
+  it('follows the month across a year boundary', () => {
+    const january = new Date(2027, 0, 5, 9, 0)
+    expect(keys(transactionDateBounds({ monthIndex: 0, year: 2027 }, 20, january))).toEqual({
+      min: '2026-12-20',
+      max: '2027-01-05',
+    })
+  })
+
+  it('with a month starting on the 1st, ends on the last calendar day', () => {
+    const november = new Date(2026, 10, 10)
+    expect(keys(transactionDateBounds({ monthIndex: 9, year: 2026 }, 1, november))).toEqual({
+      min: '2026-10-01',
+      max: '2026-10-31',
+    })
+  })
+
+  it("returns null when the plan's month has not started yet", () => {
+    expect(transactionDateBounds({ monthIndex: 11, year: 2026 }, 20, now)).toBeNull()
+  })
+
+  it('allows the oldest month of the window', () => {
+    expect(keys(transactionDateBounds({ monthIndex: 11, year: 2025 }, 20, now))).toEqual({
+      min: '2025-11-20',
+      max: '2025-12-19',
+    })
+  })
+
+  it("returns null when the plan's month is older than the window", () => {
+    expect(transactionDateBounds({ monthIndex: 10, year: 2025 }, 20, now)).toBeNull()
+  })
+})
+
+describe('clampToBounds', () => {
+  const bounds = { min: new Date(2026, 8, 20), max: new Date(2026, 9, 19) }
+
+  it('keeps a date that already fits, time included', () => {
+    const inside = new Date(2026, 9, 1, 18, 30)
+    expect(clampToBounds(inside, bounds)).toBe(inside)
+  })
+
+  it('moves a later date back to the last allowed day', () => {
+    expect(toLocalDateKey(clampToBounds(new Date(2026, 9, 23, 12), bounds))).toBe('2026-10-19')
+  })
+
+  it('moves an earlier date forward to the first allowed day', () => {
+    expect(toLocalDateKey(clampToBounds(new Date(2026, 8, 1), bounds))).toBe('2026-09-20')
+  })
+})
 
 describe('applyPlanningToForm', () => {
   const plan = {

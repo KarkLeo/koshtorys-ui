@@ -378,12 +378,17 @@
         "description_max": "Description must be less then 255 characters",
         "date_required": "Date is required",
         "date_max": "Date cannot be in the future",
+        "date_min": "The date can't be more than 12 months back",
         "category_required": "Category is required",
         "category_invalid": "Invalid category",
         "invalid_exchange_rate_data": "Invalid exchange rate, please try again later",
         "invalid_exchange_rate_date": "Invalid exchange rate date, please use a date in the past",
         "transaction_not_found": "Transaction not found",
-        "forbidden": "You are not allowed to perform this action"
+        "forbidden": "You are not allowed to perform this action",
+        "plan_month_not_started": "This plan's month hasn't started yet, and a transaction can't be dated in the future",
+        "plan_month_too_old": "This plan's month is more than 12 months back, and a transaction can't be dated that far",
+        "planning_not_found": "This plan no longer exists",
+        "date_outside_plan_month": "The date has to fall within the plan's month"
       },
       "messages": {
         "add_success": "Transaction successfully added",
@@ -494,6 +499,9 @@
         },
         "repeat": {
           "label": "Repeat the plan"
+        },
+        "month": {
+          "locked": "Linked to a transaction, so the month can't change"
         }
       },
       "buttons": {
@@ -513,14 +521,19 @@
         "description_required": "Description is required",
         "description_max": "Description must be less then 255 characters",
         "planning_not_found": "Planning not found",
-        "forbidden": "You are not allowed to perform this action"
+        "forbidden": "You are not allowed to perform this action",
+        "month_out_of_range": "A plan can be placed from 11 months back to 12 months ahead",
+        "plan_has_transactions": "This plan is linked to a transaction, so its month can't change",
+        "date_outside_plan_month": "The date is outside the plan's month",
+        "category_plan_exists": "This month already has a dynamic budget for this category"
       },
       "messages": {
         "add_success": "Planning successfully added",
         "update_success": "Planning successfully updated",
         "delete_success": "Planning successfully deleted",
         "repeat_success": "Planning successfully repeated",
-        "cansel_repeat_success": "Planning repeat successfully canceled"
+        "cansel_repeat_success": "Planning repeat successfully canceled",
+        "saved_to_month": "Plan saved to {month}"
       }
     }
   },

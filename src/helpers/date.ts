@@ -76,6 +76,13 @@ export const getChangedDateByMonthIndex = (
   )
 }
 
+// The local calendar day as YYYY-MM-DD. toISOString() gives the UTC day, which differs near midnight.
+export const toLocalDateKey = (date: Date) => {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
 export const getDateRangeByDate = (date: Date, monthStartDay: number) => {
   return {
     startDate:
