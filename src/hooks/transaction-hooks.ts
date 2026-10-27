@@ -7,6 +7,7 @@ import { transactionApi } from '@/api/services/transaction.service'
 import type { CreateTransactionDto, UpdateTransactionDto } from '@/helpers/transaction-form'
 import { useTransactionsStore, monthKeyOf } from '@/stores/transactionsStore.ts'
 import { toDisplayTransaction } from '@/mappers/transaction-mapper.ts'
+import { getBrowserTimeZone } from '@/helpers/date.ts'
 import type { DisplayTransaction } from '@/components/transaction/types'
 import type { components } from '@/api/types'
 
@@ -76,7 +77,9 @@ export function useUpdateTransaction() {
 
 /**
  * Cross-month spending averages (per category and per day-of-month) for the statistics charts.
- * These endpoints take no date — they are global averages over all months, so we fetch once.
+ * These endpoints take no date — they are global averages over all past months, so we fetch once.
+ * The browser's zone goes along so that the server puts each transaction on the same local day
+ * the rest of the app shows it on.
  */
 export function useTransactionsStatistic() {
   const byCategory = ref<TransactionsByCategoryResponseDto[]>([])
@@ -87,8 +90,8 @@ export function useTransactionsStatistic() {
     loading.value = true
     try {
       const [categories, monthDays] = await Promise.all([
-        transactionApi.statisticsByCategory(),
-        transactionApi.statisticsByMonthDay(),
+        transactionApi.statisticsByCategory(getBrowserTimeZone()),
+        transactionApi.statisticsByMonthDay(getBrowserTimeZone()),
       ])
       byCategory.value = categories
       // The line chart consumes the daily averages in day order.
