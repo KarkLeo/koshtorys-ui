@@ -95,3 +95,6 @@ export const getDateRangeByDate = (date: Date, monthStartDay: number) => {
         : new Date(date.getFullYear(), date.getMonth() + 1, monthStartDay),
   }
 }
+
+/** The browser's IANA time zone, e.g. Europe/Kyiv — the zone the app's local days live in. */
+export const getBrowserTimeZone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone

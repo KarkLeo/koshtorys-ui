@@ -1089,7 +1089,10 @@ export interface operations {
   }
   TransactionController_statisticsByCategory: {
     parameters: {
-      query?: never
+      query?: {
+        /** @description The user's IANA time zone: it decides on which day, and so in which financial month, each transaction falls. UTC when absent. */
+        timeZone?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -1105,6 +1108,13 @@ export interface operations {
           'application/json': components['schemas']['TransactionsByCategoryResponseDto'][]
         }
       }
+      /** @description Unknown time zone */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
       /** @description Missing or invalid access token */
       401: {
         headers: {
@@ -1116,7 +1126,10 @@ export interface operations {
   }
   TransactionController_statisticsByMonthDay: {
     parameters: {
-      query?: never
+      query?: {
+        /** @description The user's IANA time zone: it decides on which day, and so in which financial month, each transaction falls. UTC when absent. */
+        timeZone?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -1131,6 +1144,13 @@ export interface operations {
         content: {
           'application/json': components['schemas']['TransactionsByMonthDayResponseDto'][]
         }
+      }
+      /** @description Unknown time zone */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
       /** @description Missing or invalid access token */
       401: {
