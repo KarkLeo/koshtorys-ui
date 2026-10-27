@@ -30,16 +30,20 @@ export const transactionApi = {
     return response.data
   },
 
-  async statisticsByCategory(): Promise<TransactionsByCategoryResponseDto[]> {
+  /** `timeZone` decides on which local day each transaction counts (UTC on the server without it). */
+  async statisticsByCategory(timeZone: string): Promise<TransactionsByCategoryResponseDto[]> {
     const response = await apiClient.get<TransactionsByCategoryResponseDto[]>(
       '/transactions/statistics/by-category',
+      { params: { timeZone } },
     )
     return response.data
   },
 
-  async statisticsByMonthDay(): Promise<TransactionsByMonthDayResponseDto[]> {
+  /** `timeZone` decides on which local day each transaction counts (UTC on the server without it). */
+  async statisticsByMonthDay(timeZone: string): Promise<TransactionsByMonthDayResponseDto[]> {
     const response = await apiClient.get<TransactionsByMonthDayResponseDto[]>(
       '/transactions/statistics/by-month-day',
+      { params: { timeZone } },
     )
     return response.data
   },
